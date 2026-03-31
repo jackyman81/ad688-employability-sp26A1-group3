@@ -1,8 +1,10 @@
 project:
   type: website
+    output-dir: docs
 
 website:
   title: "AI vs. Non-AI Job Growth:"
+  site-url: "https://jackyman81.github.io/ad688-employability-sp25A1-group3/"
   navbar:
     left:
       - href: index.qmd
