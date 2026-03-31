@@ -4,7 +4,7 @@ project:
 
 website:
   title: "AI vs. Non-AI Job Growth:"
-  site-url: "https://jackyman81.github.io/ad688-employability-sp25A1-group3/"
+  site-url: "https://jackyman81.github.io/ad688-employability-sp65A1-group3/"
   navbar:
     left:
       - href: index.qmd
