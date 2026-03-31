@@ -6,16 +6,14 @@ website:
   navbar:
     left:
       - href: index.qmd
-        text: Home
-      - about.qmd
-
+        text: "Home"
+      - href: research_introduction.qmd
+        text: "Research"
+      - href: data_analysis.qmd
+        text: "Data Analysis"
+      - href: career_plan.qmd
+        text: "Career Strategy"
 format:
   html:
-    theme:
-      - cosmo
-      - brand
-    css: styles.css
+    theme: cosmo
     toc: true
-
-
-
