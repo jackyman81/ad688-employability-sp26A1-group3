@@ -1,10 +1,9 @@
 project:
   type: website
 
-
 website:
-  title: "AI vs. Non-AI Job Growth:"
-  site-url: "https://jackyman81.github.io/ad688-employability-sp65A1-group3/"
+  title: "AI vs. Non-AI Job Growth"
+  site-url: "https://jackyman81.github.io/ad688-employability-sp26A1-group3/"
   navbar:
     left:
       - href: index.qmd
@@ -15,7 +14,9 @@ website:
         text: "Data Analysis"
       - href: career_plan.qmd
         text: "Career Strategy"
+
 format:
   html:
     theme: cosmo
     toc: true
+    css: styles.css
