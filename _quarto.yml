@@ -9,7 +9,7 @@ website:
         text: "Home"
       - href: research_introduction.qmd
         text: "Research"
-      - href: data_analysis.qmd
+      - href: data_analysis.ipynb
         text: "Data Analysis"
       - href: career_plan.qmd
         text: "Career Strategy"
