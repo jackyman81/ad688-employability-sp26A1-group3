@@ -8,4 +8,5 @@ format:
     toc: true
 ---
 # Hello, World!  
-Welcome to my Quarto website.  
+
+Project overview and introduction to the topic of AI vs. Non-AI job growth. This section will provide context and set the stage for the analysis that follows including a literary review of existing research on the topic.
