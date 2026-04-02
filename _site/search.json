@@ -12,5 +12,12 @@
     "title": "AI vs. Non AI Job Growth",
     "section": "",
     "text": "Hello, World!\nProject overview and introduction to the topic of AI vs. Non-AI job growth. This section will provide context and set the stage for the analysis that follows including a literary review of existing research on the topic."
+  },
+  {
+    "objectID": "eda.html",
+    "href": "eda.html",
+    "title": "Exploratory Data Analysis",
+    "section": "",
+    "text": "Exploring data"
   }
 ]
