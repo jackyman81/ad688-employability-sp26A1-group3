@@ -1,0 +1,5 @@
+---
+title: "Skill Gap Analysis"
+---
+
+Analyzing the skills needed for AI and non-AI jobs
