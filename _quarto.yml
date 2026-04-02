@@ -5,13 +5,19 @@ website:
   title: "AI vs. Non-AI Job Growth"
   site-url: "https://jackyman81.github.io/ad688-employability-sp26A1-group3/"
   navbar:
-    left:
+     left:
       - href: index.qmd
         text: "Home"
-      - href: research_introduction.qmd
-        text: "Research"
-      - href: data_analysis.ipynb
-        text: "Data Analysis"
+      - href: introduction.qmd
+        text: "Project Overview"
+      - href: data_cleaning.qmd
+        text: "Data Preparation"
+      - href: eda.qmd
+        text: "Exploratory Analysis"
+      - href: skill_gap_analysis.qmd
+        text: "Skill Gap Analysis"
+      - href: ml_methods.qmd
+        text: "Predictive Modeling"
       - href: career_plan.qmd
         text: "Career Strategy"
 
