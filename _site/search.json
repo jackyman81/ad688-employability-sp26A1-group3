@@ -26,5 +26,33 @@
     "title": "Exploratory Data Analysis",
     "section": "",
     "text": "Exploring data"
+  },
+  {
+    "objectID": "data_cleaning.html",
+    "href": "data_cleaning.html",
+    "title": "Data Preparation",
+    "section": "",
+    "text": "Cleaning and preparing data for analysis"
+  },
+  {
+    "objectID": "ml_methods.html",
+    "href": "ml_methods.html",
+    "title": "Predictive Modeling",
+    "section": "",
+    "text": "Using machine learning methods to predict job growth trends"
+  },
+  {
+    "objectID": "skill_gap_analysis.html",
+    "href": "skill_gap_analysis.html",
+    "title": "Skill Gap Analysis",
+    "section": "",
+    "text": "Analyzing the skills needed for AI and non-AI jobs"
+  },
+  {
+    "objectID": "career_plan.html",
+    "href": "career_plan.html",
+    "title": "Career Plan",
+    "section": "",
+    "text": "Planning for AI to take over"
   }
 ]
