@@ -1,5 +1,5 @@
 ---
-title: "AI vs. Non AI Job Growth"
+title: "Data Science & Business Analytics Trends"
 author: "Your Name"
 date: "`r Sys.Date()`"
 format:
@@ -7,6 +7,16 @@ format:
     theme: journal
     toc: true
 ---
-# Hello, World!  
+---
+title: "Introduction and Research Rationale"
+format: html
+---
 
-Project overview and introduction to the topic of AI vs. Non-AI job growth. This section will provide context and set the stage for the analysis that follows including a literary review of existing research on the topic.
+## Introduction and Research Rationale
+
+This topic matters because data science and business analytics jobs are becoming a bigger part of how companies make decisions, improve performance, and stay competitive. More and more, employers depend on people who can work with data, spot patterns, build dashboards, and turn information into useful business insights. Looking at the roles and skills that show up most often in job postings can give a clearer picture of what employers want right now and what students or job seekers may need to be prepared for.
+
+This is especially relevant in 2026 looking back into the data from 2024 because companies in almost every industry are using more analytics, automation, and AI based tools in their day to day operations. At the same time, they are not just looking for people with technical skills. They also want employees who understand business problems and can communicate their findings clearly. Instead of focusing on long-term trends, this study looks at a snapshot of job postings from 2024 to see what the market is asking for right now.
+
+For this analysis, we expect to find that analyst-focused roles, especially data analyst and business intelligence positions, show up more often than highly specialized machine learning roles. We also expect skills like SQL, Python, Tableau, and Power BI to be some of the most requested technical qualifications. Along with that, skills such as communication, problem-solving, and the ability to explain data in a business context will probably remain important. Overall, the findings will likely show that employers are looking for a balance of technical and business-related skills, not just advanced AI expertise.
+

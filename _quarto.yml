@@ -2,7 +2,7 @@ project:
   type: website
 
 website:
-  title: "AI vs. Non-AI Job Growth"
+  title: "Data Science & Business Analytics Trends"
   site-url: "https://jackyman81.github.io/ad688-employability-sp26A1-group3/"
   navbar:
      left:
