@@ -2,13 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.24">
+<meta name="generator" content="quarto-1.9.36">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Exploratory Data Analysis – AI vs.&nbsp;Non-AI Job Growth</title>
+<title>Exploratory Data Analysis – Data Science &amp; Business Analytics Trends</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -32,15 +35,14 @@ ul.task-list li input[type="checkbox"] {
 <meta name="quarto:offset" content="./">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dc55a5b9e770e841cd82e46aadbfb9b0.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-0d3ddbc2e518da512e746e6969549791.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-2a5212194e03ba571a46edef85f9d605.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -80,10 +82,8 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="./index.html" class="navbar-brand navbar-brand-logo">
-    </a>
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">AI vs.&nbsp;Non-AI Job Growth</span>
+    <span class="navbar-title">Data Science &amp; Business Analytics Trends</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -97,11 +97,11 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./introduction.qmd"> 
+    <a class="nav-link" href="./introduction.html"> 
 <span class="menu-text">Project Overview</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./data_cleaning.qmd"> 
+    <a class="nav-link" href="./data_cleaning.html"> 
 <span class="menu-text">Data Preparation</span></a>
   </li>  
   <li class="nav-item">
@@ -109,15 +109,15 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Exploratory Analysis</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./skill_gap_analysis.qmd"> 
+    <a class="nav-link" href="./skill_gap_analysis.html"> 
 <span class="menu-text">Skill Gap Analysis</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./ml_methods.qmd"> 
+    <a class="nav-link" href="./ml_methods.html"> 
 <span class="menu-text">Predictive Modeling</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./career_plan.qmd"> 
+    <a class="nav-link" href="./career_plan.html"> 
 <span class="menu-text">Career Strategy</span></a>
   </li>  
 </ul>
@@ -156,7 +156,7 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Exploring data</p>
+<p>Exploratory Data Analysis (EDA) is a crucial step in the data analysis process that involves summarizing the main characteristics of a dataset, often using visual methods. The goal of EDA is to gain insights into the data, identify patterns, detect anomalies, and test hypotheses before applying more formal statistical modeling techniques.</p>
 
 
 

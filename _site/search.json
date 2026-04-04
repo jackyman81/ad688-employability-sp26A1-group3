@@ -9,16 +9,16 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "AI vs. Non AI Job Growth",
+    "title": "Data Science & Business Analytics Trends",
     "section": "",
-    "text": "Hello, World!\nProject overview and introduction to the topic of AI vs. Non-AI job growth. This section will provide context and set the stage for the analysis that follows including a literary review of existing research on the topic."
+    "text": "Data science and business analytics jobs are becoming a bigger part of how companies make decisions, improve performance, and stay competitive. More and more, employers depend on people who can work with data, spot patterns, build dashboards, and turn information into useful business insights. Looking at the roles and skills that show up most often in job postings can give a clearer picture of what employers want right now and what students or job seekers may need to be prepared for.\nThis is especially relevant in 2026 looking back into the data from 2024 because companies in almost every industry are using more analytics, automation, and AI based tools in their day to day operations. At the same time, they are not just looking for people with technical skills. They also want employees who understand business problems and can communicate their findings clearly. Instead of focusing on long-term trends, this study looks at a snapshot of job postings from 2024 to see what the market is asking for right now.\nFor this analysis, we expect to find that analyst-focused roles, especially data analyst and business intelligence positions, show up more often than highly specialized machine learning roles. We also expect skills like SQL, Python, Tableau, and Power BI to be some of the most requested technical qualifications. Along with that, skills such as communication, problem-solving, and the ability to explain data in a business context will probably remain important. Overall, the findings will likely show that employers are looking for a balance of technical and business-related skills, not just advanced AI expertise."
   },
   {
     "objectID": "eda.html",
     "href": "eda.html",
     "title": "Exploratory Data Analysis",
     "section": "",
-    "text": "Exploring data"
+    "text": "Exploratory Data Analysis (EDA) is a crucial step in the data analysis process that involves summarizing the main characteristics of a dataset, often using visual methods. The goal of EDA is to gain insights into the data, identify patterns, detect anomalies, and test hypotheses before applying more formal statistical modeling techniques."
   },
   {
     "objectID": "introduction.html",
@@ -61,5 +61,19 @@
     "title": "Exploratory Data Analysis",
     "section": "",
     "text": "Exploratory Data Analysis (EDA) is a crucial step in the data analysis process that involves summarizing the main characteristics of a dataset, often using visual methods. The goal of EDA is to gain insights into the data, identify patterns, detect anomalies, and test hypotheses before applying more formal statistical modeling techniques."
+  },
+  {
+    "objectID": "index.html#introduction-and-research-rationale",
+    "href": "index.html#introduction-and-research-rationale",
+    "title": "Data Science & Business Analytics Trends",
+    "section": "",
+    "text": "Data science and business analytics jobs are becoming a bigger part of how companies make decisions, improve performance, and stay competitive. More and more, employers depend on people who can work with data, spot patterns, build dashboards, and turn information into useful business insights. Looking at the roles and skills that show up most often in job postings can give a clearer picture of what employers want right now and what students or job seekers may need to be prepared for.\nThis is especially relevant in 2026 looking back into the data from 2024 because companies in almost every industry are using more analytics, automation, and AI based tools in their day to day operations. At the same time, they are not just looking for people with technical skills. They also want employees who understand business problems and can communicate their findings clearly. Instead of focusing on long-term trends, this study looks at a snapshot of job postings from 2024 to see what the market is asking for right now.\nFor this analysis, we expect to find that analyst-focused roles, especially data analyst and business intelligence positions, show up more often than highly specialized machine learning roles. We also expect skills like SQL, Python, Tableau, and Power BI to be some of the most requested technical qualifications. Along with that, skills such as communication, problem-solving, and the ability to explain data in a business context will probably remain important. Overall, the findings will likely show that employers are looking for a balance of technical and business-related skills, not just advanced AI expertise."
+  },
+  {
+    "objectID": "data_analysis.html",
+    "href": "data_analysis.html",
+    "title": "Data Analysis",
+    "section": "",
+    "text": "import pandas as pd\nprint(\"working\")\n\nworking"
   }
 ]
