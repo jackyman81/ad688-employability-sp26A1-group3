@@ -5,19 +5,3 @@ execute:
   echo: true
 ---
 
-```{python}
-from pyspark.sql import SparkSession
-
-spark = SparkSession.builder \
-    .config("spark.driver.host", "localhost") \
-    .appName("EDA") \
-    .getOrCreate()
-
-df = spark.read.option("header", "true") \
-    .option("inferSchema", "true") \
-    .option("multiLine", "true") \
-    .option("escape", "\"") \
-    .csv("data/lightcast_job_postings.csv")
-
-print("Data loaded")
-```
