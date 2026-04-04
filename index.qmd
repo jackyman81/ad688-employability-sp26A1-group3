@@ -1,20 +1,20 @@
 ---
 title: "Data Science & Business Analytics Trends"
-author: "Your Name"
-date: "`r Sys.Date()`"
+author: "Jessica Benun & Jacky Man"
+date: "Spring 2026"
 format:
   html:
     theme: journal
     toc: true
 ---
 ---
-title: "Introduction and Research Rationale"
+title: "Data Science & Business Analytics Trends"
 format: html
 ---
 
 ## Introduction and Research Rationale
 
-This topic matters because data science and business analytics jobs are becoming a bigger part of how companies make decisions, improve performance, and stay competitive. More and more, employers depend on people who can work with data, spot patterns, build dashboards, and turn information into useful business insights. Looking at the roles and skills that show up most often in job postings can give a clearer picture of what employers want right now and what students or job seekers may need to be prepared for.
+Data science and business analytics jobs are becoming a bigger part of how companies make decisions, improve performance, and stay competitive. More and more, employers depend on people who can work with data, spot patterns, build dashboards, and turn information into useful business insights. Looking at the roles and skills that show up most often in job postings can give a clearer picture of what employers want right now and what students or job seekers may need to be prepared for.
 
 This is especially relevant in 2026 looking back into the data from 2024 because companies in almost every industry are using more analytics, automation, and AI based tools in their day to day operations. At the same time, they are not just looking for people with technical skills. They also want employees who understand business problems and can communicate their findings clearly. Instead of focusing on long-term trends, this study looks at a snapshot of job postings from 2024 to see what the market is asking for right now.
 
