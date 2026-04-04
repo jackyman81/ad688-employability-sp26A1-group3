@@ -1,7 +1,5 @@
 ---
 title: "Data Preparation"
 format: html
-execute:
-  echo: true
 ---
 
