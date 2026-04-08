@@ -37,6 +37,7 @@ from pyspark.sql.functions import col, monotonically_increasing_id
 
 clean_df = df.select(
     col("ID"),
+    col("POSTED"),
     col("COMPANY_NAME"),
     col("COMPANY_RAW"),
     col("COMPANY_IS_STAFFING"),
@@ -50,6 +51,7 @@ clean_df = df.select(
     col("SALARY_TO"),
     col("SALARY_FROM"),
     col("REMOTE_TYPE_NAME"), 
+    col("LOCATION"),
     col("CITY_NAME"),
     col("COUNTY_NAME"),
     col("MSA_NAME"),
@@ -136,13 +138,20 @@ print("Categorical:", categorical_cols)
 print("Numerical:", numerical_cols)
 ```
 ```{python}
-cols = ['ID','COMPANY_NAME', 'COMPANY_RAW', 'COMPANY_IS_STAFFING', 'EDUCATION_LEVELS_NAME', 'MIN_EDULEVELS_NAME', 'EMPLOYMENT_TYPE_NAME', 'MIN_YEARS_EXPERIENCE','REMOTE_TYPE_NAME', 'CITY_NAME', 'COUNTY_NAME', 'MSA_NAME', 'STATE_NAME','NAICS6','NAICS6_NAME', 'TITLE_NAME', 'TITLE_CLEAN', 'SKILLS_NAME', 'SPECIALIZED_SKILLS_NAME', 'CERTIFICATIONS_NAME', 'COMMON_SKILLS_NAME', 'SOFTWARE_SKILLS_NAME', 'ONET_NAME', 'CIP6_NAME', 'SOC_NAME', 'SOC_CODE', 'SPECIALIZED_OCCUPATION', 'OCCUPATION', '0CCUPATION_GROUP', 'CAREER_AREA', 'NAICS_2022_6','NAICS_2022_6_NAME']
+cols = ['ID','COMPANY_NAME', 'COMPANY_RAW', 'COMPANY_IS_STAFFING', 'EDUCATION_LEVELS_NAME', 'MIN_EDULEVELS_NAME', 'EMPLOYMENT_TYPE_NAME', 'MIN_YEARS_EXPERIENCE','REMOTE_TYPE_NAME', 'CITY_NAME', 'COUNTY_NAME', 'MSA_NAME', 'STATE_NAME','NAICS6','NAICS6_NAME', 'TITLE_NAME', 'TITLE_CLEAN', 'SKILLS_NAME', 'SPECIALIZED_SKILLS_NAME', 'CERTIFICATIONS_NAME', 'COMMON_SKILLS_NAME', 'SOFTWARE_SKILLS_NAME', 'ONET_NAME', 'CIP6_NAME', 'SOC_NAME', 'SOC_CODE', 'SPECIALIZED_OCCUPATION', 'OCCUPATION', '0CCUPATION_GROUP', 'CAREER_AREA', 'NAICS_2022_6','NAICS_2022_6_NAME', 'LOCATION', 'POSTED']
 
 clean_pd[cols] = clean_pd[cols].fillna("Unknown")
 
 clean_pd.isnull().sum()
 clean_pd.head(10)
 ```
-```{python}
 
+## Remove Duplicates
+```{python}
+clean_pd = clean_pd.drop_duplicates(subset=["TITLE_NAME", "COMPANY_NAME", "LOCATION", "POSTED"], keep="first")
+```
+
+## Save as CSV
+```{python}
+clean_pd.to_csv("data/clean_job_postings.csv", index=False)
 ```
