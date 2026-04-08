@@ -3,3 +3,146 @@ title: "Data Preparation"
 format: html
 ---
 
+```{python}
+import pandas as pd
+print("working")
+```
+
+```{python}
+from pyspark.sql import SparkSession
+
+# Start a Spark session
+spark = SparkSession.builder.config("spark.driver.host", "localhost").appName("JobPostingsAnalysis").getOrCreate()
+spark.catalog.clearCache()
+
+# Load the CSV file into a Spark DataFrame
+df = spark.read.option("header", "true").option("inferSchema", "true").option(
+    "multiLine", "true").option("escape", "\"").csv("data/lightcast_job_postings.csv")
+
+# Register the DataFrame as a temporary SQL view
+df.createOrReplaceTempView("job_postings")
+
+# Show Schema and Sample Data
+print("---This is Diagnostic check, No need to print it in the final doc---")
+
+# comment the lines below when rendering the submission
+df.printSchema()
+df.show(5)
+```
+
+## Keeping Necessary Columns
+
+```{python}
+from pyspark.sql.functions import col, monotonically_increasing_id
+
+clean_df = df.select(
+    col("ID"),
+    col("COMPANY_NAME"),
+    col("COMPANY_RAW"),
+    col("COMPANY_IS_STAFFING"),
+    col("EDUCATION_LEVELS_NAME"),
+    col("MIN_EDULEVELS_NAME"),
+    col("MAX_EDULEVELS_NAME"),
+    col("EMPLOYMENT_TYPE_NAME"),
+    col("MIN_YEARS_EXPERIENCE"), 
+    col("MAX_YEARS_EXPERIENCE"), 
+    col("SALARY"),
+    col("SALARY_TO"),
+    col("SALARY_FROM"),
+    col("REMOTE_TYPE_NAME"), 
+    col("CITY_NAME"),
+    col("COUNTY_NAME"),
+    col("MSA_NAME"),
+    col("STATE_NAME"),
+    col("NAICS6"),
+    col("NAICS6_NAME"),
+    col("TITLE_NAME"),
+    col("TITLE_CLEAN"),
+    col("SKILLS_NAME"),
+    col("SPECIALIZED_SKILLS_NAME"),
+    col("CERTIFICATIONS_NAME"),
+    col("COMMON_SKILLS_NAME"),
+    col("SOFTWARE_SKILLS_NAME"),
+    col("ONET_NAME"),
+    col("CIP6_NAME"),
+    col("SOC_5_NAME").alias("SOC_NAME"),
+    col("SOC_5").alias("SOC_CODE"),
+    col("LOT_V6_SPECIALIZED_OCCUPATION_NAME").alias("SPECIALIZED_OCCUPATION"),
+    col("LOT_V6_OCCUPATION_NAME").alias("OCCUPATION"),
+    col("LOT_V6_OCCUPATION_GROUP_NAME").alias("0CCUPATION_GROUP"),
+    col("LOT_V6_CAREER_AREA_NAME").alias("CAREER_AREA"),
+    col("NAICS_2022_6"),
+    col("NAICS_2022_6_NAME")
+)
+
+clean_df.show(10)
+```
+
+## Handling Missing Values
+### Numerical Fields - Filled with Median
+```{python}
+import os
+from pyspark.sql. functions import regexp_replace
+
+clean_df = clean_df.withColumn ("SALARY_FROM",col("SALARY_FROM").cast("float")) \
+    .withColumn("SALARY_TO", col("SALARY_TO").cast("float")) \
+    .withColumn("SALARY", col("SALARY").cast("float")) \
+    .withColumn("MAX_YEARS_EXPERIENCE", col("MAX_YEARS_EXPERIENCE").cast("float"))
+
+def compute_median (sdf, col_name):
+    q = sdf.approxQuantile(col_name, [0.5], 0.01)
+    return q[0] if q else None
+
+median_from = compute_median(clean_df, "SALARY_FROM")
+median_to = compute_median(clean_df, "SALARY_TO")
+median_salary = compute_median(clean_df, "SALARY")
+
+print("Medians:", median_from, median_to, median_salary)
+
+clean_df = clean_df.fillna({
+    "SALARY_FROM": median_from,
+    "SALARY_TO": median_to
+})
+
+clean_df = clean_df.withColumn("AVERAGE_SALARY", (col("SALARY_FROM") + col("SALARY_TO")) / 2)
+
+clean_df = clean_df.withColumn(
+    "EDUCATION_LEVELS_NAME",
+    regexp_replace(col("EDUCATION_LEVELS_NAME"), r"[\n\r]","")
+)
+
+clean_df.show(10)
+clean_pd = clean_df.toPandas()
+```
+
+### Columns with >50% Missing - Dropped
+```{python}
+import matplotlib.pyplot as plt
+import missingno as msno
+
+msno.heatmap(clean_pd)
+plt.title("Missing Values Heatmap")
+plt.show()
+
+clean_pd.dropna(thresh=len(clean_pd) * 0.5, axis=1, inplace=True)
+```
+
+### Categorical Fields - Filled with "Unknown"
+```{python}
+categorical_cols = clean_pd.select_dtypes(include=["object", "category", "string"]).columns.tolist()
+numerical_cols = clean_pd.select_dtypes(include=["number"]).columns.tolist()
+
+print("Categorical:", categorical_cols)
+print("Numerical:", numerical_cols)
+```
+```{python}
+cols = ['ID','COMPANY_NAME', 'COMPANY_RAW', 'COMPANY_IS_STAFFING', 'EDUCATION_LEVELS_NAME', 'MIN_EDULEVELS_NAME', 'EMPLOYMENT_TYPE_NAME', 'MIN_YEARS_EXPERIENCE','REMOTE_TYPE_NAME', 'CITY_NAME', 'COUNTY_NAME', 'MSA_NAME', 'STATE_NAME','NAICS6','NAICS6_NAME', 'TITLE_NAME', 'TITLE_CLEAN', 'SKILLS_NAME', 'SPECIALIZED_SKILLS_NAME', 'CERTIFICATIONS_NAME', 'COMMON_SKILLS_NAME', 'SOFTWARE_SKILLS_NAME', 'ONET_NAME', 'CIP6_NAME', 'SOC_NAME', 'SOC_CODE', 'SPECIALIZED_OCCUPATION', 'OCCUPATION', '0CCUPATION_GROUP', 'CAREER_AREA', 'NAICS_2022_6','NAICS_2022_6_NAME']
+
+clean_pd[cols] = clean_pd[cols].fillna("Unknown")
+
+clean_pd.isnull().sum()
+clean_pd.head(10)
+```
+```{python}
+
+```
