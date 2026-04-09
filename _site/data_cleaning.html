@@ -181,6 +181,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#columns-with-50-missing---dropped" id="toc-columns-with-50-missing---dropped" class="nav-link" data-scroll-target="#columns-with-50-missing---dropped">Columns with &gt;50% Missing - Dropped</a></li>
   <li><a href="#categorical-fields---filled-with-unknown" id="toc-categorical-fields---filled-with-unknown" class="nav-link" data-scroll-target="#categorical-fields---filled-with-unknown">Categorical Fields - Filled with “Unknown”</a></li>
   </ul></li>
+  <li><a href="#remove-duplicates" id="toc-remove-duplicates" class="nav-link" data-scroll-target="#remove-duplicates">Remove Duplicates</a></li>
+  <li><a href="#save-as-csv" id="toc-save-as-csv" class="nav-link" data-scroll-target="#save-as-csv">Save as CSV</a></li>
   </ul>
 </nav>
     </div>
@@ -206,14 +208,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div id="5a0e2e51" class="cell" data-execution_count="1">
+<div id="5022cdd9" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"working"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>working</code></pre>
 </div>
 </div>
-<div id="b046e757" class="cell" data-execution_count="2">
+<div id="6877bf8b" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Start a Spark session</span></span>
@@ -238,12 +240,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
 Setting default log level to "WARN".
 To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
-26/04/08 23:30:16 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+26/04/09 00:30:05 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
 
 [Stage 1:&gt;                                                          (0 + 1) / 1]
 
                                                                                 
-26/04/08 23:30:34 WARN SparkStringUtils: Truncated the string representation of a plan since it was too large. This behavior can be adjusted by setting 'spark.sql.debug.maxToStringFields'.</code></pre>
+26/04/09 00:30:18 WARN SparkStringUtils: Truncated the string representation of a plan since it was too large. This behavior can be adjusted by setting 'spark.sql.debug.maxToStringFields'.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>---This is Diagnostic check, No need to print it in the final doc---
@@ -402,65 +404,68 @@ only showing top 5 rows</code></pre>
 </div>
 <section id="keeping-necessary-columns" class="level2">
 <h2 class="anchored" data-anchor-id="keeping-necessary-columns">Keeping Necessary Columns</h2>
-<div id="39e891f0" class="cell" data-execution_count="3">
+<p>The following columns were chosen as they provide relevant information for analysis. NIACS, ONET, CIP, SOC, and LOT categories all had multiple different columns - only the latest were kept in order to reflect the current classifications. Cutting down the amount of columns and data set overall helps to make a cleaner data set to work with with less clutter.</p>
+<div id="1f82a68c" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col, monotonically_increasing_id</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>clean_df <span class="op">=</span> df.select(</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"ID"</span>),</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"COMPANY_NAME"</span>),</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"COMPANY_RAW"</span>),</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"COMPANY_IS_STAFFING"</span>),</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"EDUCATION_LEVELS_NAME"</span>),</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MIN_EDULEVELS_NAME"</span>),</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MAX_EDULEVELS_NAME"</span>),</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"EMPLOYMENT_TYPE_NAME"</span>),</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MIN_YEARS_EXPERIENCE"</span>), </span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MAX_YEARS_EXPERIENCE"</span>), </span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SALARY"</span>),</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SALARY_TO"</span>),</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SALARY_FROM"</span>),</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"REMOTE_TYPE_NAME"</span>), </span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"CITY_NAME"</span>),</span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"COUNTY_NAME"</span>),</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MSA_NAME"</span>),</span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"STATE_NAME"</span>),</span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"NAICS6"</span>),</span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"NAICS6_NAME"</span>),</span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"TITLE_NAME"</span>),</span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"TITLE_CLEAN"</span>),</span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SKILLS_NAME"</span>),</span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SPECIALIZED_SKILLS_NAME"</span>),</span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"CERTIFICATIONS_NAME"</span>),</span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"COMMON_SKILLS_NAME"</span>),</span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SOFTWARE_SKILLS_NAME"</span>),</span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"ONET_NAME"</span>),</span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"CIP6_NAME"</span>),</span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SOC_5_NAME"</span>).alias(<span class="st">"SOC_NAME"</span>),</span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SOC_5"</span>).alias(<span class="st">"SOC_CODE"</span>),</span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"LOT_V6_SPECIALIZED_OCCUPATION_NAME"</span>).alias(<span class="st">"SPECIALIZED_OCCUPATION"</span>),</span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"LOT_V6_OCCUPATION_NAME"</span>).alias(<span class="st">"OCCUPATION"</span>),</span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"LOT_V6_OCCUPATION_GROUP_NAME"</span>).alias(<span class="st">"0CCUPATION_GROUP"</span>),</span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"LOT_V6_CAREER_AREA_NAME"</span>).alias(<span class="st">"CAREER_AREA"</span>),</span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"NAICS_2022_6"</span>),</span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"NAICS_2022_6_NAME"</span>)</span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>clean_df.show(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"POSTED"</span>),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"COMPANY_NAME"</span>),</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"COMPANY_RAW"</span>),</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"COMPANY_IS_STAFFING"</span>),</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"EDUCATION_LEVELS_NAME"</span>),</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MIN_EDULEVELS_NAME"</span>),</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MAX_EDULEVELS_NAME"</span>),</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"EMPLOYMENT_TYPE_NAME"</span>),</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MIN_YEARS_EXPERIENCE"</span>), </span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MAX_YEARS_EXPERIENCE"</span>), </span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SALARY"</span>),</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SALARY_TO"</span>),</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SALARY_FROM"</span>),</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"REMOTE_TYPE_NAME"</span>), </span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"LOCATION"</span>),</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"CITY_NAME"</span>),</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"COUNTY_NAME"</span>),</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MSA_NAME"</span>),</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"STATE_NAME"</span>),</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"NAICS6"</span>),</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"NAICS6_NAME"</span>),</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"TITLE_NAME"</span>),</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"TITLE_CLEAN"</span>),</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SKILLS_NAME"</span>),</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SPECIALIZED_SKILLS_NAME"</span>),</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"CERTIFICATIONS_NAME"</span>),</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"COMMON_SKILLS_NAME"</span>),</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SOFTWARE_SKILLS_NAME"</span>),</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"ONET_NAME"</span>),</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"CIP6_NAME"</span>),</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SOC_5_NAME"</span>).alias(<span class="st">"SOC_NAME"</span>),</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SOC_5"</span>).alias(<span class="st">"SOC_CODE"</span>),</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"LOT_V6_SPECIALIZED_OCCUPATION_NAME"</span>).alias(<span class="st">"SPECIALIZED_OCCUPATION"</span>),</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"LOT_V6_OCCUPATION_NAME"</span>).alias(<span class="st">"OCCUPATION"</span>),</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"LOT_V6_OCCUPATION_GROUP_NAME"</span>).alias(<span class="st">"0CCUPATION_GROUP"</span>),</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"LOT_V6_CAREER_AREA_NAME"</span>).alias(<span class="st">"CAREER_AREA"</span>),</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"NAICS_2022_6"</span>),</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"NAICS_2022_6_NAME"</span>)</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>clean_df.show(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>+--------------------+--------------------+--------------------+-------------------+---------------------+-------------------+------------------+--------------------+--------------------+--------------------+------+---------+-----------+----------------+------------------+--------------------+--------------------+----------+------+--------------------+-------------------+--------------------+--------------------+-----------------------+--------------------+--------------------+--------------------+--------------------+--------------------+---------------+--------+----------------------+--------------------+--------------------+--------------------+------------+--------------------+
-|                  ID|        COMPANY_NAME|         COMPANY_RAW|COMPANY_IS_STAFFING|EDUCATION_LEVELS_NAME| MIN_EDULEVELS_NAME|MAX_EDULEVELS_NAME|EMPLOYMENT_TYPE_NAME|MIN_YEARS_EXPERIENCE|MAX_YEARS_EXPERIENCE|SALARY|SALARY_TO|SALARY_FROM|REMOTE_TYPE_NAME|         CITY_NAME|         COUNTY_NAME|            MSA_NAME|STATE_NAME|NAICS6|         NAICS6_NAME|         TITLE_NAME|         TITLE_CLEAN|         SKILLS_NAME|SPECIALIZED_SKILLS_NAME| CERTIFICATIONS_NAME|  COMMON_SKILLS_NAME|SOFTWARE_SKILLS_NAME|           ONET_NAME|           CIP6_NAME|       SOC_NAME|SOC_CODE|SPECIALIZED_OCCUPATION|          OCCUPATION|    0CCUPATION_GROUP|         CAREER_AREA|NAICS_2022_6|   NAICS_2022_6_NAME|
-+--------------------+--------------------+--------------------+-------------------+---------------------+-------------------+------------------+--------------------+--------------------+--------------------+------+---------+-----------+----------------+------------------+--------------------+--------------------+----------+------+--------------------+-------------------+--------------------+--------------------+-----------------------+--------------------+--------------------+--------------------+--------------------+--------------------+---------------+--------+----------------------+--------------------+--------------------+--------------------+------------+--------------------+
-|1f57d95acf4dc67ed...|          Murphy USA|          Murphy USA|              false| [\n  "Bachelor's ...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                   2|                   2|  NULL|     NULL|       NULL|          [None]|     El Dorado, AR|           Union, AR|       El Dorado, AR|  Arkansas|441330|Automotive Parts ...|Enterprise Analysts|enterprise analys...|[\n  "Merchandisi...|   [\n  "Merchandisi...|                  []|[\n  "Mathematics...|[\n  "SQL (Progra...|Business Intellig...|[\n  "Economics, ...|Data Scientists| 15-2051|  General ERP Analy...|Business Intellig...|Business Intellig...|Information Techn...|      441330|Automotive Parts ...|
-|0cb072af26757b6c4...|Smx Corporation L...|                 SMX|               true| [\n  "No Educatio...|No Education Listed|              NULL|Full-time (&gt; 32 h...|                   3|                   3|  NULL|     NULL|       NULL|          Remote|       Augusta, ME|        Kennebec, ME|Augusta-Watervill...|     Maine|561320|Temporary Help Se...| Oracle Consultants|oracle consultant...|[\n  "Procurement...|   [\n  "Procurement...|                  []|                  []|[\n  "Oracle Busi...|Business Intellig...|                  []|Data Scientists| 15-2051|  Oracle Consultant...|Business Intellig...|Business Intellig...|Information Techn...|      561320|Temporary Help Se...|
-|85318b12b3331fa49...|            Sedgwick|            Sedgwick|              false| [\n  "Bachelor's ...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                   5|                NULL|  NULL|     NULL|       NULL|          [None]|        Dallas, TX|          Dallas, TX|Dallas-Fort Worth...|     Texas|524291|    Claims Adjusting|      Data Analysts|        data analyst|[\n  "Management"...|   [\n  "Exception R...|[\n  "Security Cl...|[\n  "Management"...|[\n  "Microsoft O...|Business Intellig...|                  []|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      524291|    Claims Adjusting|
-|1b5c3941e54a1889e...|         Wells Fargo|         Wells Fargo|              false| [\n  "No Educatio...|No Education Listed|              NULL|Full-time (&gt; 32 h...|                   3|                NULL|  NULL|     NULL|       NULL|          [None]|       Phoenix, AZ|        Maricopa, AZ|Phoenix-Mesa-Chan...|   Arizona|522110|  Commercial Banking|Management Analysts|sr lead data mgmt...|[\n  "Exit Strate...|   [\n  "Exit Strate...|                  []|[\n  "Reliability...|[\n  "SAS (Softwa...|Business Intellig...|                  []|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      522110|  Commercial Banking|
-|cb5ca25f02bdf25c1...|        Unclassified|               LH/GM|              false| [\n  "No Educatio...|No Education Listed|              NULL|Part-time / full-...|                NULL|                NULL| 92500|   150000|      35000|          [None]|       Modesto, CA|      Stanislaus, CA|         Modesto, CA|California|999999|Unclassified Indu...|       Unclassified|comisiones de por...|                  []|                     []|                  []|                  []|                  []|Business Intellig...|                  []|Data Scientists| 15-2051|  Oracle Consultant...|Business Intellig...|Business Intellig...|Information Techn...|      999999|Unclassified Indu...|
-|35a6cd2183d9fb270...|  Lumen Technologies|               Lumen|              false| [\n  "Bachelor's ...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                NULL|                NULL|110155|   125890|      94420|          Remote|[Unknown City], AR|[Unknown county], AR|                NULL|  Arkansas|517810|All Other Telecom...| Lead Data Analysts|sr lead data analyst|[\n  "Power BI",\...|   [\n  "Power BI",\...|                  []|[\n  "Presentatio...|[\n  "Power BI",\...|Business Intellig...|[\n  "Business Ad...|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      517810|All Other Telecom...|
-|06de8d192f30b1d8d...|Semiconductor Com...|Semiconductor Com...|              false| [\n  "Bachelor's ...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                NULL|                NULL|  NULL|     NULL|       NULL|          [None]|    Scottsdale, AZ|        Maricopa, AZ|Phoenix-Mesa-Chan...|   Arizona|334413|Semiconductor and...|   IT Data Analysts| talent data analyst|[\n  "Interactive...|   [\n  "Interactive...|                  []|[\n  "Analytical ...|[\n  "Interactive...|Business Intellig...|                  []|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      334413|Semiconductor and...|
-|3d589c9d84677ca94...|            Sedgwick|            Sedgwick|              false| [\n  "Bachelor's ...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                   5|                NULL|  NULL|     NULL|       NULL|          [None]|        Dayton, OH|      Montgomery, OH|Dayton-Kettering, OH|      Ohio|524291|    Claims Adjusting|      Data Analysts|        data analyst|[\n  "Management"...|   [\n  "Exception R...|[\n  "Security Cl...|[\n  "Management"...|[\n  "Microsoft O...|Business Intellig...|                  []|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      524291|    Claims Adjusting|
-|5a843df632e1ff756...|Global Enterprise...|Global Enterprise...|               true| [\n  "No Educatio...|No Education Listed|              NULL|Full-time (&gt; 32 h...|                   7|                   7|  NULL|     NULL|       NULL|          [None]|      Franklin, NJ|          Sussex, NJ|New York-Newark-J...|New Jersey|999999|Unclassified Indu...|SAP OTC Consultants|sap sd otc consul...|[\n  "JavaScript ...|   [\n  "JavaScript ...|                  []|                  []|[\n  "JavaScript ...|Business Intellig...|                  []|Data Scientists| 15-2051|  General ERP Analy...|Business Intellig...|Business Intellig...|Information Techn...|      999999|Unclassified Indu...|
-|229620073766234e8...|  Dassault SystÃ¨mes|    Dassault Systmes|              false| [\n  "Bachelor's ...|  Bachelor's degree|   Master's degree|Full-time (&gt; 32 h...|                   2|                   2| 92962|   106424|      79500|          [None]|      New York, NY|        New York, NY|New York-Newark-J...|  New York|541511|Custom Computer P...| Marketing Analysts|sr marketing analyst|[\n  "Salesforce"...|   [\n  "Salesforce"...|                  []|[\n  "Prioritizat...|[\n  "Salesforce"...|Business Intellig...|[\n  "Business/Co...|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      541511|Custom Computer P...|
-+--------------------+--------------------+--------------------+-------------------+---------------------+-------------------+------------------+--------------------+--------------------+--------------------+------+---------+-----------+----------------+------------------+--------------------+--------------------+----------+------+--------------------+-------------------+--------------------+--------------------+-----------------------+--------------------+--------------------+--------------------+--------------------+--------------------+---------------+--------+----------------------+--------------------+--------------------+--------------------+------------+--------------------+
+<pre><code>+--------------------+--------+--------------------+--------------------+-------------------+---------------------+-------------------+------------------+--------------------+--------------------+--------------------+------+---------+-----------+----------------+--------------------+------------------+--------------------+--------------------+----------+------+--------------------+-------------------+--------------------+--------------------+-----------------------+--------------------+--------------------+--------------------+--------------------+--------------------+---------------+--------+----------------------+--------------------+--------------------+--------------------+------------+--------------------+
+|                  ID|  POSTED|        COMPANY_NAME|         COMPANY_RAW|COMPANY_IS_STAFFING|EDUCATION_LEVELS_NAME| MIN_EDULEVELS_NAME|MAX_EDULEVELS_NAME|EMPLOYMENT_TYPE_NAME|MIN_YEARS_EXPERIENCE|MAX_YEARS_EXPERIENCE|SALARY|SALARY_TO|SALARY_FROM|REMOTE_TYPE_NAME|            LOCATION|         CITY_NAME|         COUNTY_NAME|            MSA_NAME|STATE_NAME|NAICS6|         NAICS6_NAME|         TITLE_NAME|         TITLE_CLEAN|         SKILLS_NAME|SPECIALIZED_SKILLS_NAME| CERTIFICATIONS_NAME|  COMMON_SKILLS_NAME|SOFTWARE_SKILLS_NAME|           ONET_NAME|           CIP6_NAME|       SOC_NAME|SOC_CODE|SPECIALIZED_OCCUPATION|          OCCUPATION|    0CCUPATION_GROUP|         CAREER_AREA|NAICS_2022_6|   NAICS_2022_6_NAME|
++--------------------+--------+--------------------+--------------------+-------------------+---------------------+-------------------+------------------+--------------------+--------------------+--------------------+------+---------+-----------+----------------+--------------------+------------------+--------------------+--------------------+----------+------+--------------------+-------------------+--------------------+--------------------+-----------------------+--------------------+--------------------+--------------------+--------------------+--------------------+---------------+--------+----------------------+--------------------+--------------------+--------------------+------------+--------------------+
+|1f57d95acf4dc67ed...|6/2/2024|          Murphy USA|          Murphy USA|              false| [\n  "Bachelor's ...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                   2|                   2|  NULL|     NULL|       NULL|          [None]|{\n  "lat": 33.20...|     El Dorado, AR|           Union, AR|       El Dorado, AR|  Arkansas|441330|Automotive Parts ...|Enterprise Analysts|enterprise analys...|[\n  "Merchandisi...|   [\n  "Merchandisi...|                  []|[\n  "Mathematics...|[\n  "SQL (Progra...|Business Intellig...|[\n  "Economics, ...|Data Scientists| 15-2051|  General ERP Analy...|Business Intellig...|Business Intellig...|Information Techn...|      441330|Automotive Parts ...|
+|0cb072af26757b6c4...|6/2/2024|Smx Corporation L...|                 SMX|               true| [\n  "No Educatio...|No Education Listed|              NULL|Full-time (&gt; 32 h...|                   3|                   3|  NULL|     NULL|       NULL|          Remote|{\n  "lat": 44.31...|       Augusta, ME|        Kennebec, ME|Augusta-Watervill...|     Maine|561320|Temporary Help Se...| Oracle Consultants|oracle consultant...|[\n  "Procurement...|   [\n  "Procurement...|                  []|                  []|[\n  "Oracle Busi...|Business Intellig...|                  []|Data Scientists| 15-2051|  Oracle Consultant...|Business Intellig...|Business Intellig...|Information Techn...|      561320|Temporary Help Se...|
+|85318b12b3331fa49...|6/2/2024|            Sedgwick|            Sedgwick|              false| [\n  "Bachelor's ...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                   5|                NULL|  NULL|     NULL|       NULL|          [None]|{\n  "lat": 32.77...|        Dallas, TX|          Dallas, TX|Dallas-Fort Worth...|     Texas|524291|    Claims Adjusting|      Data Analysts|        data analyst|[\n  "Management"...|   [\n  "Exception R...|[\n  "Security Cl...|[\n  "Management"...|[\n  "Microsoft O...|Business Intellig...|                  []|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      524291|    Claims Adjusting|
+|1b5c3941e54a1889e...|6/2/2024|         Wells Fargo|         Wells Fargo|              false| [\n  "No Educatio...|No Education Listed|              NULL|Full-time (&gt; 32 h...|                   3|                NULL|  NULL|     NULL|       NULL|          [None]|{\n  "lat": 33.44...|       Phoenix, AZ|        Maricopa, AZ|Phoenix-Mesa-Chan...|   Arizona|522110|  Commercial Banking|Management Analysts|sr lead data mgmt...|[\n  "Exit Strate...|   [\n  "Exit Strate...|                  []|[\n  "Reliability...|[\n  "SAS (Softwa...|Business Intellig...|                  []|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      522110|  Commercial Banking|
+|cb5ca25f02bdf25c1...|6/2/2024|        Unclassified|               LH/GM|              false| [\n  "No Educatio...|No Education Listed|              NULL|Part-time / full-...|                NULL|                NULL| 92500|   150000|      35000|          [None]|{\n  "lat": 37.63...|       Modesto, CA|      Stanislaus, CA|         Modesto, CA|California|999999|Unclassified Indu...|       Unclassified|comisiones de por...|                  []|                     []|                  []|                  []|                  []|Business Intellig...|                  []|Data Scientists| 15-2051|  Oracle Consultant...|Business Intellig...|Business Intellig...|Information Techn...|      999999|Unclassified Indu...|
+|35a6cd2183d9fb270...|6/2/2024|  Lumen Technologies|               Lumen|              false| [\n  "Bachelor's ...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                NULL|                NULL|110155|   125890|      94420|          Remote|{\n  "lat": 0,\n ...|[Unknown City], AR|[Unknown county], AR|                NULL|  Arkansas|517810|All Other Telecom...| Lead Data Analysts|sr lead data analyst|[\n  "Power BI",\...|   [\n  "Power BI",\...|                  []|[\n  "Presentatio...|[\n  "Power BI",\...|Business Intellig...|[\n  "Business Ad...|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      517810|All Other Telecom...|
+|06de8d192f30b1d8d...|6/2/2024|Semiconductor Com...|Semiconductor Com...|              false| [\n  "Bachelor's ...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                NULL|                NULL|  NULL|     NULL|       NULL|          [None]|{\n  "lat": 33.49...|    Scottsdale, AZ|        Maricopa, AZ|Phoenix-Mesa-Chan...|   Arizona|334413|Semiconductor and...|   IT Data Analysts| talent data analyst|[\n  "Interactive...|   [\n  "Interactive...|                  []|[\n  "Analytical ...|[\n  "Interactive...|Business Intellig...|                  []|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      334413|Semiconductor and...|
+|3d589c9d84677ca94...|6/2/2024|            Sedgwick|            Sedgwick|              false| [\n  "Bachelor's ...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                   5|                NULL|  NULL|     NULL|       NULL|          [None]|{\n  "lat": 39.75...|        Dayton, OH|      Montgomery, OH|Dayton-Kettering, OH|      Ohio|524291|    Claims Adjusting|      Data Analysts|        data analyst|[\n  "Management"...|   [\n  "Exception R...|[\n  "Security Cl...|[\n  "Management"...|[\n  "Microsoft O...|Business Intellig...|                  []|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      524291|    Claims Adjusting|
+|5a843df632e1ff756...|6/2/2024|Global Enterprise...|Global Enterprise...|               true| [\n  "No Educatio...|No Education Listed|              NULL|Full-time (&gt; 32 h...|                   7|                   7|  NULL|     NULL|       NULL|          [None]|{\n  "lat": 41.12...|      Franklin, NJ|          Sussex, NJ|New York-Newark-J...|New Jersey|999999|Unclassified Indu...|SAP OTC Consultants|sap sd otc consul...|[\n  "JavaScript ...|   [\n  "JavaScript ...|                  []|                  []|[\n  "JavaScript ...|Business Intellig...|                  []|Data Scientists| 15-2051|  General ERP Analy...|Business Intellig...|Business Intellig...|Information Techn...|      999999|Unclassified Indu...|
+|229620073766234e8...|6/2/2024|  Dassault SystÃ¨mes|    Dassault Systmes|              false| [\n  "Bachelor's ...|  Bachelor's degree|   Master's degree|Full-time (&gt; 32 h...|                   2|                   2| 92962|   106424|      79500|          [None]|{\n  "lat": 40.75...|      New York, NY|        New York, NY|New York-Newark-J...|  New York|541511|Custom Computer P...| Marketing Analysts|sr marketing analyst|[\n  "Salesforce"...|   [\n  "Salesforce"...|                  []|[\n  "Prioritizat...|[\n  "Salesforce"...|Business Intellig...|[\n  "Business/Co...|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      541511|Custom Computer P...|
++--------------------+--------+--------------------+--------------------+-------------------+---------------------+-------------------+------------------+--------------------+--------------------+--------------------+------+---------+-----------+----------------+--------------------+------------------+--------------------+--------------------+----------+------+--------------------+-------------------+--------------------+--------------------+-----------------------+--------------------+--------------------+--------------------+--------------------+--------------------+---------------+--------+----------------------+--------------------+--------------------+--------------------+------------+--------------------+
 only showing top 10 rows</code></pre>
 </div>
 </div>
@@ -469,7 +474,7 @@ only showing top 10 rows</code></pre>
 <h2 class="anchored" data-anchor-id="handling-missing-values">Handling Missing Values</h2>
 <section id="numerical-fields---filled-with-median" class="level3">
 <h3 class="anchored" data-anchor-id="numerical-fields---filled-with-median">Numerical Fields - Filled with Median</h3>
-<div id="a495139b" class="cell" data-execution_count="4">
+<div id="31f95bb8" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql. functions <span class="im">import</span> regexp_replace</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -518,20 +523,20 @@ only showing top 10 rows</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Medians: 87295.0 130042.0 115024.0
-+--------------------+--------------------+--------------------+-------------------+---------------------+-------------------+------------------+--------------------+--------------------+--------------------+--------+---------+-----------+----------------+------------------+--------------------+--------------------+----------+------+--------------------+-------------------+--------------------+--------------------+-----------------------+--------------------+--------------------+--------------------+--------------------+--------------------+---------------+--------+----------------------+--------------------+--------------------+--------------------+------------+--------------------+--------------+
-|                  ID|        COMPANY_NAME|         COMPANY_RAW|COMPANY_IS_STAFFING|EDUCATION_LEVELS_NAME| MIN_EDULEVELS_NAME|MAX_EDULEVELS_NAME|EMPLOYMENT_TYPE_NAME|MIN_YEARS_EXPERIENCE|MAX_YEARS_EXPERIENCE|  SALARY|SALARY_TO|SALARY_FROM|REMOTE_TYPE_NAME|         CITY_NAME|         COUNTY_NAME|            MSA_NAME|STATE_NAME|NAICS6|         NAICS6_NAME|         TITLE_NAME|         TITLE_CLEAN|         SKILLS_NAME|SPECIALIZED_SKILLS_NAME| CERTIFICATIONS_NAME|  COMMON_SKILLS_NAME|SOFTWARE_SKILLS_NAME|           ONET_NAME|           CIP6_NAME|       SOC_NAME|SOC_CODE|SPECIALIZED_OCCUPATION|          OCCUPATION|    0CCUPATION_GROUP|         CAREER_AREA|NAICS_2022_6|   NAICS_2022_6_NAME|AVERAGE_SALARY|
-+--------------------+--------------------+--------------------+-------------------+---------------------+-------------------+------------------+--------------------+--------------------+--------------------+--------+---------+-----------+----------------+------------------+--------------------+--------------------+----------+------+--------------------+-------------------+--------------------+--------------------+-----------------------+--------------------+--------------------+--------------------+--------------------+--------------------+---------------+--------+----------------------+--------------------+--------------------+--------------------+------------+--------------------+--------------+
-|1f57d95acf4dc67ed...|          Murphy USA|          Murphy USA|              false| [  "Bachelor's de...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                   2|                 2.0|    NULL| 130042.0|    87295.0|          [None]|     El Dorado, AR|           Union, AR|       El Dorado, AR|  Arkansas|441330|Automotive Parts ...|Enterprise Analysts|enterprise analys...|[\n  "Merchandisi...|   [\n  "Merchandisi...|                  []|[\n  "Mathematics...|[\n  "SQL (Progra...|Business Intellig...|[\n  "Economics, ...|Data Scientists| 15-2051|  General ERP Analy...|Business Intellig...|Business Intellig...|Information Techn...|      441330|Automotive Parts ...|      108668.5|
-|0cb072af26757b6c4...|Smx Corporation L...|                 SMX|               true| [  "No Education ...|No Education Listed|              NULL|Full-time (&gt; 32 h...|                   3|                 3.0|    NULL| 130042.0|    87295.0|          Remote|       Augusta, ME|        Kennebec, ME|Augusta-Watervill...|     Maine|561320|Temporary Help Se...| Oracle Consultants|oracle consultant...|[\n  "Procurement...|   [\n  "Procurement...|                  []|                  []|[\n  "Oracle Busi...|Business Intellig...|                  []|Data Scientists| 15-2051|  Oracle Consultant...|Business Intellig...|Business Intellig...|Information Techn...|      561320|Temporary Help Se...|      108668.5|
-|85318b12b3331fa49...|            Sedgwick|            Sedgwick|              false| [  "Bachelor's de...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                   5|                NULL|    NULL| 130042.0|    87295.0|          [None]|        Dallas, TX|          Dallas, TX|Dallas-Fort Worth...|     Texas|524291|    Claims Adjusting|      Data Analysts|        data analyst|[\n  "Management"...|   [\n  "Exception R...|[\n  "Security Cl...|[\n  "Management"...|[\n  "Microsoft O...|Business Intellig...|                  []|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      524291|    Claims Adjusting|      108668.5|
-|1b5c3941e54a1889e...|         Wells Fargo|         Wells Fargo|              false| [  "No Education ...|No Education Listed|              NULL|Full-time (&gt; 32 h...|                   3|                NULL|    NULL| 130042.0|    87295.0|          [None]|       Phoenix, AZ|        Maricopa, AZ|Phoenix-Mesa-Chan...|   Arizona|522110|  Commercial Banking|Management Analysts|sr lead data mgmt...|[\n  "Exit Strate...|   [\n  "Exit Strate...|                  []|[\n  "Reliability...|[\n  "SAS (Softwa...|Business Intellig...|                  []|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      522110|  Commercial Banking|      108668.5|
-|cb5ca25f02bdf25c1...|        Unclassified|               LH/GM|              false| [  "No Education ...|No Education Listed|              NULL|Part-time / full-...|                NULL|                NULL| 92500.0| 150000.0|    35000.0|          [None]|       Modesto, CA|      Stanislaus, CA|         Modesto, CA|California|999999|Unclassified Indu...|       Unclassified|comisiones de por...|                  []|                     []|                  []|                  []|                  []|Business Intellig...|                  []|Data Scientists| 15-2051|  Oracle Consultant...|Business Intellig...|Business Intellig...|Information Techn...|      999999|Unclassified Indu...|       92500.0|
-|35a6cd2183d9fb270...|  Lumen Technologies|               Lumen|              false| [  "Bachelor's de...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                NULL|                NULL|110155.0| 125890.0|    94420.0|          Remote|[Unknown City], AR|[Unknown county], AR|                NULL|  Arkansas|517810|All Other Telecom...| Lead Data Analysts|sr lead data analyst|[\n  "Power BI",\...|   [\n  "Power BI",\...|                  []|[\n  "Presentatio...|[\n  "Power BI",\...|Business Intellig...|[\n  "Business Ad...|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      517810|All Other Telecom...|      110155.0|
-|06de8d192f30b1d8d...|Semiconductor Com...|Semiconductor Com...|              false| [  "Bachelor's de...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                NULL|                NULL|    NULL| 130042.0|    87295.0|          [None]|    Scottsdale, AZ|        Maricopa, AZ|Phoenix-Mesa-Chan...|   Arizona|334413|Semiconductor and...|   IT Data Analysts| talent data analyst|[\n  "Interactive...|   [\n  "Interactive...|                  []|[\n  "Analytical ...|[\n  "Interactive...|Business Intellig...|                  []|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      334413|Semiconductor and...|      108668.5|
-|3d589c9d84677ca94...|            Sedgwick|            Sedgwick|              false| [  "Bachelor's de...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                   5|                NULL|    NULL| 130042.0|    87295.0|          [None]|        Dayton, OH|      Montgomery, OH|Dayton-Kettering, OH|      Ohio|524291|    Claims Adjusting|      Data Analysts|        data analyst|[\n  "Management"...|   [\n  "Exception R...|[\n  "Security Cl...|[\n  "Management"...|[\n  "Microsoft O...|Business Intellig...|                  []|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      524291|    Claims Adjusting|      108668.5|
-|5a843df632e1ff756...|Global Enterprise...|Global Enterprise...|               true| [  "No Education ...|No Education Listed|              NULL|Full-time (&gt; 32 h...|                   7|                 7.0|    NULL| 130042.0|    87295.0|          [None]|      Franklin, NJ|          Sussex, NJ|New York-Newark-J...|New Jersey|999999|Unclassified Indu...|SAP OTC Consultants|sap sd otc consul...|[\n  "JavaScript ...|   [\n  "JavaScript ...|                  []|                  []|[\n  "JavaScript ...|Business Intellig...|                  []|Data Scientists| 15-2051|  General ERP Analy...|Business Intellig...|Business Intellig...|Information Techn...|      999999|Unclassified Indu...|      108668.5|
-|229620073766234e8...|  Dassault SystÃ¨mes|    Dassault Systmes|              false| [  "Bachelor's de...|  Bachelor's degree|   Master's degree|Full-time (&gt; 32 h...|                   2|                 2.0| 92962.0| 106424.0|    79500.0|          [None]|      New York, NY|        New York, NY|New York-Newark-J...|  New York|541511|Custom Computer P...| Marketing Analysts|sr marketing analyst|[\n  "Salesforce"...|   [\n  "Salesforce"...|                  []|[\n  "Prioritizat...|[\n  "Salesforce"...|Business Intellig...|[\n  "Business/Co...|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      541511|Custom Computer P...|       92962.0|
-+--------------------+--------------------+--------------------+-------------------+---------------------+-------------------+------------------+--------------------+--------------------+--------------------+--------+---------+-----------+----------------+------------------+--------------------+--------------------+----------+------+--------------------+-------------------+--------------------+--------------------+-----------------------+--------------------+--------------------+--------------------+--------------------+--------------------+---------------+--------+----------------------+--------------------+--------------------+--------------------+------------+--------------------+--------------+
++--------------------+--------+--------------------+--------------------+-------------------+---------------------+-------------------+------------------+--------------------+--------------------+--------------------+--------+---------+-----------+----------------+--------------------+------------------+--------------------+--------------------+----------+------+--------------------+-------------------+--------------------+--------------------+-----------------------+--------------------+--------------------+--------------------+--------------------+--------------------+---------------+--------+----------------------+--------------------+--------------------+--------------------+------------+--------------------+--------------+
+|                  ID|  POSTED|        COMPANY_NAME|         COMPANY_RAW|COMPANY_IS_STAFFING|EDUCATION_LEVELS_NAME| MIN_EDULEVELS_NAME|MAX_EDULEVELS_NAME|EMPLOYMENT_TYPE_NAME|MIN_YEARS_EXPERIENCE|MAX_YEARS_EXPERIENCE|  SALARY|SALARY_TO|SALARY_FROM|REMOTE_TYPE_NAME|            LOCATION|         CITY_NAME|         COUNTY_NAME|            MSA_NAME|STATE_NAME|NAICS6|         NAICS6_NAME|         TITLE_NAME|         TITLE_CLEAN|         SKILLS_NAME|SPECIALIZED_SKILLS_NAME| CERTIFICATIONS_NAME|  COMMON_SKILLS_NAME|SOFTWARE_SKILLS_NAME|           ONET_NAME|           CIP6_NAME|       SOC_NAME|SOC_CODE|SPECIALIZED_OCCUPATION|          OCCUPATION|    0CCUPATION_GROUP|         CAREER_AREA|NAICS_2022_6|   NAICS_2022_6_NAME|AVERAGE_SALARY|
++--------------------+--------+--------------------+--------------------+-------------------+---------------------+-------------------+------------------+--------------------+--------------------+--------------------+--------+---------+-----------+----------------+--------------------+------------------+--------------------+--------------------+----------+------+--------------------+-------------------+--------------------+--------------------+-----------------------+--------------------+--------------------+--------------------+--------------------+--------------------+---------------+--------+----------------------+--------------------+--------------------+--------------------+------------+--------------------+--------------+
+|1f57d95acf4dc67ed...|6/2/2024|          Murphy USA|          Murphy USA|              false| [  "Bachelor's de...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                   2|                 2.0|    NULL| 130042.0|    87295.0|          [None]|{\n  "lat": 33.20...|     El Dorado, AR|           Union, AR|       El Dorado, AR|  Arkansas|441330|Automotive Parts ...|Enterprise Analysts|enterprise analys...|[\n  "Merchandisi...|   [\n  "Merchandisi...|                  []|[\n  "Mathematics...|[\n  "SQL (Progra...|Business Intellig...|[\n  "Economics, ...|Data Scientists| 15-2051|  General ERP Analy...|Business Intellig...|Business Intellig...|Information Techn...|      441330|Automotive Parts ...|      108668.5|
+|0cb072af26757b6c4...|6/2/2024|Smx Corporation L...|                 SMX|               true| [  "No Education ...|No Education Listed|              NULL|Full-time (&gt; 32 h...|                   3|                 3.0|    NULL| 130042.0|    87295.0|          Remote|{\n  "lat": 44.31...|       Augusta, ME|        Kennebec, ME|Augusta-Watervill...|     Maine|561320|Temporary Help Se...| Oracle Consultants|oracle consultant...|[\n  "Procurement...|   [\n  "Procurement...|                  []|                  []|[\n  "Oracle Busi...|Business Intellig...|                  []|Data Scientists| 15-2051|  Oracle Consultant...|Business Intellig...|Business Intellig...|Information Techn...|      561320|Temporary Help Se...|      108668.5|
+|85318b12b3331fa49...|6/2/2024|            Sedgwick|            Sedgwick|              false| [  "Bachelor's de...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                   5|                NULL|    NULL| 130042.0|    87295.0|          [None]|{\n  "lat": 32.77...|        Dallas, TX|          Dallas, TX|Dallas-Fort Worth...|     Texas|524291|    Claims Adjusting|      Data Analysts|        data analyst|[\n  "Management"...|   [\n  "Exception R...|[\n  "Security Cl...|[\n  "Management"...|[\n  "Microsoft O...|Business Intellig...|                  []|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      524291|    Claims Adjusting|      108668.5|
+|1b5c3941e54a1889e...|6/2/2024|         Wells Fargo|         Wells Fargo|              false| [  "No Education ...|No Education Listed|              NULL|Full-time (&gt; 32 h...|                   3|                NULL|    NULL| 130042.0|    87295.0|          [None]|{\n  "lat": 33.44...|       Phoenix, AZ|        Maricopa, AZ|Phoenix-Mesa-Chan...|   Arizona|522110|  Commercial Banking|Management Analysts|sr lead data mgmt...|[\n  "Exit Strate...|   [\n  "Exit Strate...|                  []|[\n  "Reliability...|[\n  "SAS (Softwa...|Business Intellig...|                  []|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      522110|  Commercial Banking|      108668.5|
+|cb5ca25f02bdf25c1...|6/2/2024|        Unclassified|               LH/GM|              false| [  "No Education ...|No Education Listed|              NULL|Part-time / full-...|                NULL|                NULL| 92500.0| 150000.0|    35000.0|          [None]|{\n  "lat": 37.63...|       Modesto, CA|      Stanislaus, CA|         Modesto, CA|California|999999|Unclassified Indu...|       Unclassified|comisiones de por...|                  []|                     []|                  []|                  []|                  []|Business Intellig...|                  []|Data Scientists| 15-2051|  Oracle Consultant...|Business Intellig...|Business Intellig...|Information Techn...|      999999|Unclassified Indu...|       92500.0|
+|35a6cd2183d9fb270...|6/2/2024|  Lumen Technologies|               Lumen|              false| [  "Bachelor's de...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                NULL|                NULL|110155.0| 125890.0|    94420.0|          Remote|{\n  "lat": 0,\n ...|[Unknown City], AR|[Unknown county], AR|                NULL|  Arkansas|517810|All Other Telecom...| Lead Data Analysts|sr lead data analyst|[\n  "Power BI",\...|   [\n  "Power BI",\...|                  []|[\n  "Presentatio...|[\n  "Power BI",\...|Business Intellig...|[\n  "Business Ad...|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      517810|All Other Telecom...|      110155.0|
+|06de8d192f30b1d8d...|6/2/2024|Semiconductor Com...|Semiconductor Com...|              false| [  "Bachelor's de...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                NULL|                NULL|    NULL| 130042.0|    87295.0|          [None]|{\n  "lat": 33.49...|    Scottsdale, AZ|        Maricopa, AZ|Phoenix-Mesa-Chan...|   Arizona|334413|Semiconductor and...|   IT Data Analysts| talent data analyst|[\n  "Interactive...|   [\n  "Interactive...|                  []|[\n  "Analytical ...|[\n  "Interactive...|Business Intellig...|                  []|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      334413|Semiconductor and...|      108668.5|
+|3d589c9d84677ca94...|6/2/2024|            Sedgwick|            Sedgwick|              false| [  "Bachelor's de...|  Bachelor's degree|              NULL|Full-time (&gt; 32 h...|                   5|                NULL|    NULL| 130042.0|    87295.0|          [None]|{\n  "lat": 39.75...|        Dayton, OH|      Montgomery, OH|Dayton-Kettering, OH|      Ohio|524291|    Claims Adjusting|      Data Analysts|        data analyst|[\n  "Management"...|   [\n  "Exception R...|[\n  "Security Cl...|[\n  "Management"...|[\n  "Microsoft O...|Business Intellig...|                  []|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      524291|    Claims Adjusting|      108668.5|
+|5a843df632e1ff756...|6/2/2024|Global Enterprise...|Global Enterprise...|               true| [  "No Education ...|No Education Listed|              NULL|Full-time (&gt; 32 h...|                   7|                 7.0|    NULL| 130042.0|    87295.0|          [None]|{\n  "lat": 41.12...|      Franklin, NJ|          Sussex, NJ|New York-Newark-J...|New Jersey|999999|Unclassified Indu...|SAP OTC Consultants|sap sd otc consul...|[\n  "JavaScript ...|   [\n  "JavaScript ...|                  []|                  []|[\n  "JavaScript ...|Business Intellig...|                  []|Data Scientists| 15-2051|  General ERP Analy...|Business Intellig...|Business Intellig...|Information Techn...|      999999|Unclassified Indu...|      108668.5|
+|229620073766234e8...|6/2/2024|  Dassault SystÃ¨mes|    Dassault Systmes|              false| [  "Bachelor's de...|  Bachelor's degree|   Master's degree|Full-time (&gt; 32 h...|                   2|                 2.0| 92962.0| 106424.0|    79500.0|          [None]|{\n  "lat": 40.75...|      New York, NY|        New York, NY|New York-Newark-J...|  New York|541511|Custom Computer P...| Marketing Analysts|sr marketing analyst|[\n  "Salesforce"...|   [\n  "Salesforce"...|                  []|[\n  "Prioritizat...|[\n  "Salesforce"...|Business Intellig...|[\n  "Business/Co...|Data Scientists| 15-2051|          Data Analyst|Data / Data Minin...|Data Analysis and...|Information Techn...|      541511|Custom Computer P...|       92962.0|
++--------------------+--------+--------------------+--------------------+-------------------+---------------------+-------------------+------------------+--------------------+--------------------+--------------------+--------+---------+-----------+----------------+--------------------+------------------+--------------------+--------------------+----------+------+--------------------+-------------------+--------------------+--------------------+-----------------------+--------------------+--------------------+--------------------+--------------------+--------------------+---------------+--------+----------------------+--------------------+--------------------+--------------------+------------+--------------------+--------------+
 only showing top 10 rows</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
@@ -544,7 +549,7 @@ only showing top 10 rows</code></pre>
 </section>
 <section id="columns-with-50-missing---dropped" class="level3">
 <h3 class="anchored" data-anchor-id="columns-with-50-missing---dropped">Columns with &gt;50% Missing - Dropped</h3>
-<div id="18161490" class="cell" data-execution_count="5">
+<div id="9a4a8081" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> missingno <span class="im">as</span> msno</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -564,19 +569,19 @@ only showing top 10 rows</code></pre>
 </section>
 <section id="categorical-fields---filled-with-unknown" class="level3">
 <h3 class="anchored" data-anchor-id="categorical-fields---filled-with-unknown">Categorical Fields - Filled with “Unknown”</h3>
-<div id="4a2396f7" class="cell" data-execution_count="6">
+<div id="bc4c41c3" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>categorical_cols <span class="op">=</span> clean_pd.select_dtypes(include<span class="op">=</span>[<span class="st">"object"</span>, <span class="st">"category"</span>, <span class="st">"string"</span>]).columns.tolist()</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>numerical_cols <span class="op">=</span> clean_pd.select_dtypes(include<span class="op">=</span>[<span class="st">"number"</span>]).columns.tolist()</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Categorical:"</span>, categorical_cols)</span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Numerical:"</span>, numerical_cols)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Categorical: ['ID', 'COMPANY_NAME', 'COMPANY_RAW', 'COMPANY_IS_STAFFING', 'EDUCATION_LEVELS_NAME', 'MIN_EDULEVELS_NAME', 'EMPLOYMENT_TYPE_NAME', 'REMOTE_TYPE_NAME', 'CITY_NAME', 'COUNTY_NAME', 'MSA_NAME', 'STATE_NAME', 'NAICS6_NAME', 'TITLE_NAME', 'TITLE_CLEAN', 'SKILLS_NAME', 'SPECIALIZED_SKILLS_NAME', 'CERTIFICATIONS_NAME', 'COMMON_SKILLS_NAME', 'SOFTWARE_SKILLS_NAME', 'ONET_NAME', 'CIP6_NAME', 'SOC_NAME', 'SOC_CODE', 'SPECIALIZED_OCCUPATION', 'OCCUPATION', '0CCUPATION_GROUP', 'CAREER_AREA', 'NAICS_2022_6_NAME']
+<pre><code>Categorical: ['ID', 'POSTED', 'COMPANY_NAME', 'COMPANY_RAW', 'COMPANY_IS_STAFFING', 'EDUCATION_LEVELS_NAME', 'MIN_EDULEVELS_NAME', 'EMPLOYMENT_TYPE_NAME', 'REMOTE_TYPE_NAME', 'LOCATION', 'CITY_NAME', 'COUNTY_NAME', 'MSA_NAME', 'STATE_NAME', 'NAICS6_NAME', 'TITLE_NAME', 'TITLE_CLEAN', 'SKILLS_NAME', 'SPECIALIZED_SKILLS_NAME', 'CERTIFICATIONS_NAME', 'COMMON_SKILLS_NAME', 'SOFTWARE_SKILLS_NAME', 'ONET_NAME', 'CIP6_NAME', 'SOC_NAME', 'SOC_CODE', 'SPECIALIZED_OCCUPATION', 'OCCUPATION', '0CCUPATION_GROUP', 'CAREER_AREA', 'NAICS_2022_6_NAME']
 Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS_2022_6', 'AVERAGE_SALARY']</code></pre>
 </div>
 </div>
-<div id="eb59513a" class="cell" data-execution_count="7">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>cols <span class="op">=</span> [<span class="st">'ID'</span>,<span class="st">'COMPANY_NAME'</span>, <span class="st">'COMPANY_RAW'</span>, <span class="st">'COMPANY_IS_STAFFING'</span>, <span class="st">'EDUCATION_LEVELS_NAME'</span>, <span class="st">'MIN_EDULEVELS_NAME'</span>, <span class="st">'EMPLOYMENT_TYPE_NAME'</span>, <span class="st">'MIN_YEARS_EXPERIENCE'</span>,<span class="st">'REMOTE_TYPE_NAME'</span>, <span class="st">'CITY_NAME'</span>, <span class="st">'COUNTY_NAME'</span>, <span class="st">'MSA_NAME'</span>, <span class="st">'STATE_NAME'</span>,<span class="st">'NAICS6'</span>,<span class="st">'NAICS6_NAME'</span>, <span class="st">'TITLE_NAME'</span>, <span class="st">'TITLE_CLEAN'</span>, <span class="st">'SKILLS_NAME'</span>, <span class="st">'SPECIALIZED_SKILLS_NAME'</span>, <span class="st">'CERTIFICATIONS_NAME'</span>, <span class="st">'COMMON_SKILLS_NAME'</span>, <span class="st">'SOFTWARE_SKILLS_NAME'</span>, <span class="st">'ONET_NAME'</span>, <span class="st">'CIP6_NAME'</span>, <span class="st">'SOC_NAME'</span>, <span class="st">'SOC_CODE'</span>, <span class="st">'SPECIALIZED_OCCUPATION'</span>, <span class="st">'OCCUPATION'</span>, <span class="st">'0CCUPATION_GROUP'</span>, <span class="st">'CAREER_AREA'</span>, <span class="st">'NAICS_2022_6'</span>,<span class="st">'NAICS_2022_6_NAME'</span>]</span>
+<div id="24b5e3b6" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>cols <span class="op">=</span> [<span class="st">'ID'</span>,<span class="st">'COMPANY_NAME'</span>, <span class="st">'COMPANY_RAW'</span>, <span class="st">'COMPANY_IS_STAFFING'</span>, <span class="st">'EDUCATION_LEVELS_NAME'</span>, <span class="st">'MIN_EDULEVELS_NAME'</span>, <span class="st">'EMPLOYMENT_TYPE_NAME'</span>, <span class="st">'MIN_YEARS_EXPERIENCE'</span>,<span class="st">'REMOTE_TYPE_NAME'</span>, <span class="st">'CITY_NAME'</span>, <span class="st">'COUNTY_NAME'</span>, <span class="st">'MSA_NAME'</span>, <span class="st">'STATE_NAME'</span>,<span class="st">'NAICS6'</span>,<span class="st">'NAICS6_NAME'</span>, <span class="st">'TITLE_NAME'</span>, <span class="st">'TITLE_CLEAN'</span>, <span class="st">'SKILLS_NAME'</span>, <span class="st">'SPECIALIZED_SKILLS_NAME'</span>, <span class="st">'CERTIFICATIONS_NAME'</span>, <span class="st">'COMMON_SKILLS_NAME'</span>, <span class="st">'SOFTWARE_SKILLS_NAME'</span>, <span class="st">'ONET_NAME'</span>, <span class="st">'CIP6_NAME'</span>, <span class="st">'SOC_NAME'</span>, <span class="st">'SOC_CODE'</span>, <span class="st">'SPECIALIZED_OCCUPATION'</span>, <span class="st">'OCCUPATION'</span>, <span class="st">'0CCUPATION_GROUP'</span>, <span class="st">'CAREER_AREA'</span>, <span class="st">'NAICS_2022_6'</span>,<span class="st">'NAICS_2022_6_NAME'</span>, <span class="st">'LOCATION'</span>, <span class="st">'POSTED'</span>]</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>clean_pd[cols] <span class="op">=</span> clean_pd[cols].fillna(<span class="st">"Unknown"</span>)</span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -591,6 +596,7 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
 <th data-quarto-table-cell-role="th">ID</th>
+<th data-quarto-table-cell-role="th">POSTED</th>
 <th data-quarto-table-cell-role="th">COMPANY_NAME</th>
 <th data-quarto-table-cell-role="th">COMPANY_RAW</th>
 <th data-quarto-table-cell-role="th">COMPANY_IS_STAFFING</th>
@@ -599,7 +605,6 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <th data-quarto-table-cell-role="th">EMPLOYMENT_TYPE_NAME</th>
 <th data-quarto-table-cell-role="th">MIN_YEARS_EXPERIENCE</th>
 <th data-quarto-table-cell-role="th">SALARY_TO</th>
-<th data-quarto-table-cell-role="th">SALARY_FROM</th>
 <th data-quarto-table-cell-role="th">...</th>
 <th data-quarto-table-cell-role="th">CIP6_NAME</th>
 <th data-quarto-table-cell-role="th">SOC_NAME</th>
@@ -617,6 +622,7 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <tr class="odd">
 <th data-quarto-table-cell-role="th">0</th>
 <td>1f57d95acf4dc67ed2819eb12f049f6a5c11782c</td>
+<td>6/2/2024</td>
 <td>Murphy USA</td>
 <td>Murphy USA</td>
 <td>False</td>
@@ -625,7 +631,6 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <td>Full-time (&gt; 32 hours)</td>
 <td>2.0</td>
 <td>130042.0</td>
-<td>87295.0</td>
 <td>...</td>
 <td>[\n&nbsp;&nbsp;"Economics, General",\n&nbsp;&nbsp;"Mathematics, Ge...</td>
 <td>Data Scientists</td>
@@ -641,6 +646,7 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <tr class="even">
 <th data-quarto-table-cell-role="th">1</th>
 <td>0cb072af26757b6c4ea9464472a50a443af681ac</td>
+<td>6/2/2024</td>
 <td>Smx Corporation Limited</td>
 <td>SMX</td>
 <td>True</td>
@@ -649,7 +655,6 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <td>Full-time (&gt; 32 hours)</td>
 <td>3.0</td>
 <td>130042.0</td>
-<td>87295.0</td>
 <td>...</td>
 <td>[]</td>
 <td>Data Scientists</td>
@@ -665,6 +670,7 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <tr class="odd">
 <th data-quarto-table-cell-role="th">2</th>
 <td>85318b12b3331fa490d32ad014379df01855c557</td>
+<td>6/2/2024</td>
 <td>Sedgwick</td>
 <td>Sedgwick</td>
 <td>False</td>
@@ -673,7 +679,6 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <td>Full-time (&gt; 32 hours)</td>
 <td>5.0</td>
 <td>130042.0</td>
-<td>87295.0</td>
 <td>...</td>
 <td>[]</td>
 <td>Data Scientists</td>
@@ -689,6 +694,7 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <tr class="even">
 <th data-quarto-table-cell-role="th">3</th>
 <td>1b5c3941e54a1889ef4f8ae55b401a550708a310</td>
+<td>6/2/2024</td>
 <td>Wells Fargo</td>
 <td>Wells Fargo</td>
 <td>False</td>
@@ -697,7 +703,6 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <td>Full-time (&gt; 32 hours)</td>
 <td>3.0</td>
 <td>130042.0</td>
-<td>87295.0</td>
 <td>...</td>
 <td>[]</td>
 <td>Data Scientists</td>
@@ -713,6 +718,7 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <tr class="odd">
 <th data-quarto-table-cell-role="th">4</th>
 <td>cb5ca25f02bdf25c13edfede7931508bfd9e858f</td>
+<td>6/2/2024</td>
 <td>Unclassified</td>
 <td>LH/GM</td>
 <td>False</td>
@@ -721,7 +727,6 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <td>Part-time / full-time</td>
 <td>Unknown</td>
 <td>150000.0</td>
-<td>35000.0</td>
 <td>...</td>
 <td>[]</td>
 <td>Data Scientists</td>
@@ -737,6 +742,7 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <tr class="even">
 <th data-quarto-table-cell-role="th">5</th>
 <td>35a6cd2183d9fb270e3f504b270f36d43cb759a6</td>
+<td>6/2/2024</td>
 <td>Lumen Technologies</td>
 <td>Lumen</td>
 <td>False</td>
@@ -745,7 +751,6 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <td>Full-time (&gt; 32 hours)</td>
 <td>Unknown</td>
 <td>125890.0</td>
-<td>94420.0</td>
 <td>...</td>
 <td>[\n&nbsp;&nbsp;"Business Administration and Management, ...</td>
 <td>Data Scientists</td>
@@ -761,6 +766,7 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <tr class="odd">
 <th data-quarto-table-cell-role="th">6</th>
 <td>06de8d192f30b1d8d3c575d453faf143d332f4d4</td>
+<td>6/2/2024</td>
 <td>Semiconductor Components Industries</td>
 <td>Semiconductor Components Industries, LLC</td>
 <td>False</td>
@@ -769,7 +775,6 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <td>Full-time (&gt; 32 hours)</td>
 <td>Unknown</td>
 <td>130042.0</td>
-<td>87295.0</td>
 <td>...</td>
 <td>[]</td>
 <td>Data Scientists</td>
@@ -785,6 +790,7 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <tr class="even">
 <th data-quarto-table-cell-role="th">7</th>
 <td>3d589c9d84677ca9468a5bc82295456e0ce6b13f</td>
+<td>6/2/2024</td>
 <td>Sedgwick</td>
 <td>Sedgwick</td>
 <td>False</td>
@@ -793,7 +799,6 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <td>Full-time (&gt; 32 hours)</td>
 <td>5.0</td>
 <td>130042.0</td>
-<td>87295.0</td>
 <td>...</td>
 <td>[]</td>
 <td>Data Scientists</td>
@@ -809,6 +814,7 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <tr class="odd">
 <th data-quarto-table-cell-role="th">8</th>
 <td>5a843df632e1ff756fa19d80a0871262d51becc0</td>
+<td>6/2/2024</td>
 <td>Global Enterprise Partners</td>
 <td>Global Enterprise Partners</td>
 <td>True</td>
@@ -817,7 +823,6 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <td>Full-time (&gt; 32 hours)</td>
 <td>7.0</td>
 <td>130042.0</td>
-<td>87295.0</td>
 <td>...</td>
 <td>[]</td>
 <td>Data Scientists</td>
@@ -833,6 +838,7 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <tr class="even">
 <th data-quarto-table-cell-role="th">9</th>
 <td>229620073766234e814e8add21db7dfaef69b3bd</td>
+<td>6/2/2024</td>
 <td>Dassault SystÃ¨mes</td>
 <td>Dassault Systmes</td>
 <td>False</td>
@@ -841,7 +847,6 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 <td>Full-time (&gt; 32 hours)</td>
 <td>2.0</td>
 <td>106424.0</td>
-<td>79500.0</td>
 <td>...</td>
 <td>[\n&nbsp;&nbsp;"Business/Commerce, General",\n&nbsp;&nbsp;"Economi...</td>
 <td>Data Scientists</td>
@@ -857,13 +862,26 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS
 </tbody>
 </table>
 
-<p>10 rows × 35 columns</p>
+<p>10 rows × 37 columns</p>
 </div>
 </div>
 </div>
-
-
 </section>
+</section>
+<section id="remove-duplicates" class="level2">
+<h2 class="anchored" data-anchor-id="remove-duplicates">Remove Duplicates</h2>
+<p>This step helps to ensure that there is no duplication in the data set and only each job posting is counted once.</p>
+<div id="4fe410d3" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>clean_pd <span class="op">=</span> clean_pd.drop_duplicates(subset<span class="op">=</span>[<span class="st">"TITLE_NAME"</span>, <span class="st">"COMPANY_NAME"</span>, <span class="st">"LOCATION"</span>, <span class="st">"POSTED"</span>], keep<span class="op">=</span><span class="st">"first"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="save-as-csv" class="level2">
+<h2 class="anchored" data-anchor-id="save-as-csv">Save as CSV</h2>
+<div id="8bef2437" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>clean_pd.to_csv(<span class="st">"data/clean_job_postings.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+
 </section>
 
 </main> <!-- /main -->

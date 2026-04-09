@@ -3,3 +3,38 @@ title: "Exploratory Data Analysis"
 ---
 
 Exploratory Data Analysis (EDA) is a crucial step in the data analysis process that involves summarizing the main characteristics of a dataset, often using visual methods. The goal of EDA is to gain insights into the data, identify patterns, detect anomalies, and test hypotheses before applying more formal statistical modeling techniques.
+
+# Count of Specialized Occupation - to show which roles dominate the market.
+```{python}
+
+```
+
+# Skill demand analysis - Explode SOFTWARE_SKILLS_NAME, SPECIALIZED_SKILLS_NAME, and COMMON_SKILLS_NAME, then count frequency of each skill across all postings.
+```{python}
+
+```
+
+# Skill-by-role analysis - Compare top skills within each major role group. 
+```{python}
+
+```
+
+# Time trend analysis - Use POSTED by month. This shows whether demand is stable, rising, or seasonal.
+```{python}
+
+```
+
+# Geography analysis - Use STATE_NAME, CITY_NAME, or MSA_NAME to show where demand is concentrated. 
+```{python}
+
+```
+
+# Remote-work analysis - Compare REMOTE_TYPE_NAME by role and skill.
+```{python}
+
+```
+
+# Salary vs demand analysis - Use sVERAGE_SALARY, compare demand with pay by role or skill cluster.
+```{python}
+
+```

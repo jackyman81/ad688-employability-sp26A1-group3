@@ -5,6 +5,8 @@ execute:
   enabled: false
 ---
 
+Cleaning the data set is a crucial step to the analysis process. Keeping relevant data only and removing any duplicates or replacing any missing values helps to bring more accuracy and consiceness to the analysis. 
+
 ```{python}
 import pandas as pd
 print("working")
@@ -34,6 +36,7 @@ df.show(5)
 
 ## Keeping Necessary Columns
 
+The following columns were chosen as they provide relevant information for analysis. NIACS, ONET, CIP, SOC, and LOT categories all had multiple different columns - only the latest were kept in order to reflect the current classifications. Cutting down the amount of columns and data set overall helps to make a cleaner data set to work with with less clutter.
 ```{python}
 from pyspark.sql.functions import col, monotonically_increasing_id
 
@@ -149,6 +152,7 @@ clean_pd.head(10)
 ```
 
 ## Remove Duplicates
+This step helps to ensure that there is no duplication in the data set and only each job posting is counted once. 
 ```{python}
 clean_pd = clean_pd.drop_duplicates(subset=["TITLE_NAME", "COMPANY_NAME", "LOCATION", "POSTED"], keep="first")
 ```
