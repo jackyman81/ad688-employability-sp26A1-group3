@@ -1,5 +1,6 @@
 project:
   type: website
+  output-dir: .
 bibliography: references.bib
 csl: csl/econometrica.csl
 

@@ -1,6 +1,8 @@
 ---
 title: "Data Preparation"
 format: html
+execute:
+  enabled: false
 ---
 
 ```{python}
