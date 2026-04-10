@@ -1,5 +1,29 @@
 ---
 title: "Skill Gap Analysis"
+ormat:
+  html:
+    toc: true
+    html-math-method: katex
+    code-overflow: wrap
+execute:
+  echo: true
+  eval: false
 ---
 
-Analyzing the skills needed for AI and non-AI jobs
+<!-- ```{python}
+#| echo: true
+#| eval: true
+import pandas as pd
+
+skills_data = {
+    "Name": ["Jessica, Jacky"],
+    "Python": [4, 3],
+    "SQL": [4, 3],
+    "Machine Learning": [3, 2],
+    "Cloud Computing": [2, 3]
+}
+
+df_skills = pd.DataFrame(skills_data)
+df_skills.set_index("Name", inplace=True)
+df_skills
+``` -->
