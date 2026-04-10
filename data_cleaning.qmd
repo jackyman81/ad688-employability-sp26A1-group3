@@ -70,17 +70,15 @@ clean_df = df.select(
     col("STATE_NAME"),
     col("NAICS6"),
     col("NAICS6_NAME"),
-    col("TITLE_NAME"),
-    col("TITLE_CLEAN"),
     col("SKILLS_NAME"),
     col("SPECIALIZED_SKILLS_NAME"),
     col("CERTIFICATIONS_NAME"),
     col("COMMON_SKILLS_NAME"),
     col("SOFTWARE_SKILLS_NAME"),
-    col("ONET_NAME"),
+    # col("ONET_NAME"),
     col("CIP6_NAME"),
-    col("SOC_5_NAME").alias("SOC_NAME"),
-    col("SOC_5").alias("SOC_CODE"),
+    # col("SOC_5_NAME").alias("SOC_NAME"),
+    # col("SOC_5").alias("SOC_CODE"),
     col("LOT_V6_SPECIALIZED_OCCUPATION_NAME").alias("SPECIALIZED_OCCUPATION"),
     col("LOT_V6_OCCUPATION_NAME").alias("OCCUPATION"),
     col("LOT_V6_OCCUPATION_GROUP_NAME").alias("OCCUPATION_GROUP"),
@@ -126,7 +124,7 @@ clean_df = clean_df.withColumn(
 )
 
 # clean_df.show(10)
-clean_pd = clean_df.select('COMPANY_IS_STAFFING', 'EDUCATION_LEVELS_NAME', 'MIN_EDULEVELS_NAME', 'EMPLOYMENT_TYPE_NAME', 'MIN_YEARS_EXPERIENCE','REMOTE_TYPE_NAME').toPandas()
+clean_pd = clean_df.toPandas()
 clean_pd.head()
 ```
 
@@ -164,8 +162,8 @@ print("Numerical:", numerical_cols)
 
 ```{python}
 #| echo: true
-#| eval: true
-cols = ['COMPANY_IS_STAFFING', 'EDUCATION_LEVELS_NAME', 'MIN_EDULEVELS_NAME', 'EMPLOYMENT_TYPE_NAME', 'MIN_YEARS_EXPERIENCE','REMOTE_TYPE_NAME', 'CITY_NAME', 'COUNTY_NAME', 'MSA_NAME', 'STATE_NAME','NAICS6','NAICS6_NAME', 'TITLE_NAME', 'TITLE_CLEAN', 'SKILLS_NAME', 'SPECIALIZED_SKILLS_NAME', 'CERTIFICATIONS_NAME', 'COMMON_SKILLS_NAME', 'SOFTWARE_SKILLS_NAME', 'ONET_NAME', 'CIP6_NAME', 'SOC_NAME', 'SOC_CODE', 'SPECIALIZED_OCCUPATION', 'OCCUPATION', 'OCCUPATION_GROUP', 'CAREER_AREA', 'NAICS_2022_6','NAICS_2022_6_NAME', 'LOCATION', 'POSTED']
+#| eval: false
+cols = ['COMPANY_IS_STAFFING', 'EDUCATION_LEVELS_NAME', 'MIN_EDULEVELS_NAME', 'EMPLOYMENT_TYPE_NAME', 'MIN_YEARS_EXPERIENCE','REMOTE_TYPE_NAME','NAICS6','NAICS6_NAME', 'SKILLS_NAME', 'SPECIALIZED_SKILLS_NAME', 'CERTIFICATIONS_NAME', 'COMMON_SKILLS_NAME', 'SOFTWARE_SKILLS_NAME', 'ONET_NAME', 'CIP6_NAME', 'SOC_NAME', 'SOC_CODE', 'SPECIALIZED_OCCUPATION', 'OCCUPATION', 'OCCUPATION_GROUP', 'CAREER_AREA', 'LOCATION', 'POSTED']
 
 clean_pd[cols] = clean_pd[cols].fillna("Unknown")
 
@@ -178,7 +176,7 @@ This step helps to ensure that there is no duplication in the data set and only 
 ```{python}
 #| echo: true
 #| eval: true
-clean_pd = clean_pd.drop_duplicates(subset=["TITLE_NAME", "COMPANY_NAME", "LOCATION", "POSTED"], keep="first")
+# clean_pd = clean_pd.drop_duplicates(subset=["TITLE_NAME", "COMPANY_NAME", "LOCATION", "POSTED"], keep="first")
 ```
 
 ## Save as CSV

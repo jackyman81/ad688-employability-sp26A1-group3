@@ -184,6 +184,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#columns-with-50-missing---dropped" id="toc-columns-with-50-missing---dropped" class="nav-link" data-scroll-target="#columns-with-50-missing---dropped">Columns with &gt;50% Missing - Dropped</a></li>
   <li><a href="#categorical-fields---filled-with-unknown" id="toc-categorical-fields---filled-with-unknown" class="nav-link" data-scroll-target="#categorical-fields---filled-with-unknown">Categorical Fields - Filled with “Unknown”</a></li>
   </ul></li>
+  <li><a href="#missing-value-imputation---categorical-columns-and-numerical-columns" id="toc-missing-value-imputation---categorical-columns-and-numerical-columns" class="nav-link" data-scroll-target="#missing-value-imputation---categorical-columns-and-numerical-columns">Missing Value Imputation - Categorical Columns and Numerical Columns</a></li>
   <li><a href="#remove-duplicates" id="toc-remove-duplicates" class="nav-link" data-scroll-target="#remove-duplicates">Remove Duplicates</a></li>
   <li><a href="#save-as-csv" id="toc-save-as-csv" class="nav-link" data-scroll-target="#save-as-csv">Save as CSV</a></li>
   </ul>
@@ -212,14 +213,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>Cleaning the data set is a crucial step to the analysis process. Keeping relevant data only and removing any duplicates or replacing any missing values helps to bring more accuracy and consiceness to the analysis.</p>
-<div id="8aadf89d" class="cell" data-execution_count="1">
+<div id="7e4409ac" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"working"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>working</code></pre>
 </div>
 </div>
-<div id="52594974" class="cell" data-execution_count="2">
+<div id="39e4f086" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Start a Spark session</span></span>
@@ -243,57 +244,49 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="keeping-necessary-columns" class="level2">
 <h2 class="anchored" data-anchor-id="keeping-necessary-columns">Keeping Necessary Columns</h2>
 <p>The following columns were chosen as they provide relevant information for analysis. NIACS, ONET, CIP, SOC, and LOT categories all had multiple different columns - only the latest were kept in order to reflect the current classifications. Cutting down the amount of columns and data set overall helps to make a cleaner data set to work with with less clutter.</p>
-<div id="5b594548" class="cell" data-execution_count="3">
+<div id="59c328f5" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col, monotonically_increasing_id</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>clean_df <span class="op">=</span> df.select(</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"ID"</span>),</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"POSTED"</span>),</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"COMPANY_NAME"</span>),</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"COMPANY_RAW"</span>),</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"COMPANY_IS_STAFFING"</span>),</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"EDUCATION_LEVELS_NAME"</span>),</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MIN_EDULEVELS_NAME"</span>),</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MAX_EDULEVELS_NAME"</span>),</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"EMPLOYMENT_TYPE_NAME"</span>),</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MIN_YEARS_EXPERIENCE"</span>), </span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MAX_YEARS_EXPERIENCE"</span>), </span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SALARY"</span>),</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SALARY_TO"</span>),</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SALARY_FROM"</span>),</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"REMOTE_TYPE_NAME"</span>), </span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"LOCATION"</span>),</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"CITY_NAME"</span>),</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"COUNTY_NAME"</span>),</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MSA_NAME"</span>),</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"STATE_NAME"</span>),</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"NAICS6"</span>),</span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"NAICS6_NAME"</span>),</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"TITLE_NAME"</span>),</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"TITLE_CLEAN"</span>),</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SKILLS_NAME"</span>),</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SPECIALIZED_SKILLS_NAME"</span>),</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"CERTIFICATIONS_NAME"</span>),</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"COMMON_SKILLS_NAME"</span>),</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SOFTWARE_SKILLS_NAME"</span>),</span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"ONET_NAME"</span>),</span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"CIP6_NAME"</span>),</span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SOC_5_NAME"</span>).alias(<span class="st">"SOC_NAME"</span>),</span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SOC_5"</span>).alias(<span class="st">"SOC_CODE"</span>),</span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"LOT_V6_SPECIALIZED_OCCUPATION_NAME"</span>).alias(<span class="st">"SPECIALIZED_OCCUPATION"</span>),</span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"LOT_V6_OCCUPATION_NAME"</span>).alias(<span class="st">"OCCUPATION"</span>),</span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"LOT_V6_OCCUPATION_GROUP_NAME"</span>).alias(<span class="st">"OCCUPATION_GROUP"</span>),</span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"LOT_V6_CAREER_AREA_NAME"</span>).alias(<span class="st">"CAREER_AREA"</span>),</span>
-<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"NAICS_2022_6"</span>),</span>
-<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"NAICS_2022_6_NAME"</span>)</span>
-<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"POSTED"</span>),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"COMPANY_IS_STAFFING"</span>),</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"EDUCATION_LEVELS_NAME"</span>),</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MIN_EDULEVELS_NAME"</span>),</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MAX_EDULEVELS_NAME"</span>),</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"EMPLOYMENT_TYPE_NAME"</span>),</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MIN_YEARS_EXPERIENCE"</span>), </span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MAX_YEARS_EXPERIENCE"</span>), </span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SALARY"</span>),</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SALARY_TO"</span>),</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SALARY_FROM"</span>),</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"REMOTE_TYPE_NAME"</span>), </span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"LOCATION"</span>),</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"CITY_NAME"</span>),</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"MSA_NAME"</span>),</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"STATE_NAME"</span>),</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"NAICS6"</span>),</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"NAICS6_NAME"</span>),</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SKILLS_NAME"</span>),</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SPECIALIZED_SKILLS_NAME"</span>),</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"CERTIFICATIONS_NAME"</span>),</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"COMMON_SKILLS_NAME"</span>),</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"SOFTWARE_SKILLS_NAME"</span>),</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># col("ONET_NAME"),</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"CIP6_NAME"</span>),</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="co"># col("SOC_5_NAME").alias("SOC_NAME"),</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># col("SOC_5").alias("SOC_CODE"),</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"LOT_V6_SPECIALIZED_OCCUPATION_NAME"</span>).alias(<span class="st">"SPECIALIZED_OCCUPATION"</span>),</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"LOT_V6_OCCUPATION_NAME"</span>).alias(<span class="st">"OCCUPATION"</span>),</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"LOT_V6_OCCUPATION_GROUP_NAME"</span>).alias(<span class="st">"OCCUPATION_GROUP"</span>),</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"LOT_V6_CAREER_AREA_NAME"</span>).alias(<span class="st">"CAREER_AREA"</span>),</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="handling-missing-values" class="level2">
 <h2 class="anchored" data-anchor-id="handling-missing-values">Handling Missing Values</h2>
 <section id="numerical-fields---filled-with-median" class="level3">
 <h3 class="anchored" data-anchor-id="numerical-fields---filled-with-median">Numerical Fields - Filled with Median</h3>
-<div id="22860092" class="cell" data-execution_count="4">
+<div id="30a09c98" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql. functions <span class="im">import</span> regexp_replace</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -330,7 +323,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-stdout">
 <pre><code>Medians: 87295.0 130042.0 115024.0</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="13">
+<div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 
 
@@ -338,161 +331,161 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">ID</th>
 <th data-quarto-table-cell-role="th">POSTED</th>
-<th data-quarto-table-cell-role="th">COMPANY_NAME</th>
-<th data-quarto-table-cell-role="th">COMPANY_RAW</th>
 <th data-quarto-table-cell-role="th">COMPANY_IS_STAFFING</th>
 <th data-quarto-table-cell-role="th">EDUCATION_LEVELS_NAME</th>
 <th data-quarto-table-cell-role="th">MIN_EDULEVELS_NAME</th>
 <th data-quarto-table-cell-role="th">MAX_EDULEVELS_NAME</th>
 <th data-quarto-table-cell-role="th">EMPLOYMENT_TYPE_NAME</th>
 <th data-quarto-table-cell-role="th">MIN_YEARS_EXPERIENCE</th>
+<th data-quarto-table-cell-role="th">MAX_YEARS_EXPERIENCE</th>
+<th data-quarto-table-cell-role="th">SALARY</th>
+<th data-quarto-table-cell-role="th">SALARY_TO</th>
 <th data-quarto-table-cell-role="th">...</th>
+<th data-quarto-table-cell-role="th">SPECIALIZED_SKILLS_NAME</th>
+<th data-quarto-table-cell-role="th">CERTIFICATIONS_NAME</th>
+<th data-quarto-table-cell-role="th">COMMON_SKILLS_NAME</th>
+<th data-quarto-table-cell-role="th">SOFTWARE_SKILLS_NAME</th>
 <th data-quarto-table-cell-role="th">CIP6_NAME</th>
-<th data-quarto-table-cell-role="th">SOC_NAME</th>
-<th data-quarto-table-cell-role="th">SOC_CODE</th>
 <th data-quarto-table-cell-role="th">SPECIALIZED_OCCUPATION</th>
 <th data-quarto-table-cell-role="th">OCCUPATION</th>
 <th data-quarto-table-cell-role="th">OCCUPATION_GROUP</th>
 <th data-quarto-table-cell-role="th">CAREER_AREA</th>
-<th data-quarto-table-cell-role="th">NAICS_2022_6</th>
-<th data-quarto-table-cell-role="th">NAICS_2022_6_NAME</th>
 <th data-quarto-table-cell-role="th">AVERAGE_SALARY</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">0</th>
-<td>1f57d95acf4dc67ed2819eb12f049f6a5c11782c</td>
 <td>6/2/2024</td>
-<td>Murphy USA</td>
-<td>Murphy USA</td>
 <td>False</td>
 <td>[&nbsp;&nbsp;"Bachelor's degree"]</td>
 <td>Bachelor's degree</td>
 <td>NaN</td>
 <td>Full-time (&gt; 32 hours)</td>
 <td>2.0</td>
+<td>2.0</td>
+<td>NaN</td>
+<td>130042.0</td>
 <td>...</td>
+<td>[\n&nbsp;&nbsp;"Merchandising",\n&nbsp;&nbsp;"Predictive Modeling"...</td>
+<td>[]</td>
+<td>[\n&nbsp;&nbsp;"Mathematics",\n&nbsp;&nbsp;"Presentations",\n&nbsp;&nbsp;"Re...</td>
+<td>[\n&nbsp;&nbsp;"SQL (Programming Language)",\n&nbsp;&nbsp;"Power B...</td>
 <td>[\n&nbsp;&nbsp;"Economics, General",\n&nbsp;&nbsp;"Mathematics, Ge...</td>
-<td>Data Scientists</td>
-<td>15-2051</td>
 <td>General ERP Analyst / Consultant</td>
 <td>Business Intelligence Analyst</td>
 <td>Business Intelligence</td>
 <td>Information Technology and Computer Science</td>
-<td>441330.0</td>
-<td>Automotive Parts and Accessories Retailers</td>
 <td>108668.5</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">1</th>
-<td>0cb072af26757b6c4ea9464472a50a443af681ac</td>
 <td>6/2/2024</td>
-<td>Smx Corporation Limited</td>
-<td>SMX</td>
 <td>True</td>
 <td>[&nbsp;&nbsp;"No Education Listed"]</td>
 <td>No Education Listed</td>
 <td>NaN</td>
 <td>Full-time (&gt; 32 hours)</td>
 <td>3.0</td>
+<td>3.0</td>
+<td>NaN</td>
+<td>130042.0</td>
 <td>...</td>
+<td>[\n&nbsp;&nbsp;"Procurement",\n&nbsp;&nbsp;"Financial Statements",...</td>
 <td>[]</td>
-<td>Data Scientists</td>
-<td>15-2051</td>
+<td>[]</td>
+<td>[\n&nbsp;&nbsp;"Oracle Business Intelligence (BI) / OBIA...</td>
+<td>[]</td>
 <td>Oracle Consultant / Analyst</td>
 <td>Business Intelligence Analyst</td>
 <td>Business Intelligence</td>
 <td>Information Technology and Computer Science</td>
-<td>561320.0</td>
-<td>Temporary Help Services</td>
 <td>108668.5</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">2</th>
-<td>85318b12b3331fa490d32ad014379df01855c557</td>
 <td>6/2/2024</td>
-<td>Sedgwick</td>
-<td>Sedgwick</td>
 <td>False</td>
 <td>[&nbsp;&nbsp;"Bachelor's degree"]</td>
 <td>Bachelor's degree</td>
 <td>NaN</td>
 <td>Full-time (&gt; 32 hours)</td>
 <td>5.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>130042.0</td>
 <td>...</td>
+<td>[\n&nbsp;&nbsp;"Exception Reporting",\n&nbsp;&nbsp;"Data Analysis"...</td>
+<td>[\n&nbsp;&nbsp;"Security Clearance"\n]</td>
+<td>[\n&nbsp;&nbsp;"Management",\n&nbsp;&nbsp;"Report Writing",\n&nbsp;&nbsp;"In...</td>
+<td>[\n&nbsp;&nbsp;"Microsoft Office"\n]</td>
 <td>[]</td>
-<td>Data Scientists</td>
-<td>15-2051</td>
 <td>Data Analyst</td>
 <td>Data / Data Mining Analyst</td>
 <td>Data Analysis and Mathematics</td>
 <td>Information Technology and Computer Science</td>
-<td>524291.0</td>
-<td>Claims Adjusting</td>
 <td>108668.5</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">3</th>
-<td>1b5c3941e54a1889ef4f8ae55b401a550708a310</td>
 <td>6/2/2024</td>
-<td>Wells Fargo</td>
-<td>Wells Fargo</td>
 <td>False</td>
 <td>[&nbsp;&nbsp;"No Education Listed"]</td>
 <td>No Education Listed</td>
 <td>NaN</td>
 <td>Full-time (&gt; 32 hours)</td>
 <td>3.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>130042.0</td>
 <td>...</td>
+<td>[\n&nbsp;&nbsp;"Exit Strategies",\n&nbsp;&nbsp;"User Story",\n&nbsp;&nbsp;"H...</td>
 <td>[]</td>
-<td>Data Scientists</td>
-<td>15-2051</td>
+<td>[\n&nbsp;&nbsp;"Reliability",\n&nbsp;&nbsp;"Management",\n&nbsp;&nbsp;"Strat...</td>
+<td>[\n&nbsp;&nbsp;"SAS (Software)",\n&nbsp;&nbsp;"Google Cloud Platfo...</td>
+<td>[]</td>
 <td>Data Analyst</td>
 <td>Data / Data Mining Analyst</td>
 <td>Data Analysis and Mathematics</td>
 <td>Information Technology and Computer Science</td>
-<td>522110.0</td>
-<td>Commercial Banking</td>
 <td>108668.5</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">4</th>
-<td>cb5ca25f02bdf25c13edfede7931508bfd9e858f</td>
 <td>6/2/2024</td>
-<td>Unclassified</td>
-<td>LH/GM</td>
 <td>False</td>
 <td>[&nbsp;&nbsp;"No Education Listed"]</td>
 <td>No Education Listed</td>
 <td>NaN</td>
 <td>Part-time / full-time</td>
 <td>NaN</td>
+<td>NaN</td>
+<td>92500.0</td>
+<td>150000.0</td>
 <td>...</td>
 <td>[]</td>
-<td>Data Scientists</td>
-<td>15-2051</td>
+<td>[]</td>
+<td>[]</td>
+<td>[]</td>
+<td>[]</td>
 <td>Oracle Consultant / Analyst</td>
 <td>Business Intelligence Analyst</td>
 <td>Business Intelligence</td>
 <td>Information Technology and Computer Science</td>
-<td>999999.0</td>
-<td>Unclassified Industry</td>
 <td>92500.0</td>
 </tr>
 </tbody>
 </table>
 
-<p>5 rows × 40 columns</p>
+<p>5 rows × 29 columns</p>
 </div>
 </div>
 </div>
 </section>
 <section id="columns-with-50-missing---dropped" class="level3">
 <h3 class="anchored" data-anchor-id="columns-with-50-missing---dropped">Columns with &gt;50% Missing - Dropped</h3>
-<div id="85a3e9c2" class="cell" data-execution_count="5">
+<div id="f66568b0" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> missingno <span class="im">as</span> msno</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -514,328 +507,50 @@ Figure&nbsp;1: Missing Values Heatmap
 </section>
 <section id="categorical-fields---filled-with-unknown" class="level3">
 <h3 class="anchored" data-anchor-id="categorical-fields---filled-with-unknown">Categorical Fields - Filled with “Unknown”</h3>
-<div id="4f5eda76" class="cell" data-execution_count="6">
+<div id="f4681449" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>categorical_cols <span class="op">=</span> clean_pd.select_dtypes(include<span class="op">=</span>[<span class="st">"object"</span>, <span class="st">"category"</span>, <span class="st">"string"</span>]).columns.tolist()</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>numerical_cols <span class="op">=</span> clean_pd.select_dtypes(include<span class="op">=</span>[<span class="st">"number"</span>]).columns.tolist()</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Categorical:"</span>, categorical_cols)</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Numerical:"</span>, numerical_cols)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Categorical: ['ID', 'POSTED', 'COMPANY_NAME', 'COMPANY_RAW', 'COMPANY_IS_STAFFING', 'EDUCATION_LEVELS_NAME', 'MIN_EDULEVELS_NAME', 'MAX_EDULEVELS_NAME', 'EMPLOYMENT_TYPE_NAME', 'REMOTE_TYPE_NAME', 'LOCATION', 'CITY_NAME', 'COUNTY_NAME', 'MSA_NAME', 'STATE_NAME', 'NAICS6_NAME', 'TITLE_NAME', 'TITLE_CLEAN', 'SKILLS_NAME', 'SPECIALIZED_SKILLS_NAME', 'CERTIFICATIONS_NAME', 'COMMON_SKILLS_NAME', 'SOFTWARE_SKILLS_NAME', 'ONET_NAME', 'CIP6_NAME', 'SOC_NAME', 'SOC_CODE', 'SPECIALIZED_OCCUPATION', 'OCCUPATION', 'OCCUPATION_GROUP', 'CAREER_AREA', 'NAICS_2022_6_NAME']
-Numerical: ['MIN_YEARS_EXPERIENCE', 'MAX_YEARS_EXPERIENCE', 'SALARY', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'NAICS_2022_6', 'AVERAGE_SALARY']</code></pre>
+<pre><code>Categorical: ['POSTED', 'COMPANY_IS_STAFFING', 'EDUCATION_LEVELS_NAME', 'MIN_EDULEVELS_NAME', 'MAX_EDULEVELS_NAME', 'EMPLOYMENT_TYPE_NAME', 'REMOTE_TYPE_NAME', 'LOCATION', 'CITY_NAME', 'MSA_NAME', 'STATE_NAME', 'NAICS6_NAME', 'SKILLS_NAME', 'SPECIALIZED_SKILLS_NAME', 'CERTIFICATIONS_NAME', 'COMMON_SKILLS_NAME', 'SOFTWARE_SKILLS_NAME', 'CIP6_NAME', 'SPECIALIZED_OCCUPATION', 'OCCUPATION', 'OCCUPATION_GROUP', 'CAREER_AREA']
+Numerical: ['MIN_YEARS_EXPERIENCE', 'MAX_YEARS_EXPERIENCE', 'SALARY', 'SALARY_TO', 'SALARY_FROM', 'NAICS6', 'AVERAGE_SALARY']</code></pre>
 </div>
 </div>
-<div id="d851bea7" class="cell" data-execution_count="7">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>cols <span class="op">=</span> [<span class="st">'ID'</span>,<span class="st">'COMPANY_NAME'</span>, <span class="st">'COMPANY_RAW'</span>, <span class="st">'COMPANY_IS_STAFFING'</span>, <span class="st">'EDUCATION_LEVELS_NAME'</span>, <span class="st">'MIN_EDULEVELS_NAME'</span>, <span class="st">'EMPLOYMENT_TYPE_NAME'</span>, <span class="st">'MIN_YEARS_EXPERIENCE'</span>,<span class="st">'REMOTE_TYPE_NAME'</span>, <span class="st">'CITY_NAME'</span>, <span class="st">'COUNTY_NAME'</span>, <span class="st">'MSA_NAME'</span>, <span class="st">'STATE_NAME'</span>,<span class="st">'NAICS6'</span>,<span class="st">'NAICS6_NAME'</span>, <span class="st">'TITLE_NAME'</span>, <span class="st">'TITLE_CLEAN'</span>, <span class="st">'SKILLS_NAME'</span>, <span class="st">'SPECIALIZED_SKILLS_NAME'</span>, <span class="st">'CERTIFICATIONS_NAME'</span>, <span class="st">'COMMON_SKILLS_NAME'</span>, <span class="st">'SOFTWARE_SKILLS_NAME'</span>, <span class="st">'ONET_NAME'</span>, <span class="st">'CIP6_NAME'</span>, <span class="st">'SOC_NAME'</span>, <span class="st">'SOC_CODE'</span>, <span class="st">'SPECIALIZED_OCCUPATION'</span>, <span class="st">'OCCUPATION'</span>, <span class="st">'OCCUPATION_GROUP'</span>, <span class="st">'CAREER_AREA'</span>, <span class="st">'NAICS_2022_6'</span>,<span class="st">'NAICS_2022_6_NAME'</span>, <span class="st">'LOCATION'</span>, <span class="st">'POSTED'</span>]</span>
+</section>
+</section>
+<section id="missing-value-imputation---categorical-columns-and-numerical-columns" class="level2">
+<h2 class="anchored" data-anchor-id="missing-value-imputation---categorical-columns-and-numerical-columns">Missing Value Imputation - Categorical Columns and Numerical Columns</h2>
+<div id="9f30d53e" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>cols <span class="op">=</span> [<span class="st">'COMPANY_IS_STAFFING'</span>, <span class="st">'EDUCATION_LEVELS_NAME'</span>, <span class="st">'MIN_EDULEVELS_NAME'</span>, <span class="st">'EMPLOYMENT_TYPE_NAME'</span>, <span class="st">'MIN_YEARS_EXPERIENCE'</span>,<span class="st">'REMOTE_TYPE_NAME'</span>,<span class="st">'NAICS6'</span>,<span class="st">'NAICS6_NAME'</span>, <span class="st">'SKILLS_NAME'</span>, <span class="st">'SPECIALIZED_SKILLS_NAME'</span>, <span class="st">'CERTIFICATIONS_NAME'</span>, <span class="st">'COMMON_SKILLS_NAME'</span>, <span class="st">'SOFTWARE_SKILLS_NAME'</span>, <span class="st">'ONET_NAME'</span>, <span class="st">'CIP6_NAME'</span>, <span class="st">'SOC_NAME'</span>, <span class="st">'SOC_CODE'</span>, <span class="st">'SPECIALIZED_OCCUPATION'</span>, <span class="st">'OCCUPATION'</span>, <span class="st">'OCCUPATION_GROUP'</span>, <span class="st">'CAREER_AREA'</span>, <span class="st">'LOCATION'</span>, <span class="st">'POSTED'</span>]</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>clean_pd[cols] <span class="op">=</span> clean_pd[cols].fillna(<span class="st">"Unknown"</span>)</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>clean_pd.isnull().<span class="bu">sum</span>()</span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>clean_pd.head(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="15">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">ID</th>
-<th data-quarto-table-cell-role="th">POSTED</th>
-<th data-quarto-table-cell-role="th">COMPANY_NAME</th>
-<th data-quarto-table-cell-role="th">COMPANY_RAW</th>
-<th data-quarto-table-cell-role="th">COMPANY_IS_STAFFING</th>
-<th data-quarto-table-cell-role="th">EDUCATION_LEVELS_NAME</th>
-<th data-quarto-table-cell-role="th">MIN_EDULEVELS_NAME</th>
-<th data-quarto-table-cell-role="th">MAX_EDULEVELS_NAME</th>
-<th data-quarto-table-cell-role="th">EMPLOYMENT_TYPE_NAME</th>
-<th data-quarto-table-cell-role="th">MIN_YEARS_EXPERIENCE</th>
-<th data-quarto-table-cell-role="th">...</th>
-<th data-quarto-table-cell-role="th">CIP6_NAME</th>
-<th data-quarto-table-cell-role="th">SOC_NAME</th>
-<th data-quarto-table-cell-role="th">SOC_CODE</th>
-<th data-quarto-table-cell-role="th">SPECIALIZED_OCCUPATION</th>
-<th data-quarto-table-cell-role="th">OCCUPATION</th>
-<th data-quarto-table-cell-role="th">OCCUPATION_GROUP</th>
-<th data-quarto-table-cell-role="th">CAREER_AREA</th>
-<th data-quarto-table-cell-role="th">NAICS_2022_6</th>
-<th data-quarto-table-cell-role="th">NAICS_2022_6_NAME</th>
-<th data-quarto-table-cell-role="th">AVERAGE_SALARY</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>1f57d95acf4dc67ed2819eb12f049f6a5c11782c</td>
-<td>6/2/2024</td>
-<td>Murphy USA</td>
-<td>Murphy USA</td>
-<td>False</td>
-<td>[&nbsp;&nbsp;"Bachelor's degree"]</td>
-<td>Bachelor's degree</td>
-<td>NaN</td>
-<td>Full-time (&gt; 32 hours)</td>
-<td>2.0</td>
-<td>...</td>
-<td>[\n&nbsp;&nbsp;"Economics, General",\n&nbsp;&nbsp;"Mathematics, Ge...</td>
-<td>Data Scientists</td>
-<td>15-2051</td>
-<td>General ERP Analyst / Consultant</td>
-<td>Business Intelligence Analyst</td>
-<td>Business Intelligence</td>
-<td>Information Technology and Computer Science</td>
-<td>441330.0</td>
-<td>Automotive Parts and Accessories Retailers</td>
-<td>108668.5</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>0cb072af26757b6c4ea9464472a50a443af681ac</td>
-<td>6/2/2024</td>
-<td>Smx Corporation Limited</td>
-<td>SMX</td>
-<td>True</td>
-<td>[&nbsp;&nbsp;"No Education Listed"]</td>
-<td>No Education Listed</td>
-<td>NaN</td>
-<td>Full-time (&gt; 32 hours)</td>
-<td>3.0</td>
-<td>...</td>
-<td>[]</td>
-<td>Data Scientists</td>
-<td>15-2051</td>
-<td>Oracle Consultant / Analyst</td>
-<td>Business Intelligence Analyst</td>
-<td>Business Intelligence</td>
-<td>Information Technology and Computer Science</td>
-<td>561320.0</td>
-<td>Temporary Help Services</td>
-<td>108668.5</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>85318b12b3331fa490d32ad014379df01855c557</td>
-<td>6/2/2024</td>
-<td>Sedgwick</td>
-<td>Sedgwick</td>
-<td>False</td>
-<td>[&nbsp;&nbsp;"Bachelor's degree"]</td>
-<td>Bachelor's degree</td>
-<td>NaN</td>
-<td>Full-time (&gt; 32 hours)</td>
-<td>5.0</td>
-<td>...</td>
-<td>[]</td>
-<td>Data Scientists</td>
-<td>15-2051</td>
-<td>Data Analyst</td>
-<td>Data / Data Mining Analyst</td>
-<td>Data Analysis and Mathematics</td>
-<td>Information Technology and Computer Science</td>
-<td>524291.0</td>
-<td>Claims Adjusting</td>
-<td>108668.5</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>1b5c3941e54a1889ef4f8ae55b401a550708a310</td>
-<td>6/2/2024</td>
-<td>Wells Fargo</td>
-<td>Wells Fargo</td>
-<td>False</td>
-<td>[&nbsp;&nbsp;"No Education Listed"]</td>
-<td>No Education Listed</td>
-<td>NaN</td>
-<td>Full-time (&gt; 32 hours)</td>
-<td>3.0</td>
-<td>...</td>
-<td>[]</td>
-<td>Data Scientists</td>
-<td>15-2051</td>
-<td>Data Analyst</td>
-<td>Data / Data Mining Analyst</td>
-<td>Data Analysis and Mathematics</td>
-<td>Information Technology and Computer Science</td>
-<td>522110.0</td>
-<td>Commercial Banking</td>
-<td>108668.5</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">4</th>
-<td>cb5ca25f02bdf25c13edfede7931508bfd9e858f</td>
-<td>6/2/2024</td>
-<td>Unclassified</td>
-<td>LH/GM</td>
-<td>False</td>
-<td>[&nbsp;&nbsp;"No Education Listed"]</td>
-<td>No Education Listed</td>
-<td>NaN</td>
-<td>Part-time / full-time</td>
-<td>Unknown</td>
-<td>...</td>
-<td>[]</td>
-<td>Data Scientists</td>
-<td>15-2051</td>
-<td>Oracle Consultant / Analyst</td>
-<td>Business Intelligence Analyst</td>
-<td>Business Intelligence</td>
-<td>Information Technology and Computer Science</td>
-<td>999999.0</td>
-<td>Unclassified Industry</td>
-<td>92500.0</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">5</th>
-<td>35a6cd2183d9fb270e3f504b270f36d43cb759a6</td>
-<td>6/2/2024</td>
-<td>Lumen Technologies</td>
-<td>Lumen</td>
-<td>False</td>
-<td>[&nbsp;&nbsp;"Bachelor's degree"]</td>
-<td>Bachelor's degree</td>
-<td>NaN</td>
-<td>Full-time (&gt; 32 hours)</td>
-<td>Unknown</td>
-<td>...</td>
-<td>[\n&nbsp;&nbsp;"Business Administration and Management, ...</td>
-<td>Data Scientists</td>
-<td>15-2051</td>
-<td>Data Analyst</td>
-<td>Data / Data Mining Analyst</td>
-<td>Data Analysis and Mathematics</td>
-<td>Information Technology and Computer Science</td>
-<td>517810.0</td>
-<td>All Other Telecommunications</td>
-<td>110155.0</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">6</th>
-<td>06de8d192f30b1d8d3c575d453faf143d332f4d4</td>
-<td>6/2/2024</td>
-<td>Semiconductor Components Industries</td>
-<td>Semiconductor Components Industries, LLC</td>
-<td>False</td>
-<td>[&nbsp;&nbsp;"Bachelor's degree"]</td>
-<td>Bachelor's degree</td>
-<td>NaN</td>
-<td>Full-time (&gt; 32 hours)</td>
-<td>Unknown</td>
-<td>...</td>
-<td>[]</td>
-<td>Data Scientists</td>
-<td>15-2051</td>
-<td>Data Analyst</td>
-<td>Data / Data Mining Analyst</td>
-<td>Data Analysis and Mathematics</td>
-<td>Information Technology and Computer Science</td>
-<td>334413.0</td>
-<td>Semiconductor and Related Device Manufacturing</td>
-<td>108668.5</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">7</th>
-<td>3d589c9d84677ca9468a5bc82295456e0ce6b13f</td>
-<td>6/2/2024</td>
-<td>Sedgwick</td>
-<td>Sedgwick</td>
-<td>False</td>
-<td>[&nbsp;&nbsp;"Bachelor's degree"]</td>
-<td>Bachelor's degree</td>
-<td>NaN</td>
-<td>Full-time (&gt; 32 hours)</td>
-<td>5.0</td>
-<td>...</td>
-<td>[]</td>
-<td>Data Scientists</td>
-<td>15-2051</td>
-<td>Data Analyst</td>
-<td>Data / Data Mining Analyst</td>
-<td>Data Analysis and Mathematics</td>
-<td>Information Technology and Computer Science</td>
-<td>524291.0</td>
-<td>Claims Adjusting</td>
-<td>108668.5</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">8</th>
-<td>5a843df632e1ff756fa19d80a0871262d51becc0</td>
-<td>6/2/2024</td>
-<td>Global Enterprise Partners</td>
-<td>Global Enterprise Partners</td>
-<td>True</td>
-<td>[&nbsp;&nbsp;"No Education Listed"]</td>
-<td>No Education Listed</td>
-<td>NaN</td>
-<td>Full-time (&gt; 32 hours)</td>
-<td>7.0</td>
-<td>...</td>
-<td>[]</td>
-<td>Data Scientists</td>
-<td>15-2051</td>
-<td>General ERP Analyst / Consultant</td>
-<td>Business Intelligence Analyst</td>
-<td>Business Intelligence</td>
-<td>Information Technology and Computer Science</td>
-<td>999999.0</td>
-<td>Unclassified Industry</td>
-<td>108668.5</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">9</th>
-<td>229620073766234e814e8add21db7dfaef69b3bd</td>
-<td>6/2/2024</td>
-<td>Dassault SystÃ¨mes</td>
-<td>Dassault Systmes</td>
-<td>False</td>
-<td>[&nbsp;&nbsp;"Bachelor's degree",&nbsp;&nbsp;"Master's degree"]</td>
-<td>Bachelor's degree</td>
-<td>Master's degree</td>
-<td>Full-time (&gt; 32 hours)</td>
-<td>2.0</td>
-<td>...</td>
-<td>[\n&nbsp;&nbsp;"Business/Commerce, General",\n&nbsp;&nbsp;"Economi...</td>
-<td>Data Scientists</td>
-<td>15-2051</td>
-<td>Data Analyst</td>
-<td>Data / Data Mining Analyst</td>
-<td>Data Analysis and Mathematics</td>
-<td>Information Technology and Computer Science</td>
-<td>541511.0</td>
-<td>Custom Computer Programming Services</td>
-<td>92962.0</td>
-</tr>
-</tbody>
-</table>
-
-<p>10 rows × 40 columns</p>
 </div>
-</div>
-</div>
-</section>
 </section>
 <section id="remove-duplicates" class="level2">
 <h2 class="anchored" data-anchor-id="remove-duplicates">Remove Duplicates</h2>
 <p>This step helps to ensure that there is no duplication in the data set and only each job posting is counted once.</p>
-<div id="ba66a8ee" class="cell" data-execution_count="8">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>clean_pd <span class="op">=</span> clean_pd.drop_duplicates(subset<span class="op">=</span>[<span class="st">"TITLE_NAME"</span>, <span class="st">"COMPANY_NAME"</span>, <span class="st">"LOCATION"</span>, <span class="st">"POSTED"</span>], keep<span class="op">=</span><span class="st">"first"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="117c1bcd" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># clean_pd = clean_pd.drop_duplicates(subset=["TITLE_NAME", "COMPANY_NAME", "LOCATION", "POSTED"], keep="first")</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="save-as-csv" class="level2">
 <h2 class="anchored" data-anchor-id="save-as-csv">Save as CSV</h2>
-<div id="3f8781a6" class="cell" data-execution_count="9">
+<div id="9a6a7427" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>clean_pd.to_csv(<span class="st">"./data/clean_job_postings.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>schema_str <span class="op">=</span> clean_df._jdf.schema().treeString()</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">"./data/schema_output.txt"</span>, <span class="st">"w"</span>) <span class="im">as</span> f:</span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    f.write(schema_str)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="30c7cf60" class="cell" data-execution_count="10">
+<div id="a0dd8828" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-stdout">
 <pre><code>root
- |-- ID: string (nullable = true)
  |-- POSTED: string (nullable = true)
- |-- COMPANY_NAME: string (nullable = true)
- |-- COMPANY_RAW: string (nullable = true)
  |-- COMPANY_IS_STAFFING: boolean (nullable = true)
  |-- EDUCATION_LEVELS_NAME: string (nullable = true)
  |-- MIN_EDULEVELS_NAME: string (nullable = true)
@@ -849,28 +564,20 @@ Numerical: ['MIN_YEARS_EXPERIENCE', 'MAX_YEARS_EXPERIENCE', 'SALARY', 'SALARY_TO
  |-- REMOTE_TYPE_NAME: string (nullable = true)
  |-- LOCATION: string (nullable = true)
  |-- CITY_NAME: string (nullable = true)
- |-- COUNTY_NAME: string (nullable = true)
  |-- MSA_NAME: string (nullable = true)
  |-- STATE_NAME: string (nullable = true)
  |-- NAICS6: integer (nullable = true)
  |-- NAICS6_NAME: string (nullable = true)
- |-- TITLE_NAME: string (nullable = true)
- |-- TITLE_CLEAN: string (nullable = true)
  |-- SKILLS_NAME: string (nullable = true)
  |-- SPECIALIZED_SKILLS_NAME: string (nullable = true)
  |-- CERTIFICATIONS_NAME: string (nullable = true)
  |-- COMMON_SKILLS_NAME: string (nullable = true)
  |-- SOFTWARE_SKILLS_NAME: string (nullable = true)
- |-- ONET_NAME: string (nullable = true)
  |-- CIP6_NAME: string (nullable = true)
- |-- SOC_NAME: string (nullable = true)
- |-- SOC_CODE: string (nullable = true)
  |-- SPECIALIZED_OCCUPATION: string (nullable = true)
  |-- OCCUPATION: string (nullable = true)
  |-- OCCUPATION_GROUP: string (nullable = true)
  |-- CAREER_AREA: string (nullable = true)
- |-- NAICS_2022_6: integer (nullable = true)
- |-- NAICS_2022_6_NAME: string (nullable = true)
  |-- AVERAGE_SALARY: double (nullable = true)
 </code></pre>
 </div>
