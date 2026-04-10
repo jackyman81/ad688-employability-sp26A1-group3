@@ -1,10 +1,10 @@
 /.quarto/
-**/*.quarto_ipynb
-data/
-.venv/
-.venv/
-data/
 __pycache__/
+**/*.quarto_ipynb
 .ipynb_checkpoints/
+data/clean_job_postings.csv
+data/lightcast_job_postings.csv
+.venv/
+.venv/
 quarto-1.8.24-linux-amd64.tar.gz
 spark-4.0.2-bin-hadoop3.tgz
