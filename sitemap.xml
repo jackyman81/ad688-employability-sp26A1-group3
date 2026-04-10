@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/data_cleaning.html</loc>
-    <lastmod>2026-04-10T00:35:00.090Z</lastmod>
-  </url>
-  <url>
     <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/skill_gap_analysis.html</loc>
     <lastmod>2026-04-09T23:06:54.027Z</lastmod>
   </url>
@@ -13,20 +9,24 @@
     <lastmod>2026-04-09T23:06:54.025Z</lastmod>
   </url>
   <url>
-    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/eda.html</loc>
-    <lastmod>2026-04-10T00:26:03.084Z</lastmod>
+    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/index.html</loc>
+    <lastmod>2026-04-09T23:30:43.565Z</lastmod>
   </url>
   <url>
-    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/career_plan.html</loc>
-    <lastmod>2026-04-09T23:06:54.022Z</lastmod>
+    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/data_cleaning.html</loc>
+    <lastmod>2026-04-10T00:35:00.090Z</lastmod>
   </url>
   <url>
     <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/about.html</loc>
     <lastmod>2026-04-09T23:06:54.022Z</lastmod>
   </url>
   <url>
-    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/data_analysis.html</loc>
-    <lastmod>2026-04-09T23:06:54.024Z</lastmod>
+    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/career_plan.html</loc>
+    <lastmod>2026-04-09T23:06:54.022Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/eda.html</loc>
+    <lastmod>2026-04-10T00:26:03.084Z</lastmod>
   </url>
   <url>
     <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/introduction.html</loc>
@@ -35,9 +35,5 @@
   <url>
     <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/research_introduction.html</loc>
     <lastmod>2026-04-09T23:06:54.027Z</lastmod>
-  </url>
-  <url>
-    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/index.html</loc>
-    <lastmod>2026-04-09T23:30:43.565Z</lastmod>
   </url>
 </urlset>
