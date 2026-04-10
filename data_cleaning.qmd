@@ -21,7 +21,7 @@ print("working")
 
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 from pyspark.sql import SparkSession
 
 # Start a Spark session
@@ -48,7 +48,7 @@ df.createOrReplaceTempView("job_postings")
 The following columns were chosen as they provide relevant information for analysis. NIACS, ONET, CIP, SOC, and LOT categories all had multiple different columns - only the latest were kept in order to reflect the current classifications. Cutting down the amount of columns and data set overall helps to make a cleaner data set to work with with less clutter.
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 from pyspark.sql.functions import col, monotonically_increasing_id
 
 clean_df = df.select(
@@ -92,7 +92,7 @@ clean_df = df.select(
 ### Numerical Fields - Filled with Median
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 import os
 from pyspark.sql. functions import regexp_replace
 
@@ -149,7 +149,7 @@ plt.show()
 ### Categorical Fields - Filled with "Unknown"
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 
 categorical_cols = clean_pd.select_dtypes(include=["object", "category", "string"]).columns.tolist()
 numerical_cols = clean_pd.select_dtypes(include=["number"]).columns.tolist()
@@ -175,14 +175,14 @@ clean_pd.head(10)
 This step helps to ensure that there is no duplication in the data set and only each job posting is counted once. 
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 # clean_pd = clean_pd.drop_duplicates(subset=["TITLE_NAME", "COMPANY_NAME", "LOCATION", "POSTED"], keep="first")
 ```
 
 ## Save as CSV
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 clean_pd.to_csv("./data/clean_job_postings.csv", index=False)
 schema_str = clean_df._jdf.schema().treeString()
 
