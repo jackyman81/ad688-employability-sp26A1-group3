@@ -15,7 +15,7 @@ website:
         text: "Project Overview"
       - href: data_cleaning.qmd
         text: "Data Preparation"
-      - href: "eda.qmd"
+      - href: eda.qmd
         text: "Exploratory Analysis"
       - href: skill_gap_analysis.qmd
         text: "Skill Gap Analysis"
