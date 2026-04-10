@@ -20,6 +20,8 @@ print("working")
 ```
 
 ```{python}
+#| echo: true
+#| eval: true
 from pyspark.sql import SparkSession
 
 # Start a Spark session
@@ -34,7 +36,7 @@ df = spark.read.option("header", "true").option("inferSchema", "true").option(
 df.createOrReplaceTempView("job_postings")
 
 # Show Schema and Sample Data
-print("---This is Diagnostic check, No need to print it in the final doc---")
+# print("---This is Diagnostic check, No need to print it in the final doc---")
 
 # comment the lines below when rendering the submission
 # df.printSchema()
@@ -46,14 +48,11 @@ print("---This is Diagnostic check, No need to print it in the final doc---")
 The following columns were chosen as they provide relevant information for analysis. NIACS, ONET, CIP, SOC, and LOT categories all had multiple different columns - only the latest were kept in order to reflect the current classifications. Cutting down the amount of columns and data set overall helps to make a cleaner data set to work with with less clutter.
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 from pyspark.sql.functions import col, monotonically_increasing_id
 
 clean_df = df.select(
-    col("ID"),
     col("POSTED"),
-    col("COMPANY_NAME"),
-    col("COMPANY_RAW"),
     col("COMPANY_IS_STAFFING"),
     col("EDUCATION_LEVELS_NAME"),
     col("MIN_EDULEVELS_NAME"),
@@ -67,7 +66,6 @@ clean_df = df.select(
     col("REMOTE_TYPE_NAME"), 
     col("LOCATION"),
     col("CITY_NAME"),
-    col("COUNTY_NAME"),
     col("MSA_NAME"),
     col("STATE_NAME"),
     col("NAICS6"),
@@ -85,34 +83,18 @@ clean_df = df.select(
     col("SOC_5").alias("SOC_CODE"),
     col("LOT_V6_SPECIALIZED_OCCUPATION_NAME").alias("SPECIALIZED_OCCUPATION"),
     col("LOT_V6_OCCUPATION_NAME").alias("OCCUPATION"),
-    col("LOT_V6_OCCUPATION_GROUP_NAME").alias("0CCUPATION_GROUP"),
+    col("LOT_V6_OCCUPATION_GROUP_NAME").alias("OCCUPATION_GROUP"),
     col("LOT_V6_CAREER_AREA_NAME").alias("CAREER_AREA"),
-    col("NAICS_2022_6"),
-    col("NAICS_2022_6_NAME")
 )
 
-schema_str = clean_df._jdf.schema().treeString()
-
-with open("data/schema_output.txt", "w") as f:
-    f.write(schema_str)
-
-```
-
-```{python}
-#| echo: false
-#| eval: true
-
-with open("data/schema_output.txt", "r") as f:
-    schema_str = f.read()
-
-print(schema_str)
 ```
 
 
 ## Handling Missing Values
 ### Numerical Fields - Filled with Median
 ```{python}
-#| 
+#| echo: true
+#| eval: true
 import os
 from pyspark.sql. functions import regexp_replace
 
@@ -143,32 +125,47 @@ clean_df = clean_df.withColumn(
     regexp_replace(col("EDUCATION_LEVELS_NAME"), r"[\n\r]","")
 )
 
-clean_df.show(10)
-clean_pd = clean_df.toPandas()
+# clean_df.show(10)
+clean_pd = clean_df.select('COMPANY_IS_STAFFING', 'EDUCATION_LEVELS_NAME', 'MIN_EDULEVELS_NAME', 'EMPLOYMENT_TYPE_NAME', 'MIN_YEARS_EXPERIENCE','REMOTE_TYPE_NAME').toPandas()
+clean_pd.head()
 ```
 
 ### Columns with >50% Missing - Dropped
+
 ```{python}
+#| echo: true
+#| eval: false
 import matplotlib.pyplot as plt
 import missingno as msno
 
 msno.heatmap(clean_pd)
 plt.title("Missing Values Heatmap")
+plt.savefig("./images/missing_values_heatmap.png")
 plt.show()
 
-clean_pd.dropna(thresh=len(clean_pd) * 0.5, axis=1, inplace=True)
+
 ```
+
+![Missing Values Heatmap](./images/missing_values_heatmap.png){width="80%" fig-align="center" #fig-heatmap}
 
 ### Categorical Fields - Filled with "Unknown"
 ```{python}
+#| echo: true
+#| eval: true
+
 categorical_cols = clean_pd.select_dtypes(include=["object", "category", "string"]).columns.tolist()
 numerical_cols = clean_pd.select_dtypes(include=["number"]).columns.tolist()
 
 print("Categorical:", categorical_cols)
 print("Numerical:", numerical_cols)
 ```
+
+## Missing Value Imputation - Categorical Columns and Numerical Columns
+
 ```{python}
-cols = ['ID','COMPANY_NAME', 'COMPANY_RAW', 'COMPANY_IS_STAFFING', 'EDUCATION_LEVELS_NAME', 'MIN_EDULEVELS_NAME', 'EMPLOYMENT_TYPE_NAME', 'MIN_YEARS_EXPERIENCE','REMOTE_TYPE_NAME', 'CITY_NAME', 'COUNTY_NAME', 'MSA_NAME', 'STATE_NAME','NAICS6','NAICS6_NAME', 'TITLE_NAME', 'TITLE_CLEAN', 'SKILLS_NAME', 'SPECIALIZED_SKILLS_NAME', 'CERTIFICATIONS_NAME', 'COMMON_SKILLS_NAME', 'SOFTWARE_SKILLS_NAME', 'ONET_NAME', 'CIP6_NAME', 'SOC_NAME', 'SOC_CODE', 'SPECIALIZED_OCCUPATION', 'OCCUPATION', '0CCUPATION_GROUP', 'CAREER_AREA', 'NAICS_2022_6','NAICS_2022_6_NAME', 'LOCATION', 'POSTED']
+#| echo: true
+#| eval: true
+cols = ['COMPANY_IS_STAFFING', 'EDUCATION_LEVELS_NAME', 'MIN_EDULEVELS_NAME', 'EMPLOYMENT_TYPE_NAME', 'MIN_YEARS_EXPERIENCE','REMOTE_TYPE_NAME', 'CITY_NAME', 'COUNTY_NAME', 'MSA_NAME', 'STATE_NAME','NAICS6','NAICS6_NAME', 'TITLE_NAME', 'TITLE_CLEAN', 'SKILLS_NAME', 'SPECIALIZED_SKILLS_NAME', 'CERTIFICATIONS_NAME', 'COMMON_SKILLS_NAME', 'SOFTWARE_SKILLS_NAME', 'ONET_NAME', 'CIP6_NAME', 'SOC_NAME', 'SOC_CODE', 'SPECIALIZED_OCCUPATION', 'OCCUPATION', 'OCCUPATION_GROUP', 'CAREER_AREA', 'NAICS_2022_6','NAICS_2022_6_NAME', 'LOCATION', 'POSTED']
 
 clean_pd[cols] = clean_pd[cols].fillna("Unknown")
 
@@ -179,10 +176,29 @@ clean_pd.head(10)
 ## Remove Duplicates
 This step helps to ensure that there is no duplication in the data set and only each job posting is counted once. 
 ```{python}
+#| echo: true
+#| eval: true
 clean_pd = clean_pd.drop_duplicates(subset=["TITLE_NAME", "COMPANY_NAME", "LOCATION", "POSTED"], keep="first")
 ```
 
 ## Save as CSV
 ```{python}
-clean_pd.to_csv("data/clean_job_postings.csv", index=False)
+#| echo: true
+#| eval: true
+clean_pd.to_csv("./data/clean_job_postings.csv", index=False)
+schema_str = clean_df._jdf.schema().treeString()
+
+with open("./data/schema_output.txt", "w") as f:
+    f.write(schema_str)
+
+```
+
+```{python}
+#| echo: false
+#| eval: true
+
+with open("./data/schema_output.txt", "r") as f:
+    schema_str = f.read()
+
+print(schema_str)
 ```

@@ -1,40 +1,104 @@
 ---
 title: "Exploratory Data Analysis"
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    code-overflow: wrap
+execute:
+  echo: true
+  eval: false
 ---
 
 Exploratory Data Analysis (EDA) is a crucial step in the data analysis process that involves summarizing the main characteristics of a dataset, often using visual methods. The goal of EDA is to gain insights into the data, identify patterns, detect anomalies, and test hypotheses before applying more formal statistical modeling techniques.
 
-# Count of Specialized Occupation - to show which roles dominate the market.
 ```{python}
+#| echo: true
+#| eval: true
+
+from pyspark.sql import SparkSession
+
+# Start a Spark session
+spark = SparkSession.builder.config("spark.driver.host", "localhost").appName("JobPostingsAnalysis").getOrCreate()
+spark.catalog.clearCache()
+
+# Load the CSV file into a Spark DataFrame
+df = spark.read.option("header", "true").option("inferSchema", "true").option(
+    "multiLine", "true").option("escape", "\"").csv("./data/clean_job_postings.csv")
+
+# Register the DataFrame as a temporary SQL view
+df.createOrReplaceTempView("clean_job_postings")
+
+# Show Schema and Sample Data
+# print("---This is Diagnostic check, No need to print it in the final doc---")
+
+# comment the lines below when rendering the submission
+df.printSchema()
+# df.show(5)
+
+
+```
+
+# Salary Type by Employment Type - Show how salary types (e.g., hourly, yearly) vary across different employment types (e.g., full-time, part-time).
+
+```{python}
+#| echo: true
+#| eval: true
+
+import pandas as pd
+import polars as pl 
+# Filter out missing or zero salary values
+# pdf = df.filter(df["SALARY"] > 0).select("EMPLOYMENT_TYPE_NAME", "SALARY").toPandas()
+# pdf.head()
+```
+
+
+# Count of Specialized Occupation - to show which roles dominate the market.
+
+```{python}
+#| echo: true
+#| eval: true
 
 ```
 
 # Skill demand analysis - Explode SOFTWARE_SKILLS_NAME, SPECIALIZED_SKILLS_NAME, and COMMON_SKILLS_NAME, then count frequency of each skill across all postings.
 ```{python}
+#| echo: true
+#| eval: true
 
 ```
 
 # Skill-by-role analysis - Compare top skills within each major role group. 
 ```{python}
+#| echo: true
+#| eval: true
 
 ```
 
 # Time trend analysis - Use POSTED by month. This shows whether demand is stable, rising, or seasonal.
 ```{python}
+#| echo: true
+#| eval: true
 
 ```
 
 # Geography analysis - Use STATE_NAME, CITY_NAME, or MSA_NAME to show where demand is concentrated. 
 ```{python}
+#| echo: true
+#| eval: true
 
 ```
 
 # Remote-work analysis - Compare REMOTE_TYPE_NAME by role and skill.
 ```{python}
+#| echo: true
+#| eval: true
 
 ```
 
 # Salary vs demand analysis - Use sVERAGE_SALARY, compare demand with pay by role or skill cluster.
 ```{python}
+#| echo: true
+#| eval: true
 
 ```

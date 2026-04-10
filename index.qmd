@@ -7,10 +7,6 @@ format:
     theme: journal
     toc: true
 ---
----
-title: "Data Science & Business Analytics Trends"
-format: html
----
 
 ## Introduction and Research Rationale
 

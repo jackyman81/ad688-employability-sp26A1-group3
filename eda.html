@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -42,7 +77,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-cc6d6016adaf1c7a86dcaac46e77afcc.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-a0f9fd0d421825b736dc1bbcbcba2219.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-1de071e047e49cd083ceb1b25ae4a66d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -136,7 +171,8 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#count-of-specialized-occupation---to-show-which-roles-dominate-the-market." id="toc-count-of-specialized-occupation---to-show-which-roles-dominate-the-market." class="nav-link active" data-scroll-target="#count-of-specialized-occupation---to-show-which-roles-dominate-the-market.">Count of Specialized Occupation - to show which roles dominate the market.</a></li>
+  <li><a href="#salary-type-by-employment-type---show-how-salary-types-e.g.-hourly-yearly-vary-across-different-employment-types-e.g.-full-time-part-time." id="toc-salary-type-by-employment-type---show-how-salary-types-e.g.-hourly-yearly-vary-across-different-employment-types-e.g.-full-time-part-time." class="nav-link active" data-scroll-target="#salary-type-by-employment-type---show-how-salary-types-e.g.-hourly-yearly-vary-across-different-employment-types-e.g.-full-time-part-time.">Salary Type by Employment Type - Show how salary types (e.g., hourly, yearly) vary across different employment types (e.g., full-time, part-time).</a></li>
+  <li><a href="#count-of-specialized-occupation---to-show-which-roles-dominate-the-market." id="toc-count-of-specialized-occupation---to-show-which-roles-dominate-the-market." class="nav-link" data-scroll-target="#count-of-specialized-occupation---to-show-which-roles-dominate-the-market.">Count of Specialized Occupation - to show which roles dominate the market.</a></li>
   <li><a href="#skill-demand-analysis---explode-software_skills_name-specialized_skills_name-and-common_skills_name-then-count-frequency-of-each-skill-across-all-postings." id="toc-skill-demand-analysis---explode-software_skills_name-specialized_skills_name-and-common_skills_name-then-count-frequency-of-each-skill-across-all-postings." class="nav-link" data-scroll-target="#skill-demand-analysis---explode-software_skills_name-specialized_skills_name-and-common_skills_name-then-count-frequency-of-each-skill-across-all-postings.">Skill demand analysis - Explode SOFTWARE_SKILLS_NAME, SPECIALIZED_SKILLS_NAME, and COMMON_SKILLS_NAME, then count frequency of each skill across all postings.</a></li>
   <li><a href="#skill-by-role-analysis---compare-top-skills-within-each-major-role-group." id="toc-skill-by-role-analysis---compare-top-skills-within-each-major-role-group." class="nav-link" data-scroll-target="#skill-by-role-analysis---compare-top-skills-within-each-major-role-group.">Skill-by-role analysis - Compare top skills within each major role group.</a></li>
   <li><a href="#time-trend-analysis---use-posted-by-month.-this-shows-whether-demand-is-stable-rising-or-seasonal." id="toc-time-trend-analysis---use-posted-by-month.-this-shows-whether-demand-is-stable-rising-or-seasonal." class="nav-link" data-scroll-target="#time-trend-analysis---use-posted-by-month.-this-shows-whether-demand-is-stable-rising-or-seasonal.">Time trend analysis - Use POSTED by month. This shows whether demand is stable, rising, or seasonal.</a></li>
@@ -169,6 +205,78 @@ ul.task-list li input[type="checkbox"] {
 
 
 <p>Exploratory Data Analysis (EDA) is a crucial step in the data analysis process that involves summarizing the main characteristics of a dataset, often using visual methods. The goal of EDA is to gain insights into the data, identify patterns, detect anomalies, and test hypotheses before applying more formal statistical modeling techniques.</p>
+<div id="890663cb" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Start a Spark session</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>spark <span class="op">=</span> SparkSession.builder.config(<span class="st">"spark.driver.host"</span>, <span class="st">"localhost"</span>).appName(<span class="st">"JobPostingsAnalysis"</span>).getOrCreate()</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>spark.catalog.clearCache()</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the CSV file into a Spark DataFrame</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> spark.read.option(<span class="st">"header"</span>, <span class="st">"true"</span>).option(<span class="st">"inferSchema"</span>, <span class="st">"true"</span>).option(</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"multiLine"</span>, <span class="st">"true"</span>).option(<span class="st">"escape"</span>, <span class="st">"</span><span class="ch">\"</span><span class="st">"</span>).csv(<span class="st">"./data/clean_job_postings.csv"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Register the DataFrame as a temporary SQL view</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>df.createOrReplaceTempView(<span class="st">"clean_job_postings"</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Show Schema and Sample Data</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># print("---This is Diagnostic check, No need to print it in the final doc---")</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># comment the lines below when rendering the submission</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>df.printSchema()</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># df.show(5)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>root
+ |-- ID: string (nullable = true)
+ |-- POSTED: string (nullable = true)
+ |-- COMPANY_NAME: string (nullable = true)
+ |-- COMPANY_RAW: string (nullable = true)
+ |-- COMPANY_IS_STAFFING: string (nullable = true)
+ |-- EDUCATION_LEVELS_NAME: string (nullable = true)
+ |-- MIN_EDULEVELS_NAME: string (nullable = true)
+ |-- EMPLOYMENT_TYPE_NAME: string (nullable = true)
+ |-- MIN_YEARS_EXPERIENCE: string (nullable = true)
+ |-- SALARY_TO: double (nullable = true)
+ |-- SALARY_FROM: double (nullable = true)
+ |-- REMOTE_TYPE_NAME: string (nullable = true)
+ |-- LOCATION: string (nullable = true)
+ |-- CITY_NAME: string (nullable = true)
+ |-- COUNTY_NAME: string (nullable = true)
+ |-- MSA_NAME: string (nullable = true)
+ |-- STATE_NAME: string (nullable = true)
+ |-- NAICS6: string (nullable = true)
+ |-- NAICS6_NAME: string (nullable = true)
+ |-- TITLE_NAME: string (nullable = true)
+ |-- TITLE_CLEAN: string (nullable = true)
+ |-- SKILLS_NAME: string (nullable = true)
+ |-- SPECIALIZED_SKILLS_NAME: string (nullable = true)
+ |-- CERTIFICATIONS_NAME: string (nullable = true)
+ |-- COMMON_SKILLS_NAME: string (nullable = true)
+ |-- SOFTWARE_SKILLS_NAME: string (nullable = true)
+ |-- ONET_NAME: string (nullable = true)
+ |-- CIP6_NAME: string (nullable = true)
+ |-- SOC_NAME: string (nullable = true)
+ |-- SOC_CODE: string (nullable = true)
+ |-- SPECIALIZED_OCCUPATION: string (nullable = true)
+ |-- OCCUPATION: string (nullable = true)
+ |-- 0CCUPATION_GROUP: string (nullable = true)
+ |-- CAREER_AREA: string (nullable = true)
+ |-- NAICS_2022_6: string (nullable = true)
+ |-- NAICS_2022_6_NAME: string (nullable = true)
+ |-- AVERAGE_SALARY: double (nullable = true)
+</code></pre>
+</div>
+</div>
+<section id="salary-type-by-employment-type---show-how-salary-types-e.g.-hourly-yearly-vary-across-different-employment-types-e.g.-full-time-part-time." class="level1">
+<h1>Salary Type by Employment Type - Show how salary types (e.g., hourly, yearly) vary across different employment types (e.g., full-time, part-time).</h1>
+<div id="7ab9e41a" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter out missing or zero salary values</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># pdf = df.filter(df["SALARY"] &gt; 0).select("EMPLOYMENT_TYPE_NAME", "SALARY").toPandas()</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># pdf.head()</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
 <section id="count-of-specialized-occupation---to-show-which-roles-dominate-the-market." class="level1">
 <h1>Count of Specialized Occupation - to show which roles dominate the market.</h1>
 </section>
