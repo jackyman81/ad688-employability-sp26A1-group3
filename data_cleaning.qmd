@@ -16,7 +16,6 @@ Cleaning the data set is a crucial step to the analysis process. Keeping relevan
 #| echo: true
 #| eval: true
 import pandas as pd
-print("working")
 ```
 
 ```{python}
