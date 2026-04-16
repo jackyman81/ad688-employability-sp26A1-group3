@@ -14,7 +14,7 @@ Exploratory Data Analysis (EDA) is a crucial step in the data analysis process t
 
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 
 from pyspark.sql import SparkSession
 
@@ -36,6 +36,16 @@ df.createOrReplaceTempView("clean_job_postings")
 # df.printSchema()
 # df.show(5)
 ```
+
+```{python}
+#| echo: true
+#| eval: true
+with open("./data/schema_output.txt", "r") as f:
+    schema_str = f.read()
+
+print(schema_str)
+```
+
 # Count of Specialized Occupation - to show which roles dominate the market.
 ## Table
 ```{python}
