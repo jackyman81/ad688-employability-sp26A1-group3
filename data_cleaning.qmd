@@ -14,7 +14,7 @@ Cleaning the data set is a crucial step to the analysis process. Keeping relevan
 
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 import pandas as pd
 ```
 
