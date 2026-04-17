@@ -277,7 +277,7 @@ import seaborn as sns
 plt.figure(figsize=(16, 7))
 
 sns.heatmap(
-    heatmap_data,
+    top_skills_by_role_pd,
     cmap=sns.light_palette("#B22222", as_cmap=True),
     linewidths=0.5,
     linecolor="white",
