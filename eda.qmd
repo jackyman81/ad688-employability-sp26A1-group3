@@ -30,11 +30,11 @@ df = spark.read.option("header", "true").option("inferSchema", "true").option(
 df.createOrReplaceTempView("clean_job_postings")
 
 # Show Schema and Sample Data
-# print("---This is Diagnostic check, No need to print it in the final doc---")
+print("---This is Diagnostic check, No need to print it in the final doc---")
 
 # comment the lines below when rendering the submission
-# df.printSchema()
-# df.show(5)
+df.printSchema()
+df.show(5)
 ```
 
 ```{python}
@@ -97,6 +97,47 @@ plt.show()
 #| echo: true
 #| eval: true
 
+import matplotlib.pyplot as plt
+
+specialized_occupation_counts = (
+    df
+    .filter(df["SPECIALIZED_OCCUPATION"].isNotNull())
+    .groupBy("SPECIALIZED_OCCUPATION")
+    .count()
+    .orderBy("count", ascending=False)
+)
+
+# Convert top 15 to pandas for display and plotting
+top_specialized_occupations = (
+    specialized_occupation_counts
+    .limit(15)
+    .toPandas()
+)
+
+# Rename columns
+top_specialized_occupations.columns = [
+    "Specialized Occupation",
+    "Count"
+]
+
+top_specialized_occupations
+```
+## Visualization
+```{python}
+plt.figure(figsize=(10, 6))
+
+plt.barh(
+    top_specialized_occupations["Specialized Occupation"],
+    top_specialized_occupations["Count"]
+)
+
+plt.xlabel("Number of Job Postings")
+plt.ylabel("Specialized Occupation")
+plt.title("Top Specialized Occupations in the Job Market")
+
+plt.gca().invert_yaxis()
+plt.tight_layout()
+plt.show()
 ```
 
 # Skill demand analysis - Explode SOFTWARE_SKILLS_NAME, SPECIALIZED_SKILLS_NAME, and COMMON_SKILLS_NAME, then count frequency of each skill across all postings.
