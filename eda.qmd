@@ -13,7 +13,7 @@ Exploratory Data Analysis (EDA) is a crucial step in the data analysis process t
 
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 from pyspark.sql import SparkSession
@@ -38,6 +38,7 @@ df.createOrReplaceTempView("clean_job_postings")
 ```
 ```{python}
 #| echo: true
+#| eval: false
 #| warning: false
 #| message: false
 with open("./data/schema_output.txt", "r") as f:
@@ -50,6 +51,7 @@ print(schema_str)
 ## Table
 ```{python}
 #| echo: true
+#| eval: false
 #| warning: false
 #| message: false
 import matplotlib.pyplot as plt
@@ -78,6 +80,7 @@ top_specialized_occupations
 ## Visualization
 ```{python}
 #| echo: true
+#| eval: false
 #| warning: false
 #| message: false
 plt.figure(figsize=(10, 6))
@@ -100,6 +103,7 @@ plt.show()
 ## Table
 ```{python}
 #| echo: true
+#| eval: false
 #| warning: false
 #| message: false
 from pyspark.sql import functions as F
@@ -151,6 +155,7 @@ top_skills
 ## Visualization
 ```{python}
 #| echo: true
+#| eval: false
 #| warning: false
 #| message: false
 plt.figure(figsize=(10, 7))
@@ -173,6 +178,7 @@ plt.show()
 ## Table
 ```{python}
 #| echo: true
+#| eval: false
 #| warning: false
 #| message: false
 from pyspark.sql import functions as F
@@ -253,6 +259,7 @@ top_skills_by_role_pd
 ## Visualization
 ```{python}
 #| echo: true
+#| eval: false
 #| warning: false
 #| message: false
 import matplotlib.pyplot as plt
@@ -293,6 +300,7 @@ plt.show()
 ## Table
 ```{python}
 #| echo: true
+#| eval: false
 #| warning: false
 #| message: false
 from pyspark.sql import functions as F
@@ -317,6 +325,7 @@ salary_demand_roles_pd.head(15)
 ## Visualization
 ```{python}
 #| echo: true
+#| eval: false
 #| warning: false
 #| message: false
 import matplotlib.pyplot as plt
@@ -377,6 +386,7 @@ plt.show()
 ## Table
 ```{python}
 #| echo: true
+#| eval: false
 #| warning: false
 #| message: false
 from pyspark.sql import functions as F
@@ -434,6 +444,7 @@ salary_demand_skills_pd.head(20)
 ## Visualization
 ```{python}
 #| echo: true
+#| eval: false
 #| warning: false
 #| message: false
 import matplotlib.pyplot as plt
