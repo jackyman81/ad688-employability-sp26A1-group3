@@ -3,7 +3,6 @@ title: "Data Science & Business Analytics Trends"
 author: "Jessica Benun & Jacky Man"
 date: "Spring 2026"
 ---
-
 ## Introduction and Research Rationale
 
 Data science and business analytics jobs are becoming a bigger part of how companies make decisions, improve performance, and stay competitive. More and more, employers depend on people who can work with data, spot patterns, build dashboards, and turn information into useful business insights. Looking at the roles and skills that show up most often in job postings can give a clearer picture of what employers want right now and what students or job seekers may need to be prepared for.

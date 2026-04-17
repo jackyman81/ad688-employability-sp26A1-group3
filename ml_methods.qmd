@@ -12,6 +12,14 @@ execute:
 
 Using machine learning methods to predict job growth trends.
 ```{python}
+#| echo: false
+#| warning: false
+#| message: false
+
+import plotly_setup
+import matplotlib_setup
+```
+```{python}
 #| echo: true
 #| eval: false
 #| warning: false

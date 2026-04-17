@@ -10,6 +10,15 @@ execute:
 ---
 
 Exploratory Data Analysis (EDA) is a crucial step in the data analysis process that involves summarizing the main characteristics of a dataset, often using visual methods. The goal of EDA is to gain insights into the data, identify patterns, detect anomalies, and test hypotheses before applying more formal statistical modeling techniques.
+```{python}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+
+import plotly_setup
+import matplotlib_setup
+```
 
 ```{python}
 #| echo: true
@@ -259,25 +268,17 @@ top_skills_by_role_pd
 ## Visualization
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Create pivot table for heatmap
-heatmap_data = top_skills_by_role_pd.pivot_table(
-    index="SPECIALIZED_OCCUPATION",
-    columns="Skill",
-    values="count",
-    fill_value=0
-)
-
 plt.figure(figsize=(16, 7))
 
 sns.heatmap(
     heatmap_data,
-    cmap="Reds",
+    cmap=sns.light_palette("#B22222", as_cmap=True),
     linewidths=0.5,
     linecolor="white",
     annot=True,
@@ -285,15 +286,16 @@ sns.heatmap(
     cbar_kws={"label": "Skill Count"}
 )
 
-plt.title("Top Skills by Major Role Group", fontsize=16, fontweight="bold")
-plt.xlabel("Skill")
-plt.ylabel("Specialized Occupation")
+plt.title("Top Skills by Major Role Group", fontweight="bold")
+plt.xlabel("Skill", fontweight="bold")
+plt.ylabel("Specialized Occupation", fontweight="bold")
 
 plt.xticks(rotation=45, ha="right")
 plt.yticks(rotation=0)
 
 plt.tight_layout()
 plt.show()
+
 ```
 
 # Salary vs Demand by Specialized Occupation Analysis

@@ -9,7 +9,14 @@ execute:
   echo: true
   eval: false
 ---
+```{python}
+#| echo: false
+#| warning: false
+#| message: false
 
+import plotly_setup
+import matplotlib_setup
+```
 # Data Loading 
 ```{python}
 #| echo: true
@@ -124,8 +131,25 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 plt.figure(figsize=(8, 6))
-sns.heatmap(df_skills, annot=True, cmap="Reds", linewidths=0.5)
-plt.title("Team Skill Levels Heatmap")
+
+sns.heatmap(
+    df_skills,
+    cmap=sns.light_palette("#B22222", as_cmap=True),
+    linewidths=0.5,
+    linecolor="white",
+    annot=True,
+    fmt=".0f",
+    cbar_kws={"label": "Skill Count"}
+)
+
+plt.title("Team Skill Levels Heatmap", fontweight="bold")
+plt.xlabel("Skill", fontweight="bold")
+plt.ylabel("Team Member", fontweight="bold")
+
+plt.xticks(rotation=45, ha="right")
+plt.yticks(rotation=0)
+
+plt.tight_layout()
 plt.show()
 ```
 
