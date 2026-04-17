@@ -274,10 +274,18 @@ top_skills_by_role_pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+# Create pivot table for heatmap
+heatmap_data = top_skills_by_role_pd.pivot_table(
+    index="SPECIALIZED_OCCUPATION",
+    columns="Skill",
+    values="count",
+    fill_value=0
+)
+
 plt.figure(figsize=(16, 7))
 
 sns.heatmap(
-    top_skills_by_role_pd,
+    df_skills,
     cmap=sns.light_palette("#B22222", as_cmap=True),
     linewidths=0.5,
     linecolor="white",
@@ -286,16 +294,15 @@ sns.heatmap(
     cbar_kws={"label": "Skill Count"}
 )
 
-plt.title("Top Skills by Major Role Group", fontweight="bold")
-plt.xlabel("Skill", fontweight="bold")
-plt.ylabel("Specialized Occupation", fontweight="bold")
+plt.title("Top Skills by Major Role Group", fontsize=16, fontweight="bold")
+plt.xlabel("Skill")
+plt.ylabel("Specialized Occupation")
 
 plt.xticks(rotation=45, ha="right")
 plt.yticks(rotation=0)
 
 plt.tight_layout()
 plt.show()
-
 ```
 
 # Salary vs Demand by Specialized Occupation Analysis
