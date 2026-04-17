@@ -1,8 +1,7 @@
-/.quarto/
-__pycache__/
-**/*.quarto_ipynb
-.ipynb_checkpoints/
 data/lightcast_job_postings.csv
 data/clean_job_postings.csv
 .venv/
-.venv/
+__pycache__/
+.quarto/
+**/*.quarto_ipynb
+.ipynb_checkpoints/

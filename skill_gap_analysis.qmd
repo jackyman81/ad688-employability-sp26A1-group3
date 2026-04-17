@@ -9,19 +9,101 @@ execute:
   echo: true
   eval: false
 ---
+
+# Data Loading 
+```{python}
+#| echo: true
+#| eval: false
+from pyspark.sql import SparkSession
+
+# Start a Spark session
+spark = SparkSession.builder.config("spark.driver.host", "localhost").appName("JobPostingsAnalysis").getOrCreate()
+spark.catalog.clearCache()
+
+# Load the CSV file into a Spark DataFrame
+df = spark.read.option("header", "true").option("inferSchema", "true").option(
+    "multiLine", "true").option("escape", "\"").csv("./data/clean_job_postings.csv")
+
+# Register the DataFrame as a temporary SQL view
+df.createOrReplaceTempView("clean_job_postings")
+
+# Show Schema and Sample Data
+print("---This is Diagnostic check, No need to print it in the final doc---")
+
+# comment the lines below when rendering the submission
+df.printSchema()
+df.show(5)
+``` 
+# Top Skills in Job Postings
+```{python}
+#| echo: true
+#| eval: true
+from pyspark.sql import functions as F
+import matplotlib.pyplot as plt
+
+skill_columns = [
+    "SOFTWARE_SKILLS_NAME",
+    "SPECIALIZED_SKILLS_NAME",
+    "COMMON_SKILLS_NAME"
+]
+
+skill_dfs = []
+
+for col_name in skill_columns:
+    temp_df = (
+        df
+        .select(
+            F.lit(col_name).alias("skill_type"),
+            F.explode(
+                F.split(
+                    F.regexp_replace(F.col(col_name), r'[\[\]"]', ''),
+                    r',\s*'
+                )
+            ).alias("skill")
+        )
+        .withColumn("skill", F.trim(F.col("skill")))
+        .filter(F.col("skill").isNotNull())
+        .filter(F.col("skill") != "")
+        .filter(F.col("skill") != "None")
+    )
+
+    skill_dfs.append(temp_df)
+
+all_skills = skill_dfs[0]
+
+for temp_df in skill_dfs[1:]:
+    all_skills = all_skills.unionByName(temp_df)
+
+skill_frequency = (
+    all_skills
+    .groupBy("skill")
+    .count()
+    .orderBy("count", ascending=False)
+)
+top_skills = skill_frequency.limit(20).toPandas()
+
+top_skills
+```
+
 # Team-Based Skill Level Baseline
 ## Table
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 import pandas as pd
 
 skills_data = {
     "Name": ["Jessica", "Jacky"],
-    "Python": [3, 3],
-    "SQL": [3, 3],
-    "Machine Learning": [2, 2],
-    "Cloud Computing": [2, 3]
+    "Python (Programming Language)": [3, 4],
+    "SQL (Programming Language)": [3, 3],
+    "Microsoft Excel": [4, 4],
+    "Data Analysis": [3, 3],
+    "Communication": [4, 0],
+    "Dashboard": [4, 0],
+    "SAP Applications": [1, 0],
+    "Leadership": [4, 0],
+    "Management": [4, 0],
+    "Project Management": [4, 0]
 }
 
 df_skills = pd.DataFrame(skills_data)
@@ -30,6 +112,8 @@ df_skills
 ``` 
 ## Visualization
 ```{python}
+#| echo: true
+#| eval: false
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -39,16 +123,4 @@ plt.title("Team Skill Levels Heatmap")
 plt.show()
 ```
 
-# Team-Based Skill Gap Analysis
-## Table
-```{python}
-#| echo: true
-#| eval: true
 
-```
-## Visualization
-```{python}
-#| echo: true
-#| eval: true
-
-```
