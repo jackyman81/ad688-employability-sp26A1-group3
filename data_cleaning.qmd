@@ -139,8 +139,6 @@ msno.heatmap(clean_pd)
 plt.title("Missing Values Heatmap")
 plt.savefig("./images/missing_values_heatmap.png")
 plt.show()
-
-
 ```
 
 ![Missing Values Heatmap](./images/missing_values_heatmap.png){width="80%" fig-align="center" #fig-heatmap}

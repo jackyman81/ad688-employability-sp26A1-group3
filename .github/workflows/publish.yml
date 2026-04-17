@@ -38,6 +38,9 @@ jobs:
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
 
+      - name: Generate cleaned data
+        run: quarto render data_cleaning.qmd
+
       - name: Render site
         uses: quarto-dev/quarto-actions/render@v2
 

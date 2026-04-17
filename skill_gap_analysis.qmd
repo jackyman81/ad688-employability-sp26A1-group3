@@ -9,21 +9,46 @@ execute:
   echo: true
   eval: false
 ---
-
-<!-- ```{python}
+# Team-Based Skill Level Baseline
+## Table
+```{python}
 #| echo: true
 #| eval: true
 import pandas as pd
 
 skills_data = {
-    "Name": ["Jessica, Jacky"],
-    "Python": [4, 3],
-    "SQL": [4, 3],
-    "Machine Learning": [3, 2],
+    "Name": ["Jessica", "Jacky"],
+    "Python": [3, 3],
+    "SQL": [3, 3],
+    "Machine Learning": [2, 2],
     "Cloud Computing": [2, 3]
 }
 
 df_skills = pd.DataFrame(skills_data)
 df_skills.set_index("Name", inplace=True)
 df_skills
-``` -->
+``` 
+## Visualization
+```{python}
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(8, 6))
+sns.heatmap(df_skills, annot=True, cmap="coolwarm", linewidths=0.5)
+plt.title("Team Skill Levels Heatmap")
+plt.show()
+```
+
+# Team-Based Skill Gap Analysis
+## Table
+```{python}
+#| echo: true
+#| eval: true
+
+```
+## Visualization
+```{python}
+#| echo: true
+#| eval: true
+
+```
