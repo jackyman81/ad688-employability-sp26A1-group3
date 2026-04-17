@@ -285,7 +285,7 @@ heatmap_data = top_skills_by_role_pd.pivot_table(
 plt.figure(figsize=(16, 7))
 
 sns.heatmap(
-    df_skills,
+    heatmap_data,
     cmap=sns.light_palette("#B22222", as_cmap=True),
     linewidths=0.5,
     linecolor="white",
@@ -353,7 +353,6 @@ ax.scatter(
     plot_df["Average_Salary"],
     s=plot_df["Demand_Count"] / 20,
     alpha=0.75,
-    color="#ab362e",
     edgecolor="black",
     linewidth=0.6
 )
@@ -472,7 +471,6 @@ ax.scatter(
     plot_df["Average_Salary"],
     s=plot_df["Demand_Count"] / 15,
     alpha=0.75,
-    color="#ab362e",
     edgecolor="black",
     linewidth=0.6
 )
