@@ -6,8 +6,3 @@ data/clean_job_postings.csv
 data/lightcast_job_postings.csv
 .venv/
 .venv/
-quarto-1.8.24-linux-amd64.tar.gz
-spark-4.0.2-bin-hadoop3.tgz
-_site
-_site/*.*
-_site/*
