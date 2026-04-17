@@ -23,6 +23,8 @@ website:
       - href: career_plan.qmd
         text: "Career Strategy"
 
+jupyter: ad688-venv
+
 format:
   html:
     theme: cosmo
