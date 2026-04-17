@@ -7,13 +7,13 @@ format:
     code-overflow: wrap
 execute:
   echo: true
-  eval: false
 ---
 
 Using machine learning methods to predict job growth trends.
 ```{python}
 #| echo: true
-#| eval: false
+#| warning: false
+#| message: false
 from pyspark.sql import SparkSession
 
 # Start a Spark session
@@ -37,7 +37,8 @@ df.createOrReplaceTempView("clean_job_postings")
 # Filtering and Feature Selection
 ```{python}
 #| echo: true
-#| eval: false
+#| warning: false
+#| message: false
 from pyspark.sql import functions as F
 
 topic_keywords = [
@@ -64,7 +65,8 @@ print("Filtered row count:", df_analysis.count())
 # Feature Engineering
 ```{python}
 #| echo: true
-#| eval: false
+#| warning: false
+#| message: false
 skill_features = [
     "Python (Programming Language)",
     "SQL (Programming Language)",
@@ -110,10 +112,9 @@ df_analysis.select(
 ```
 
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 
 df_analysis = df_analysis.withColumn(
     "MIN_YEARS_EXPERIENCE_NUM",
@@ -137,10 +138,9 @@ df_analysis.select(
 ```
 # Variable Selection
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 continuous_cols = [
     "MIN_YEARS_EXPERIENCE_NUM",
     "Python_Programming_Language",
@@ -168,10 +168,9 @@ df_final.show(5, truncate=False)
 
 # String Indexing and One-Hot Encoding
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 from pyspark.ml.feature import StringIndexer, OneHotEncoder, VectorAssembler
 from pyspark.ml import Pipeline
 
@@ -198,10 +197,9 @@ ml_ready.show(5, truncate=False)
 ```
 # Train-Test Split
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 
 train_df, test_df = ml_ready.randomSplit([0.8, 0.2], seed=42)
 
@@ -212,10 +210,9 @@ print(f"Dimensions of test data: ({test_df.count()}, {len(test_df.columns)})")
 # Models
 ## Linear Regression Model
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 from pyspark.ml.regression import LinearRegression
 from pyspark.ml.evaluation import RegressionEvaluator
 
@@ -235,10 +232,9 @@ predictions = lr_model.transform(test_df)
 predictions.select("SALARY", "prediction").show(10, truncate=False)
 ```
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 r2 = RegressionEvaluator(
     labelCol="SALARY",
     predictionCol="prediction",
@@ -264,10 +260,9 @@ print("RMSE:", rmse)
 print("MAE:", mae)
 ```
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 num_features = lr_model.coefficients.size
 
 feature_names = continuous_cols.copy()
@@ -281,10 +276,9 @@ print("Length of features:", len(feature_names))
 print("Length of coefs:", lr_model.coefficients.size)
 ```
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 summary = lr_model.summary
 
 coefficients = list(lr_model.coefficients.toArray())
@@ -302,10 +296,9 @@ print("Length of tvals:", len(t_values))
 print("Length of p vals:", len(p_values))
 ```
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 rows = []
 
 for i in range(len(feature_names_with_intercept)):
@@ -327,10 +320,9 @@ coef_table_pd
 ```
 ## Random Forest Regression Model
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 from pyspark.ml.regression import RandomForestRegressor
 
 rf = RandomForestRegressor(
@@ -349,10 +341,9 @@ rf_predictions = rf_model.transform(test_df)
 rf_predictions.select("SALARY", "prediction_rf").show(10, truncate=False)
 ```
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 r2_rf = RegressionEvaluator(
     labelCol="SALARY",
     predictionCol="prediction_rf",
@@ -376,10 +367,9 @@ print("Random Forest Regression RMSE:", rmse_rf)
 print("Random Forest Regression MAE:", mae_rf)
 ```
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 num_rf_features = rf_model.featureImportances.size
 
 rf_feature_names = continuous_cols.copy()
@@ -393,10 +383,9 @@ print("Length of feature names:", len(rf_feature_names))
 print("Length of importances:", rf_model.featureImportances.size)
 ```
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 import pandas as pd
 
 rf_importances = list(rf_model.featureImportances.toArray())
@@ -408,12 +397,10 @@ rf_importance_df = pd.DataFrame({
 
 rf_importance_df
 ```
-### Visualization
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 import matplotlib.pyplot as plt
 import seaborn as sns
 top10_rf_clean = rf_importance_df[
@@ -440,10 +427,9 @@ plt.show()
 ```
 ## K-Means Clustering
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 cluster_features = [
     "Python_Programming_Language",
     "SQL_Programming_Language",
@@ -464,10 +450,9 @@ df_cluster_ready.show(5, truncate=False)
 print("Rows ready for clustering:", df_cluster_ready.count())
 ```
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 from pyspark.ml.feature import VectorAssembler
 
 assembler = VectorAssembler(
@@ -480,10 +465,9 @@ cluster_data = assembler.transform(df_cluster_ready)
 cluster_data.select("ONET_NAME", "SPECIALIZED_OCCUPATION", "features").show(5, truncate=False)
 ```
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 from pyspark.ml.clustering import KMeans
 
 kmeans = KMeans(
@@ -504,10 +488,9 @@ cluster_predictions.select(
 ).show(15, truncate=False)
 ```
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 from pyspark.ml.evaluation import ClusteringEvaluator
 
 evaluator = ClusteringEvaluator(
@@ -521,10 +504,9 @@ silhouette = evaluator.evaluate(cluster_predictions)
 print("Silhouette Score:", silhouette)
 ```
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 cluster_onet = cluster_predictions.groupBy("cluster", "ONET_NAME") \
     .count() \
     .orderBy("cluster", F.col("count").desc())
@@ -532,10 +514,9 @@ cluster_onet = cluster_predictions.groupBy("cluster", "ONET_NAME") \
 cluster_onet.show(30, truncate=False)
 ```
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 centers = kmeans_model.clusterCenters()
 
 for i, center in enumerate(centers):
@@ -544,10 +525,9 @@ for i, center in enumerate(centers):
         print(f"  {feature_name}: {round(float(value), 3)}")
 ```
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 from pyspark.ml.feature import PCA
 
 pca = PCA(k=2, inputCol="features", outputCol="pcaFeatures")
@@ -567,10 +547,9 @@ pca_pd["PC2"] = pca_pd["pcaFeatures"].apply(lambda v: float(v[1]))
 pca_pd.head()
 ```
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 plt.figure(figsize=(10, 7))
 
 sns.scatterplot(
@@ -593,10 +572,9 @@ plt.tight_layout()
 plt.show()
 ```
 ```{python}
-# | echo: true
-# | eval: false
-# | warning: false
-# | message: false
+#| echo: true
+#| warning: false
+#| message: false
 cluster_counts_pd = (
     cluster_predictions.groupBy("cluster")
     .count()

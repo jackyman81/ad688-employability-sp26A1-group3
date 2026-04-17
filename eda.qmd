@@ -7,14 +7,14 @@ format:
     code-overflow: wrap
 execute:
   echo: true
-  eval: false
 ---
 
 Exploratory Data Analysis (EDA) is a crucial step in the data analysis process that involves summarizing the main characteristics of a dataset, often using visual methods. The goal of EDA is to gain insights into the data, identify patterns, detect anomalies, and test hypotheses before applying more formal statistical modeling techniques.
 
 ```{python}
 #| echo: true
-#| eval: false
+#| warning: false
+#| message: false
 from pyspark.sql import SparkSession
 
 # Start a Spark session
@@ -37,7 +37,8 @@ df.createOrReplaceTempView("clean_job_postings")
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| warning: false
+#| message: false
 with open("./data/schema_output.txt", "r") as f:
     schema_str = f.read()
 
@@ -48,7 +49,8 @@ print(schema_str)
 ## Table
 ```{python}
 #| echo: true
-#| eval: false
+#| warning: false
+#| message: false
 import matplotlib.pyplot as plt
 
 specialized_occupation_counts = (
@@ -75,7 +77,8 @@ top_specialized_occupations
 ## Visualization
 ```{python}
 #| echo: true
-#| eval: false
+#| warning: false
+#| message: false
 plt.figure(figsize=(10, 6))
 
 plt.barh(
@@ -96,7 +99,8 @@ plt.show()
 ## Table
 ```{python}
 #| echo: true
-#| eval: false
+#| warning: false
+#| message: false
 from pyspark.sql import functions as F
 import matplotlib.pyplot as plt
 
@@ -146,7 +150,8 @@ top_skills
 ## Visualization
 ```{python}
 #| echo: true
-#| eval: false
+#| warning: false
+#| message: false
 plt.figure(figsize=(10, 7))
 
 plt.barh(
@@ -164,9 +169,11 @@ plt.show()
 ```
 
 # Skill-by-Role Analysis
+## Table
 ```{python}
 #| echo: true
-#| eval: false
+#| warning: false
+#| message: false
 from pyspark.sql import functions as F
 import matplotlib.pyplot as plt
 from pyspark.sql.window import Window
@@ -245,7 +252,8 @@ top_skills_by_role_pd
 ## Visualization
 ```{python}
 #| echo: true
-#| eval: false
+#| warning: false
+#| message: false
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -284,7 +292,8 @@ plt.show()
 ## Table
 ```{python}
 #| echo: true
-#| eval: false
+#| warning: false
+#| message: false
 from pyspark.sql import functions as F
 
 salary_demand_by_role = (
@@ -307,7 +316,8 @@ salary_demand_roles_pd.head(15)
 ## Visualization
 ```{python}
 #| echo: true
-#| eval: false
+#| warning: false
+#| message: false
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 
@@ -366,7 +376,8 @@ plt.show()
 ## Table
 ```{python}
 #| echo: true
-#| eval: false
+#| warning: false
+#| message: false
 from pyspark.sql import functions as F
 
 skill_columns = [
@@ -422,7 +433,8 @@ salary_demand_skills_pd.head(20)
 ## Visualization
 ```{python}
 #| echo: true
-#| eval: false
+#| warning: false
+#| message: false
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 

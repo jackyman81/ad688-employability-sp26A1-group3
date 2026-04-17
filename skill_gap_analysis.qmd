@@ -7,7 +7,6 @@ ormat:
     code-overflow: wrap
 execute:
   echo: true
-  eval: false
 ---
 
 # Data Loading 
@@ -37,7 +36,8 @@ df.createOrReplaceTempView("clean_job_postings")
 # Top Skills in Job Postings
 ```{python}
 #| echo: true
-#| eval: false
+#| warning: false
+#| message: false
 from pyspark.sql import functions as F
 import matplotlib.pyplot as plt
 
@@ -89,7 +89,8 @@ top_skills
 ## Table
 ```{python}
 #| echo: true
-#| eval: false
+#| warning: false
+#| message: false
 import pandas as pd
 
 skills_data = {
@@ -113,7 +114,8 @@ df_skills
 ## Visualization
 ```{python}
 #| echo: true
-#| eval: false
+#| warning: false
+#| message: false
 import seaborn as sns
 import matplotlib.pyplot as plt
 

@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/eda.html</loc>
-    <lastmod>2026-04-17T02:12:46.527Z</lastmod>
+    <lastmod>2026-04-17T17:58:09.352Z</lastmod>
   </url>
   <url>
     <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/about.html</loc>
@@ -14,7 +14,7 @@
   </url>
   <url>
     <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/data_cleaning.html</loc>
-    <lastmod>2026-04-17T02:06:39.565Z</lastmod>
+    <lastmod>2026-04-17T16:43:11.230Z</lastmod>
   </url>
   <url>
     <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/index.html</loc>
@@ -23,5 +23,13 @@
   <url>
     <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/introduction.html</loc>
     <lastmod>2026-04-09T00:03:50.675Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/skill_gap_analysis.html</loc>
+    <lastmod>2026-04-17T17:56:31.639Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/ml_methods.html</loc>
+    <lastmod>2026-04-17T17:59:45.090Z</lastmod>
   </url>
 </urlset>
