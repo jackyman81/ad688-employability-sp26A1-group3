@@ -45,7 +45,7 @@ with open("./data/schema_output.txt", "r") as f:
 print(schema_str)
 ```
 
-# Count of Specialized Occupation - to show which roles dominate the market.
+# Count of Specialized Occupation
 ## Table
 ```{python}
 #| echo: true
@@ -92,54 +92,8 @@ plt.gca().invert_yaxis()
 plt.tight_layout()
 plt.show()
 ```
-```{python}
-#| echo: true
-#| eval: true
 
-import matplotlib.pyplot as plt
-
-specialized_occupation_counts = (
-    df
-    .filter(df["SPECIALIZED_OCCUPATION"].isNotNull())
-    .groupBy("SPECIALIZED_OCCUPATION")
-    .count()
-    .orderBy("count", ascending=False)
-)
-
-# Convert top 15 to pandas for display and plotting
-top_specialized_occupations = (
-    specialized_occupation_counts
-    .limit(15)
-    .toPandas()
-)
-
-# Rename columns
-top_specialized_occupations.columns = [
-    "Specialized Occupation",
-    "Count"
-]
-
-top_specialized_occupations
-```
-## Visualization
-```{python}
-plt.figure(figsize=(10, 6))
-
-plt.barh(
-    top_specialized_occupations["Specialized Occupation"],
-    top_specialized_occupations["Count"]
-)
-
-plt.xlabel("Number of Job Postings")
-plt.ylabel("Specialized Occupation")
-plt.title("Top Specialized Occupations in the Job Market")
-
-plt.gca().invert_yaxis()
-plt.tight_layout()
-plt.show()
-```
-
-# Skill demand analysis - Explode SOFTWARE_SKILLS_NAME, SPECIALIZED_SKILLS_NAME, and COMMON_SKILLS_NAME, then count frequency of each skill across all postings.
+# Skill Demand Analysis
 ## Table
 ```{python}
 #| echo: true
@@ -175,13 +129,11 @@ for col_name in skill_columns:
 
     skill_dfs.append(temp_df)
 
-# Stack all skill rows together
 all_skills = skill_dfs[0]
 
 for temp_df in skill_dfs[1:]:
     all_skills = all_skills.unionByName(temp_df)
 
-# Count skill frequency across all postings
 skill_frequency = (
     all_skills
     .groupBy("skill")
@@ -214,7 +166,7 @@ plt.show()
 #| eval: true
 ```
 
-# Skill-by-role analysis - Compare top skills within each major role group. 
+# Skill-by-Role Analysis
 ```{python}
 #| echo: true
 #| eval: true
@@ -268,13 +220,11 @@ for skill_col in skill_columns:
 
     skill_dfs.append(temp_df)
 
-# Combine all skill rows
 role_skills = skill_dfs[0]
 
 for temp_df in skill_dfs[1:]:
     role_skills = role_skills.unionByName(temp_df)
 
-# Count skills within each role
 role_skill_counts = (
     role_skills
     .groupBy("SPECIALIZED_OCCUPATION", "Skill")
@@ -299,39 +249,235 @@ top_skills_by_role_pd
 ```{python}
 #| echo: true
 #| eval: true
+import matplotlib.pyplot as plt
+import seaborn as sns
 
+# Create pivot table for heatmap
+heatmap_data = top_skills_by_role_pd.pivot_table(
+    index="SPECIALIZED_OCCUPATION",
+    columns="Skill",
+    values="count",
+    fill_value=0
+)
+
+plt.figure(figsize=(16, 7))
+
+sns.heatmap(
+    heatmap_data,
+    cmap="Reds",
+    linewidths=0.5,
+    linecolor="white",
+    annot=True,
+    fmt=".0f",
+    cbar_kws={"label": "Skill Count"}
+)
+
+plt.title("Top Skills by Major Role Group", fontsize=16, fontweight="bold")
+plt.xlabel("Skill")
+plt.ylabel("Specialized Occupation")
+
+plt.xticks(rotation=45, ha="right")
+plt.yticks(rotation=0)
+
+plt.tight_layout()
+plt.show()
 ```
 
-```{python}
-
-```
-# Time trend analysis - Use POSTED by month. This shows whether demand is stable, rising, or seasonal.
-```{python}
-#| echo: true
-#| eval: true
-
-```
-
-# Geography analysis - Use STATE_NAME, CITY_NAME, or MSA_NAME to show where demand is concentrated. 
-```{python}
-#| echo: true
-#| eval: true
-
-```
-
-# Remote-work analysis - Compare REMOTE_TYPE_NAME by role and skill.
-```{python}
-#| echo: true
-#| eval: true
-
-```
-
-# Salary vs demand analysis - Use AVERAGE_SALARY, compare demand with pay by role or skill cluster.
+# Salary vs Demand by Specialized Occupation Analysis
 ## Table
 ```{python}
+#| echo: true
+#| eval: true
+from pyspark.sql import functions as F
 
+salary_demand_by_role = (
+    df
+    .filter(F.col("SPECIALIZED_OCCUPATION").isNotNull())
+    .filter(F.col("AVERAGE_SALARY").isNotNull())
+    .groupBy("SPECIALIZED_OCCUPATION")
+    .agg(
+        F.count("*").alias("Demand_Count"),
+        F.avg("AVERAGE_SALARY").alias("Average_Salary")
+    )
+    .filter(F.col("Demand_Count") >= 50)
+    .orderBy(F.col("Demand_Count").desc())
+)
+
+salary_demand_roles_pd = salary_demand_by_role.toPandas()
+
+salary_demand_roles_pd.head(15)
 ```
 ## Visualization
 ```{python}
+#| echo: true
+#| eval: true
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
 
+plot_df = salary_demand_roles_pd.sort_values(
+    "Demand_Count",
+    ascending=False
+).head(15)
+
+plt.figure(figsize=(13, 8))
+ax = plt.gca()
+
+ax.scatter(
+    plot_df["Demand_Count"],
+    plot_df["Average_Salary"],
+    s=plot_df["Demand_Count"] / 20,
+    alpha=0.75,
+    color="#ab362e",
+    edgecolor="black",
+    linewidth=0.6
+)
+
+label_df = plot_df[
+    (plot_df["Demand_Count"] >= plot_df["Demand_Count"].quantile(0.65)) |
+    (plot_df["Average_Salary"] >= plot_df["Average_Salary"].quantile(0.75)) |
+    (plot_df["Average_Salary"] <= plot_df["Average_Salary"].quantile(0.10))
+]
+
+for _, row in label_df.iterrows():
+    ax.annotate(
+        row["SPECIALIZED_OCCUPATION"],
+        xy=(row["Demand_Count"], row["Average_Salary"]),
+        xytext=(8, 5),
+        textcoords="offset points",
+        fontsize=9,
+        arrowprops=dict(
+            arrowstyle="-",
+            color="gray",
+            lw=0.5
+        )
+    )
+
+ax.set_title("Salary vs. Demand by Specialized Occupation", fontsize=16, fontweight="bold")
+ax.set_xlabel("Demand Count: Number of Job Postings")
+ax.set_ylabel("Average Salary")
+
+ax.xaxis.set_major_formatter(mtick.StrMethodFormatter("{x:,.0f}"))
+ax.yaxis.set_major_formatter(mtick.StrMethodFormatter("${x:,.0f}"))
+
+ax.grid(True, linestyle="--", alpha=0.3)
+plt.margins(x=0.12, y=0.15)
+
+plt.tight_layout()
+plt.show()
+```
+# Salary vs Demand by Top Skills Analysis
+## Table
+```{python}
+#| echo: true
+#| eval: true
+from pyspark.sql import functions as F
+
+skill_columns = [
+    "SOFTWARE_SKILLS_NAME",
+    "SPECIALIZED_SKILLS_NAME",
+    "COMMON_SKILLS_NAME"
+]
+
+skill_dfs = []
+
+for skill_col in skill_columns:
+    temp_df = (
+        df
+        .filter(F.col("AVERAGE_SALARY").isNotNull())
+        .select(
+            F.col("AVERAGE_SALARY"),
+            F.explode(
+                F.split(
+                    F.regexp_replace(F.col(skill_col), r'[\[\]"]', ''),
+                    r',\s*'
+                )
+            ).alias("Skill")
+        )
+        .withColumn("Skill", F.trim(F.col("Skill")))
+        .filter(F.col("Skill").isNotNull())
+        .filter(F.col("Skill") != "")
+        .filter(F.col("Skill") != "None")
+        .filter(F.col("Skill") != "null")
+    )
+
+    skill_dfs.append(temp_df)
+
+all_skills_salary = skill_dfs[0]
+
+for temp_df in skill_dfs[1:]:
+    all_skills_salary = all_skills_salary.unionByName(temp_df)
+
+salary_demand_by_skill = (
+    all_skills_salary
+    .groupBy("Skill")
+    .agg(
+        F.count("*").alias("Demand_Count"),
+        F.avg("AVERAGE_SALARY").alias("Average_Salary")
+    )
+    .filter(F.col("Demand_Count") >= 100)
+    .orderBy(F.col("Demand_Count").desc())
+)
+
+salary_demand_skills_pd = salary_demand_by_skill.toPandas()
+
+salary_demand_skills_pd.head(20)
+```
+## Visualization
+```{python}
+#| echo: true
+#| eval: true
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
+
+plot_df = salary_demand_skills_pd.sort_values(
+    "Demand_Count",
+    ascending=False
+).head(20)
+
+plt.figure(figsize=(13, 8))
+ax = plt.gca()
+
+ax.scatter(
+    plot_df["Demand_Count"],
+    plot_df["Average_Salary"],
+    s=plot_df["Demand_Count"] / 15,
+    alpha=0.75,
+    color="#ab362e",
+    edgecolor="black",
+    linewidth=0.6
+)
+
+# Label important skills only
+label_df = plot_df[
+    (plot_df["Demand_Count"] >= plot_df["Demand_Count"].quantile(0.65)) |
+    (plot_df["Average_Salary"] >= plot_df["Average_Salary"].quantile(0.75)) |
+    (plot_df["Average_Salary"] <= plot_df["Average_Salary"].quantile(0.10))
+]
+
+for _, row in label_df.iterrows():
+    ax.annotate(
+        row["Skill"],
+        xy=(row["Demand_Count"], row["Average_Salary"]),
+        xytext=(8, 5),
+        textcoords="offset points",
+        fontsize=9,
+        arrowprops=dict(
+            arrowstyle="-",
+            color="gray",
+            lw=0.5
+        )
+    )
+
+ax.set_title("Salary vs. Demand by Skill", fontsize=16, fontweight="bold")
+ax.set_xlabel("Demand Count: Number of Skill Mentions")
+ax.set_ylabel("Average Salary")
+
+ax.xaxis.set_major_formatter(mtick.StrMethodFormatter("{x:,.0f}"))
+ax.yaxis.set_major_formatter(mtick.StrMethodFormatter("${x:,.0f}"))
+
+ax.grid(True, linestyle="--", alpha=0.3)
+plt.margins(x=0.12, y=0.15)
+
+plt.tight_layout()
+plt.show()
 ```
