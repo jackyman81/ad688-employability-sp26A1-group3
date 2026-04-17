@@ -148,7 +148,6 @@ print("Numerical:", numerical_cols)
 ```
 
 ## Missing Value Imputation - Categorical Columns and Numerical Columns
-
 ```{python}
 #| echo: true
 #| eval: false

@@ -109,12 +109,12 @@ skills_data = {
     "SQL (Programming Language)": [3, 3],
     "Microsoft Excel": [4, 4],
     "Data Analysis": [3, 3],
-    "Communication": [4, 0],
-    "Dashboard": [4, 0],
+    "Communication": [4, 4],
+    "Dashboard": [4, 3],
     "SAP Applications": [1, 0],
-    "Leadership": [4, 0],
-    "Management": [4, 0],
-    "Project Management": [4, 0]
+    "Leadership": [4, 4],
+    "Management": [4, 4],
+    "Project Management": [5, 4]
 }
 
 df_skills = pd.DataFrame(skills_data)
@@ -142,7 +142,7 @@ sns.heatmap(
     cbar_kws={"label": "Skill Count"}
 )
 
-plt.title("Team Skill Levels Heatmap", fontweight="bold")
+plt.title("Team Skill Levels Heatmap", fontweight="bold", loc="left")
 plt.xlabel("Skill", fontweight="bold")
 plt.ylabel("Team Member", fontweight="bold")
 
@@ -150,7 +150,9 @@ plt.xticks(rotation=45, ha="right")
 plt.yticks(rotation=0)
 
 plt.tight_layout()
+plt.savefig("./images/team_skill_levels_heatmap.png", dpi=300)
 plt.show()
 ```
+![Team Skill Levels Heatmap](images/team_skill_levels_heatmap.png)
 
 

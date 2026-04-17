@@ -205,10 +205,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>Cleaning the data set is a crucial step to the analysis process. Keeping relevant data only and removing any duplicates or replacing any missing values helps to bring more accuracy and consiceness to the analysis.</p>
-<div id="ce8a08de" class="cell" data-execution_count="1">
+<div id="38768994" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="98cf1937" class="cell" data-execution_count="2">
+<div id="dcad0aa1" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Start a Spark session</span></span>
@@ -232,7 +232,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="keeping-necessary-columns" class="level2">
 <h2 class="anchored" data-anchor-id="keeping-necessary-columns">Keeping Necessary Columns</h2>
 <p>The following columns were chosen as they provide relevant information for analysis. NIACS, ONET, CIP, SOC, and LOT categories all had multiple different columns - only the latest were kept in order to reflect the current classifications. Cutting down the amount of columns and data set overall helps to make a cleaner data set to work with with less clutter.</p>
-<div id="f81fbd58" class="cell" data-execution_count="3">
+<div id="ce76a68d" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col, monotonically_increasing_id</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>clean_df <span class="op">=</span> df.select(</span>
@@ -274,7 +274,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="handling-missing-values">Handling Missing Values</h2>
 <section id="numerical-fields---filled-with-median-or-0" class="level3">
 <h3 class="anchored" data-anchor-id="numerical-fields---filled-with-median-or-0">Numerical Fields - Filled with Median or 0</h3>
-<div id="803164fa" class="cell" data-execution_count="4">
+<div id="aaadf5a1" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql. functions <span class="im">import</span> regexp_replace</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -303,7 +303,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    regexp_replace(col(<span class="st">"EDUCATION_LEVELS_NAME"</span>), <span class="vs">r"</span><span class="pp">[</span><span class="ch">\n\r</span><span class="pp">]</span><span class="vs">"</span>,<span class="st">""</span>)</span>
 <span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="ced5742c" class="cell" data-execution_count="5">
+<div id="01206f3a" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> functions <span class="im">as</span> F</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col, when</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Min Years Experience: Replace nulls with 0</span></span>
@@ -318,7 +318,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="categorical-fields---filled-with-unknown" class="level3">
 <h3 class="anchored" data-anchor-id="categorical-fields---filled-with-unknown">Categorical Fields - Filled with “Unknown”</h3>
-<div id="7858f677" class="cell" data-execution_count="6">
+<div id="24aeae0a" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>categorical_cols <span class="op">=</span> clean_pd.select_dtypes(include<span class="op">=</span>[<span class="st">"object"</span>, <span class="st">"category"</span>, <span class="st">"string"</span>]).columns.tolist()</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>numerical_cols <span class="op">=</span> clean_pd.select_dtypes(include<span class="op">=</span>[<span class="st">"number"</span>]).columns.tolist()</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -329,7 +329,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="missing-value-imputation---categorical-columns-and-numerical-columns" class="level2">
 <h2 class="anchored" data-anchor-id="missing-value-imputation---categorical-columns-and-numerical-columns">Missing Value Imputation - Categorical Columns and Numerical Columns</h2>
-<div id="a26f85bf" class="cell" data-execution_count="7">
+<div id="d831670b" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>cols <span class="op">=</span> [<span class="st">'COMPANY_IS_STAFFING'</span>, <span class="st">'EDUCATION_LEVELS_NAME'</span>, <span class="st">'MIN_EDULEVELS_NAME'</span>, <span class="st">'EMPLOYMENT_TYPE_NAME'</span>, <span class="st">'MIN_YEARS_EXPERIENCE'</span>,<span class="st">'REMOTE_TYPE_NAME'</span>,<span class="st">'NAICS6'</span>,<span class="st">'NAICS6_NAME'</span>, <span class="st">'SKILLS_NAME'</span>, <span class="st">'SPECIALIZED_SKILLS_NAME'</span>, <span class="st">'CERTIFICATIONS_NAME'</span>, <span class="st">'COMMON_SKILLS_NAME'</span>, <span class="st">'SOFTWARE_SKILLS_NAME'</span>, <span class="st">'ONET_NAME'</span>, <span class="st">'CIP6_NAME'</span>, <span class="st">'SOC_NAME'</span>, <span class="st">'SOC_CODE'</span>, <span class="st">'SPECIALIZED_OCCUPATION'</span>, <span class="st">'OCCUPATION'</span>, <span class="st">'OCCUPATION_GROUP'</span>, <span class="st">'CAREER_AREA'</span>, <span class="st">'LOCATION'</span>, <span class="st">'POSTED'</span>]</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>clean_pd[cols] <span class="op">=</span> clean_pd[cols].fillna(<span class="st">"Unknown"</span>)</span>
@@ -340,14 +340,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="save-as-csv" class="level2">
 <h2 class="anchored" data-anchor-id="save-as-csv">Save as CSV</h2>
-<div id="9acec14a" class="cell" data-execution_count="8">
+<div id="b9946b91" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>clean_pd.to_csv(<span class="st">"./data/clean_job_postings.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>schema_str <span class="op">=</span> clean_df._jdf.schema().treeString()</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">"./data/schema_output.txt"</span>, <span class="st">"w"</span>) <span class="im">as</span> f:</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    f.write(schema_str)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="7278a569" class="cell" data-execution_count="9">
+<div id="850439bd" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-stdout">
 <pre><code>root
  |-- POSTED: string (nullable = true)

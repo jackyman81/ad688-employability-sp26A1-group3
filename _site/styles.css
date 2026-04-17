@@ -1,1 +1,61 @@
 /* css styles */
+/*-- scss:defaults --*/
+$h2-font-size:          1.6rem !default;
+$headings-font-weight:  500 !default;
+
+/*-- scss:rules --*/
+h1, h2, h3, h4, h5, h6 {
+  text-transform: none;
+  letter-spacing: normal;
+  text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.739);
+}
+
+.navbar {
+  background-color: #ffffff(253, 250, 250) !important;
+}
+
+.navbar .navbar-brand {
+    color: #c00707!important;
+     font-weight: 800;
+},
+.navbar .nav-link {
+    color: #424141!important;
+},
+.navbar .navbar-title
+}
+
+.navbar .nav-link:hover {
+  color: #000000 !important;
+}
+
+.navbar .nav-link.active {
+  color: #c00707 !important;
+  font-weight: 700;
+  border-bottom: 3px solid #000000;
+}
+
+.navbar .nav-link.active {
+  color: #c00707  !important;
+  border-radius: 6px;
+  font-weight: 700;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+/* On this page links */
+#TOC .nav-link {
+  color: #424141 !important;
+}
+
+/* Hover color */
+#TOC .nav-link:hover {
+  color: #B22222 !important;
+}
+
+/* Active/current section */
+#TOC .nav-link.active {
+  color: #B22222 !important;
+  font-weight: 700;
+  border-left: 3px solid #B22222;
+  padding-left: 0.5rem;
+}

@@ -1,0 +1,262 @@
+{
+ "cells": [
+  {
+   "cell_type": "raw",
+   "id": "5cefe559",
+   "metadata": {},
+   "source": [
+    "---\n",
+    "title: \"Skill Gap Analysis\"\n",
+    "ormat:\n",
+    "  html:\n",
+    "    toc: true\n",
+    "    html-math-method: katex\n",
+    "    code-overflow: wrap\n",
+    "execute:\n",
+    "  echo: true\n",
+    "  eval: false\n",
+    "---"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "98ed0d68",
+   "metadata": {
+    "message": false
+   },
+   "outputs": [],
+   "source": [
+    "#| echo: false\n",
+    "#| warning: false\n",
+    "\n",
+    "import plotly_setup\n",
+    "import matplotlib_setup"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "12ab81e9",
+   "metadata": {},
+   "source": [
+    "# Data Loading "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "b24a1317",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#| echo: true\n",
+    "#| eval: false\n",
+    "from pyspark.sql import SparkSession\n",
+    "\n",
+    "# Start a Spark session\n",
+    "spark = SparkSession.builder.config(\"spark.driver.host\", \"localhost\").appName(\"JobPostingsAnalysis\").getOrCreate()\n",
+    "spark.catalog.clearCache()\n",
+    "\n",
+    "# Load the CSV file into a Spark DataFrame\n",
+    "df = spark.read.option(\"header\", \"true\").option(\"inferSchema\", \"true\").option(\n",
+    "    \"multiLine\", \"true\").option(\"escape\", \"\\\"\").csv(\"./data/clean_job_postings.csv\")\n",
+    "\n",
+    "# Register the DataFrame as a temporary SQL view\n",
+    "df.createOrReplaceTempView(\"clean_job_postings\")\n",
+    "\n",
+    "# Show Schema and Sample Data\n",
+    "#print(\"---This is Diagnostic check, No need to print it in the final doc---\")\n",
+    "\n",
+    "# comment the lines below when rendering the submission\n",
+    "#df.printSchema()\n",
+    "#df.show(5)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8e227ec3",
+   "metadata": {},
+   "source": [
+    "# Top Skills in Job Postings"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "30b1395a",
+   "metadata": {
+    "message": false
+   },
+   "outputs": [],
+   "source": [
+    "#| echo: true\n",
+    "#| eval: false\n",
+    "#| warning: false\n",
+    "from pyspark.sql import functions as F\n",
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "skill_columns = [\n",
+    "    \"SOFTWARE_SKILLS_NAME\",\n",
+    "    \"SPECIALIZED_SKILLS_NAME\",\n",
+    "    \"COMMON_SKILLS_NAME\"\n",
+    "]\n",
+    "\n",
+    "skill_dfs = []\n",
+    "\n",
+    "for col_name in skill_columns:\n",
+    "    temp_df = (\n",
+    "        df\n",
+    "        .select(\n",
+    "            F.lit(col_name).alias(\"skill_type\"),\n",
+    "            F.explode(\n",
+    "                F.split(\n",
+    "                    F.regexp_replace(F.col(col_name), r'[\\[\\]\"]', ''),\n",
+    "                    r',\\s*'\n",
+    "                )\n",
+    "            ).alias(\"skill\")\n",
+    "        )\n",
+    "        .withColumn(\"skill\", F.trim(F.col(\"skill\")))\n",
+    "        .filter(F.col(\"skill\").isNotNull())\n",
+    "        .filter(F.col(\"skill\") != \"\")\n",
+    "        .filter(F.col(\"skill\") != \"None\")\n",
+    "    )\n",
+    "\n",
+    "    skill_dfs.append(temp_df)\n",
+    "\n",
+    "all_skills = skill_dfs[0]\n",
+    "\n",
+    "for temp_df in skill_dfs[1:]:\n",
+    "    all_skills = all_skills.unionByName(temp_df)\n",
+    "\n",
+    "skill_frequency = (\n",
+    "    all_skills\n",
+    "    .groupBy(\"skill\")\n",
+    "    .count()\n",
+    "    .orderBy(\"count\", ascending=False)\n",
+    ")\n",
+    "top_skills = skill_frequency.limit(20).toPandas()\n",
+    "\n",
+    "top_skills"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "92b01d36",
+   "metadata": {},
+   "source": [
+    "# Team-Based Skill Level Baseline\n",
+    "## Table"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "1bda85c9",
+   "metadata": {
+    "message": false
+   },
+   "outputs": [],
+   "source": [
+    "#| echo: true\n",
+    "#| eval: false\n",
+    "#| warning: false\n",
+    "import pandas as pd\n",
+    "\n",
+    "skills_data = {\n",
+    "    \"Name\": [\"Jessica\", \"Jacky\"],\n",
+    "    \"Python (Programming Language)\": [3, 4],\n",
+    "    \"SQL (Programming Language)\": [3, 3],\n",
+    "    \"Microsoft Excel\": [4, 4],\n",
+    "    \"Data Analysis\": [3, 3],\n",
+    "    \"Communication\": [4, 4],\n",
+    "    \"Dashboard\": [4, 3],\n",
+    "    \"SAP Applications\": [1, 0],\n",
+    "    \"Leadership\": [4, 4],\n",
+    "    \"Management\": [4, 4],\n",
+    "    \"Project Management\": [5, 4]\n",
+    "}\n",
+    "\n",
+    "df_skills = pd.DataFrame(skills_data)\n",
+    "df_skills.set_index(\"Name\", inplace=True)\n",
+    "df_skills"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6a4376f5",
+   "metadata": {},
+   "source": [
+    "## Visualization"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "70486619",
+   "metadata": {
+    "message": false
+   },
+   "outputs": [],
+   "source": [
+    "#| echo: true\n",
+    "#| eval: false\n",
+    "#| warning: false\n",
+    "import seaborn as sns\n",
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "plt.figure(figsize=(8, 6))\n",
+    "\n",
+    "sns.heatmap(\n",
+    "    df_skills,\n",
+    "    cmap=sns.light_palette(\"#B22222\", as_cmap=True),\n",
+    "    linewidths=0.5,\n",
+    "    linecolor=\"white\",\n",
+    "    annot=True,\n",
+    "    fmt=\".0f\",\n",
+    "    cbar_kws={\"label\": \"Skill Count\"}\n",
+    ")\n",
+    "\n",
+    "plt.title(\"Team Skill Levels Heatmap\", fontweight=\"bold\", loc=\"left\")\n",
+    "plt.xlabel(\"Skill\", fontweight=\"bold\")\n",
+    "plt.ylabel(\"Team Member\", fontweight=\"bold\")\n",
+    "\n",
+    "plt.xticks(rotation=45, ha=\"right\")\n",
+    "plt.yticks(rotation=0)\n",
+    "\n",
+    "plt.tight_layout()\n",
+    "plt.savefig(\"./images/team_skill_levels_heatmap.png\", dpi=300)\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "80b2b4c3",
+   "metadata": {},
+   "source": [
+    "![Team Skill Levels Heatmap](images/team_skill_levels_heatmap.png)\n"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3",
+   "path": "/usr/share/jupyter/kernels/python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

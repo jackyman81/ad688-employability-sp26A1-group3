@@ -18,7 +18,7 @@
         "\n",
         "Cleaning the data set is a crucial step to the analysis process. Keeping relevant data only and removing any duplicates or replacing any missing values helps to bring more accuracy and consiceness to the analysis. "
       ],
-      "id": "dc2de929"
+      "id": "bd0d91ae"
     },
     {
       "cell_type": "code",
@@ -28,7 +28,7 @@
         "#| eval: false\n",
         "import pandas as pd"
       ],
-      "id": "df0f93bf",
+      "id": "46ecff2a",
       "execution_count": null,
       "outputs": []
     },
@@ -58,7 +58,7 @@
         "# df.printSchema()\n",
         "# df.show(5)"
       ],
-      "id": "3d3c6e17",
+      "id": "c3450cd9",
       "execution_count": null,
       "outputs": []
     },
@@ -70,7 +70,7 @@
         "\n",
         "The following columns were chosen as they provide relevant information for analysis. NIACS, ONET, CIP, SOC, and LOT categories all had multiple different columns - only the latest were kept in order to reflect the current classifications. Cutting down the amount of columns and data set overall helps to make a cleaner data set to work with with less clutter."
       ],
-      "id": "34fb144a"
+      "id": "f0425e65"
     },
     {
       "cell_type": "code",
@@ -114,7 +114,7 @@
         "    col(\"LOT_V6_CAREER_AREA_NAME\").alias(\"CAREER_AREA\"),\n",
         ")"
       ],
-      "id": "fc7c45b3",
+      "id": "52c72efb",
       "execution_count": null,
       "outputs": []
     },
@@ -125,7 +125,7 @@
         "## Handling Missing Values\n",
         "### Numerical Fields - Filled with Median or 0"
       ],
-      "id": "4ab13436"
+      "id": "78c2210c"
     },
     {
       "cell_type": "code",
@@ -161,7 +161,7 @@
         "    regexp_replace(col(\"EDUCATION_LEVELS_NAME\"), r\"[\\n\\r]\",\"\")\n",
         ")"
       ],
-      "id": "81b0d72a",
+      "id": "82f5791b",
       "execution_count": null,
       "outputs": []
     },
@@ -182,7 +182,7 @@
         "clean_pd = clean_df.toPandas()\n",
         "clean_pd.head()"
       ],
-      "id": "921d536f",
+      "id": "6dbf9f0c",
       "execution_count": null,
       "outputs": []
     },
@@ -192,7 +192,7 @@
       "source": [
         "### Categorical Fields - Filled with \"Unknown\""
       ],
-      "id": "2bb577f5"
+      "id": "fef6fe18"
     },
     {
       "cell_type": "code",
@@ -207,7 +207,7 @@
         "print(\"Categorical:\", categorical_cols)\n",
         "print(\"Numerical:\", numerical_cols)"
       ],
-      "id": "6aef667c",
+      "id": "9b258d02",
       "execution_count": null,
       "outputs": []
     },
@@ -217,7 +217,7 @@
       "source": [
         "## Missing Value Imputation - Categorical Columns and Numerical Columns"
       ],
-      "id": "90c6cae9"
+      "id": "12232eb6"
     },
     {
       "cell_type": "code",
@@ -232,7 +232,7 @@
         "clean_pd.isnull().sum()\n",
         "clean_pd.head(10)"
       ],
-      "id": "bc9111d5",
+      "id": "b30bab4e",
       "execution_count": null,
       "outputs": []
     },
@@ -242,7 +242,7 @@
       "source": [
         "## Save as CSV"
       ],
-      "id": "1217e4a2"
+      "id": "ef1539e3"
     },
     {
       "cell_type": "code",
@@ -256,7 +256,7 @@
         "with open(\"./data/schema_output.txt\", \"w\") as f:\n",
         "    f.write(schema_str)"
       ],
-      "id": "f1583e61",
+      "id": "b6e2ef01",
       "execution_count": null,
       "outputs": []
     },
@@ -272,7 +272,7 @@
         "\n",
         "print(schema_str)"
       ],
-      "id": "25a5f3fe",
+      "id": "40c9b46a",
       "execution_count": null,
       "outputs": []
     }

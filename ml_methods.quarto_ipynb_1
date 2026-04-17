@@ -1,0 +1,938 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: \"Predictive Modeling\"\n",
+        "format:\n",
+        "  html:\n",
+        "    toc: true\n",
+        "    html-math-method: katex\n",
+        "    code-overflow: wrap\n",
+        "execute:\n",
+        "  echo: true\n",
+        "  eval: false\n",
+        "---\n",
+        "\n",
+        "Using machine learning methods to predict job growth trends."
+      ],
+      "id": "96116b5b"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: false\n",
+        "#| warning: false\n",
+        "\n",
+        "import plotly_setup\n",
+        "import matplotlib_setup"
+      ],
+      "id": "a1ea85da",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "from pyspark.sql import SparkSession\n",
+        "\n",
+        "# Start a Spark session\n",
+        "spark = SparkSession.builder.config(\"spark.driver.host\", \"localhost\").appName(\"JobPostingsAnalysis\").getOrCreate()\n",
+        "spark.catalog.clearCache()\n",
+        "\n",
+        "# Load the CSV file into a Spark DataFrame\n",
+        "df = spark.read.option(\"header\", \"true\").option(\"inferSchema\", \"true\").option(\n",
+        "    \"multiLine\", \"true\").option(\"escape\", \"\\\"\").csv(\"./data/clean_job_postings.csv\")\n",
+        "\n",
+        "# Register the DataFrame as a temporary SQL view\n",
+        "df.createOrReplaceTempView(\"clean_job_postings\")\n",
+        "\n",
+        "# Show Schema and Sample Data\n",
+        "#print(\"---This is Diagnostic check, No need to print it in the final doc---\")\n",
+        "\n",
+        "# comment the lines below when rendering the submission\n",
+        "#df.printSchema()\n",
+        "#df.show(5)"
+      ],
+      "id": "dfedac21",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Filtering and Feature Selection"
+      ],
+      "id": "7132824a"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "from pyspark.sql import functions as F\n",
+        "\n",
+        "topic_keywords = [\n",
+        "    \"data scientist\",\n",
+        "    \"data analyst\",\n",
+        "    \"business analyst\",\n",
+        "    \"business intelligence\",\n",
+        "    \"machine learning\",\n",
+        "    \"analytics\"\n",
+        "]\n",
+        "\n",
+        "condition = None\n",
+        "for kw in topic_keywords:\n",
+        "    current_condition = F.lower(F.col(\"SPECIALIZED_OCCUPATION\")).contains(kw)\n",
+        "    condition = current_condition if condition is None else (condition | current_condition)\n",
+        "\n",
+        "df_analysis = df.filter(F.col(\"SALARY\").isNotNull()) \\\n",
+        "    .filter(F.col(\"SPECIALIZED_OCCUPATION\").isNotNull()) \\\n",
+        "    .filter(condition)\n",
+        "\n",
+        "df_analysis.select(\"SPECIALIZED_OCCUPATION\", \"SALARY\").show(10, truncate=False)\n",
+        "print(\"Filtered row count:\", df_analysis.count())"
+      ],
+      "id": "bff4d881",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Feature Engineering"
+      ],
+      "id": "3077ec7f"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "skill_features = [\n",
+        "    \"Python (Programming Language)\",\n",
+        "    \"SQL (Programming Language)\",\n",
+        "    \"Microsoft Excel\",\n",
+        "    \"Data Analysis\",\n",
+        "    \"Machine Learning\",\n",
+        "    \"Power BI\",\n",
+        "    \"Tableau (Business Intelligence Software)\"\n",
+        "]\n",
+        "\n",
+        "df_analysis = df_analysis.withColumn(\n",
+        "    \"ALL_SKILLS_TEXT\",\n",
+        "    F.concat_ws(\n",
+        "        \" \",\n",
+        "        F.coalesce(F.col(\"SOFTWARE_SKILLS_NAME\"), F.lit(\"\")),\n",
+        "        F.coalesce(F.col(\"SPECIALIZED_SKILLS_NAME\"), F.lit(\"\")),\n",
+        "        F.coalesce(F.col(\"COMMON_SKILLS_NAME\"), F.lit(\"\"))\n",
+        "    )\n",
+        ")\n",
+        "\n",
+        "for skill in skill_features:\n",
+        "    safe_name = skill.replace(\" \", \"_\") \\\n",
+        "                     .replace(\"(\", \"\") \\\n",
+        "                     .replace(\")\", \"\") \\\n",
+        "                     .replace(\"/\", \"_\") \\\n",
+        "                     .replace(\"-\", \"_\")\n",
+        "    \n",
+        "    df_analysis = df_analysis.withColumn(\n",
+        "        safe_name,\n",
+        "        F.when(F.col(\"ALL_SKILLS_TEXT\").contains(skill), 1).otherwise(0)\n",
+        "    )\n",
+        "\n",
+        "df_analysis.select(\n",
+        "    \"SALARY\",\n",
+        "    \"Python_Programming_Language\",\n",
+        "    \"SQL_Programming_Language\",\n",
+        "    \"Microsoft_Excel\",\n",
+        "    \"Data_Analysis\",\n",
+        "    \"Machine_Learning\",\n",
+        "    \"Power_BI\",\n",
+        "    \"Tableau_Business_Intelligence_Software\"\n",
+        ").show(5, truncate=False)"
+      ],
+      "id": "4f2fc512",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "\n",
+        "df_analysis = df_analysis.withColumn(\n",
+        "    \"MIN_YEARS_EXPERIENCE_NUM\",\n",
+        "    F.when(\n",
+        "        F.col(\"MIN_YEARS_EXPERIENCE\").rlike(\"^[0-9]+(\\\\.[0-9]+)?$\"),\n",
+        "        F.col(\"MIN_YEARS_EXPERIENCE\").cast(\"double\")\n",
+        "    ).otherwise(0.0)\n",
+        ")\n",
+        "\n",
+        "df_analysis = df_analysis.fillna({\n",
+        "    \"REMOTE_TYPE_NAME\": \"Not Listed\",\n",
+        "    \"MIN_EDULEVELS_NAME\": \"Not Listed\"\n",
+        "})\n",
+        "\n",
+        "df_analysis.select(\n",
+        "    \"MIN_YEARS_EXPERIENCE\",\n",
+        "    \"MIN_YEARS_EXPERIENCE_NUM\",\n",
+        "    \"REMOTE_TYPE_NAME\",\n",
+        "    \"MIN_EDULEVELS_NAME\"\n",
+        ").show(10, truncate=False)"
+      ],
+      "id": "6de519ed",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Variable Selection"
+      ],
+      "id": "a8a9eb05"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "continuous_cols = [\n",
+        "    \"MIN_YEARS_EXPERIENCE_NUM\",\n",
+        "    \"Python_Programming_Language\",\n",
+        "    \"SQL_Programming_Language\",\n",
+        "    \"Microsoft_Excel\",\n",
+        "    \"Data_Analysis\",\n",
+        "    \"Machine_Learning\",\n",
+        "    \"Power_BI\",\n",
+        "    \"Tableau_Business_Intelligence_Software\"\n",
+        "]\n",
+        "\n",
+        "categorical_cols = [\n",
+        "    \"REMOTE_TYPE_NAME\",\n",
+        "    \"SPECIALIZED_OCCUPATION\"\n",
+        "]\n",
+        "\n",
+        "target_col = \"SALARY\"\n",
+        "\n",
+        "df_final = df_analysis.select(continuous_cols + categorical_cols + [target_col])\n",
+        "\n",
+        "df_final = df_final.dropna(subset=continuous_cols + categorical_cols + [target_col])\n",
+        "\n",
+        "df_final.show(5, truncate=False)"
+      ],
+      "id": "537820a3",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# String Indexing and One-Hot Encoding"
+      ],
+      "id": "ab78540f"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "from pyspark.ml.feature import StringIndexer, OneHotEncoder, VectorAssembler\n",
+        "from pyspark.ml import Pipeline\n",
+        "\n",
+        "indexers = [\n",
+        "    StringIndexer(inputCol=col, outputCol=f\"{col}_idx\", handleInvalid=\"skip\")\n",
+        "    for col in categorical_cols\n",
+        "]\n",
+        "\n",
+        "encoders = [\n",
+        "    OneHotEncoder(inputCol=f\"{col}_idx\", outputCol=f\"{col}_vec\", dropLast=True)\n",
+        "    for col in categorical_cols\n",
+        "]\n",
+        "\n",
+        "assembler = VectorAssembler(\n",
+        "    inputCols=continuous_cols + [f\"{col}_vec\" for col in categorical_cols],\n",
+        "    outputCol=\"features\"\n",
+        ")\n",
+        "\n",
+        "pipeline = Pipeline(stages=indexers + encoders + [assembler])\n",
+        "data = pipeline.fit(df_final).transform(df_final)\n",
+        "\n",
+        "ml_ready = data.select(\"SALARY\", \"features\")\n",
+        "ml_ready.show(5, truncate=False)"
+      ],
+      "id": "b31135cc",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Train-Test Split"
+      ],
+      "id": "9bfbfe39"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "\n",
+        "train_df, test_df = ml_ready.randomSplit([0.8, 0.2], seed=42)\n",
+        "\n",
+        "print(f\"Dimensions of full data: ({ml_ready.count()}, {len(ml_ready.columns)})\")\n",
+        "print(f\"Dimensions of training data: ({train_df.count()}, {len(train_df.columns)})\")\n",
+        "print(f\"Dimensions of test data: ({test_df.count()}, {len(test_df.columns)})\")"
+      ],
+      "id": "d03fab73",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Models\n",
+        "## Linear Regression Model"
+      ],
+      "id": "3a1aa2e3"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "from pyspark.ml.regression import LinearRegression\n",
+        "from pyspark.ml.evaluation import RegressionEvaluator\n",
+        "\n",
+        "lr = LinearRegression(\n",
+        "    featuresCol=\"features\",\n",
+        "    labelCol=\"SALARY\",\n",
+        "    predictionCol=\"prediction\",\n",
+        "    solver=\"normal\",\n",
+        "    regParam=0.0,\n",
+        "    elasticNetParam=0.0\n",
+        ")\n",
+        "\n",
+        "lr_model = lr.fit(train_df)\n",
+        "\n",
+        "predictions = lr_model.transform(test_df)\n",
+        "\n",
+        "predictions.select(\"SALARY\", \"prediction\").show(10, truncate=False)"
+      ],
+      "id": "5c0545cf",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "r2 = RegressionEvaluator(\n",
+        "    labelCol=\"SALARY\",\n",
+        "    predictionCol=\"prediction\",\n",
+        "    metricName=\"r2\"\n",
+        ").evaluate(predictions)\n",
+        "\n",
+        "rmse = RegressionEvaluator(\n",
+        "    labelCol=\"SALARY\",\n",
+        "    predictionCol=\"prediction\",\n",
+        "    metricName=\"rmse\"\n",
+        ").evaluate(predictions)\n",
+        "\n",
+        "mae = RegressionEvaluator(\n",
+        "    labelCol=\"SALARY\",\n",
+        "    predictionCol=\"prediction\",\n",
+        "    metricName=\"mae\"\n",
+        ").evaluate(predictions)\n",
+        "\n",
+        "print(\"Intercept:\", lr_model.intercept)\n",
+        "print(\"Coefficients:\", lr_model.coefficients)\n",
+        "print(\"R-squared:\", r2)\n",
+        "print(\"RMSE:\", rmse)\n",
+        "print(\"MAE:\", mae)"
+      ],
+      "id": "415afe1f",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "num_features = lr_model.coefficients.size\n",
+        "\n",
+        "feature_names = continuous_cols.copy()\n",
+        "\n",
+        "remaining_features = num_features - len(feature_names)\n",
+        "\n",
+        "for i in range(remaining_features):\n",
+        "    feature_names.append(f\"encoded_category_{i}\")\n",
+        "\n",
+        "print(\"Length of features:\", len(feature_names))\n",
+        "print(\"Length of coefs:\", lr_model.coefficients.size)"
+      ],
+      "id": "d61ef173",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "summary = lr_model.summary\n",
+        "\n",
+        "coefficients = list(lr_model.coefficients.toArray())\n",
+        "standard_errors = list(summary.coefficientStandardErrors)\n",
+        "t_values = list(summary.tValues)\n",
+        "p_values = list(summary.pValues)\n",
+        "\n",
+        "feature_names_with_intercept = feature_names + [\"intercept\"]\n",
+        "coefficients_with_intercept = coefficients + [lr_model.intercept]\n",
+        "\n",
+        "print(\"Length of features:\", len(feature_names_with_intercept))\n",
+        "print(\"Length of coefs:\", len(coefficients_with_intercept))\n",
+        "print(\"Length of se:\", len(standard_errors))\n",
+        "print(\"Length of tvals:\", len(t_values))\n",
+        "print(\"Length of p vals:\", len(p_values))"
+      ],
+      "id": "9625c45c",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "rows = []\n",
+        "\n",
+        "for i in range(len(feature_names_with_intercept)):\n",
+        "    rows.append((\n",
+        "        feature_names_with_intercept[i],\n",
+        "        float(coefficients_with_intercept[i]),\n",
+        "        float(standard_errors[i]),\n",
+        "        float(t_values[i]),\n",
+        "        float(p_values[i])\n",
+        "    ))\n",
+        "\n",
+        "coef_table = spark.createDataFrame(\n",
+        "    rows,\n",
+        "    [\"Feature\", \"Estimate\", \"Std Error\", \"t-stat\", \"P-Value\"]\n",
+        ")\n",
+        "\n",
+        "coef_table_pd = coef_table.toPandas()\n",
+        "coef_table_pd"
+      ],
+      "id": "7c09303e",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Random Forest Regression Model"
+      ],
+      "id": "7a126058"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "from pyspark.ml.regression import RandomForestRegressor\n",
+        "\n",
+        "rf = RandomForestRegressor(\n",
+        "    featuresCol=\"features\", \n",
+        "    labelCol=\"SALARY\", \n",
+        "    predictionCol=\"prediction_rf\",\n",
+        "    numTrees=200,\n",
+        "    maxDepth=8,\n",
+        "    seed=42\n",
+        ")\n",
+        "\n",
+        "rf_model = rf.fit(train_df)\n",
+        "\n",
+        "rf_predictions = rf_model.transform(test_df)\n",
+        "\n",
+        "rf_predictions.select(\"SALARY\", \"prediction_rf\").show(10, truncate=False)"
+      ],
+      "id": "c382d577",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "r2_rf = RegressionEvaluator(\n",
+        "    labelCol=\"SALARY\",\n",
+        "    predictionCol=\"prediction_rf\",\n",
+        "    metricName=\"r2\"\n",
+        ").evaluate(rf_predictions)\n",
+        "\n",
+        "rmse_rf = RegressionEvaluator(\n",
+        "    labelCol=\"SALARY\",\n",
+        "    predictionCol=\"prediction_rf\",\n",
+        "    metricName=\"rmse\"\n",
+        ").evaluate(rf_predictions)\n",
+        "\n",
+        "mae_rf = RegressionEvaluator(\n",
+        "    labelCol=\"SALARY\",\n",
+        "    predictionCol=\"prediction_rf\",\n",
+        "    metricName=\"mae\"\n",
+        ").evaluate(rf_predictions)\n",
+        "\n",
+        "print(\"Random Forest Regression R-squared:\", r2_rf)\n",
+        "print(\"Random Forest Regression RMSE:\", rmse_rf)\n",
+        "print(\"Random Forest Regression MAE:\", mae_rf)"
+      ],
+      "id": "85d9c29a",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "num_rf_features = rf_model.featureImportances.size\n",
+        "\n",
+        "rf_feature_names = continuous_cols.copy()\n",
+        "\n",
+        "remaining_rf_features = num_rf_features - len(rf_feature_names)\n",
+        "\n",
+        "for i in range(remaining_rf_features):\n",
+        "    rf_feature_names.append(f\"encoded_category_{i}\")\n",
+        "\n",
+        "print(\"Length of feature names:\", len(rf_feature_names))\n",
+        "print(\"Length of importances:\", rf_model.featureImportances.size)"
+      ],
+      "id": "241c6052",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "import pandas as pd\n",
+        "\n",
+        "rf_importances = list(rf_model.featureImportances.toArray())\n",
+        "\n",
+        "rf_importance_df = pd.DataFrame({\n",
+        "    \"Feature\": rf_feature_names,\n",
+        "    \"Importance\": rf_importances\n",
+        "}).sort_values(by=\"Importance\", ascending=False)\n",
+        "\n",
+        "rf_importance_df"
+      ],
+      "id": "162cd365",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "import matplotlib.pyplot as plt\n",
+        "import seaborn as sns\n",
+        "top10_rf_clean = rf_importance_df[\n",
+        "    ~rf_importance_df[\"Feature\"].str.contains(\"encoded_category\")\n",
+        "].head(10)\n",
+        "\n",
+        "top10_rf_clean = rf_importance_df[\n",
+        "    ~rf_importance_df[\"Feature\"].str.contains(\"encoded_category\")\n",
+        "].head(10)\n",
+        "\n",
+        "plt.figure(figsize=(10, 6))\n",
+        "sns.barplot(\n",
+        "    data=top10_rf_clean,\n",
+        "    x=\"Importance\",\n",
+        "    y=\"Feature\"\n",
+        ")\n",
+        "\n",
+        "plt.title(\"Top 10 Feature Importances - Random Forest Regression\")\n",
+        "plt.xlabel(\"Importance\")\n",
+        "plt.ylabel(\"Feature\")\n",
+        "plt.tight_layout()\n",
+        "plt.savefig(\"./images/rf_feature_importance.png\", dpi=300)\n",
+        "plt.show()"
+      ],
+      "id": "db3b8ffa",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "![Feature Importances - Random Forest Regression](images/rf_feature_importance.png)\n",
+        "\n",
+        "## K-Means Clustering"
+      ],
+      "id": "c2697178"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "cluster_features = [\n",
+        "    \"Python_Programming_Language\",\n",
+        "    \"SQL_Programming_Language\",\n",
+        "    \"Microsoft_Excel\",\n",
+        "    \"Data_Analysis\",\n",
+        "    \"Machine_Learning\",\n",
+        "    \"Power_BI\",\n",
+        "    \"Tableau_Business_Intelligence_Software\"\n",
+        "]\n",
+        "\n",
+        "df_cluster_ready = df_analysis.select(\n",
+        "    \"ONET_NAME\",\n",
+        "    \"SPECIALIZED_OCCUPATION\",\n",
+        "    *cluster_features\n",
+        ").dropna(subset=[\"ONET_NAME\"])\n",
+        "\n",
+        "df_cluster_ready.show(5, truncate=False)\n",
+        "print(\"Rows ready for clustering:\", df_cluster_ready.count())"
+      ],
+      "id": "b46d578c",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "from pyspark.ml.feature import VectorAssembler\n",
+        "\n",
+        "assembler = VectorAssembler(\n",
+        "    inputCols=cluster_features,\n",
+        "    outputCol=\"features\"\n",
+        ")\n",
+        "\n",
+        "cluster_data = assembler.transform(df_cluster_ready)\n",
+        "\n",
+        "cluster_data.select(\"ONET_NAME\", \"SPECIALIZED_OCCUPATION\", \"features\").show(5, truncate=False)"
+      ],
+      "id": "ab0496ea",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "from pyspark.ml.clustering import KMeans\n",
+        "\n",
+        "kmeans = KMeans(\n",
+        "    featuresCol=\"features\",\n",
+        "    predictionCol=\"cluster\",\n",
+        "    k=3,\n",
+        "    seed=42\n",
+        ")\n",
+        "\n",
+        "kmeans_model = kmeans.fit(cluster_data)\n",
+        "\n",
+        "cluster_predictions = kmeans_model.transform(cluster_data)\n",
+        "\n",
+        "cluster_predictions.select(\n",
+        "    \"SPECIALIZED_OCCUPATION\",\n",
+        "    \"ONET_NAME\",\n",
+        "    \"cluster\"\n",
+        ").show(15, truncate=False)"
+      ],
+      "id": "12752fb2",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "from pyspark.ml.evaluation import ClusteringEvaluator\n",
+        "\n",
+        "evaluator = ClusteringEvaluator(\n",
+        "    featuresCol=\"features\",\n",
+        "    predictionCol=\"cluster\",\n",
+        "    metricName=\"silhouette\"\n",
+        ")\n",
+        "\n",
+        "silhouette = evaluator.evaluate(cluster_predictions)\n",
+        "\n",
+        "print(\"Silhouette Score:\", silhouette)"
+      ],
+      "id": "8dc901f0",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "cluster_onet = cluster_predictions.groupBy(\"cluster\", \"ONET_NAME\") \\\n",
+        "    .count() \\\n",
+        "    .orderBy(\"cluster\", F.col(\"count\").desc())\n",
+        "\n",
+        "cluster_onet.show(30, truncate=False)"
+      ],
+      "id": "b6daf23d",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "centers = kmeans_model.clusterCenters()\n",
+        "\n",
+        "for i, center in enumerate(centers):\n",
+        "    print(f\"Cluster {i} center:\")\n",
+        "    for feature_name, value in zip(cluster_features, center):\n",
+        "        print(f\"  {feature_name}: {round(float(value), 3)}\")"
+      ],
+      "id": "7e649d94",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "from pyspark.ml.feature import PCA\n",
+        "\n",
+        "pca = PCA(k=2, inputCol=\"features\", outputCol=\"pcaFeatures\")\n",
+        "pca_model = pca.fit(cluster_predictions)\n",
+        "pca_result = pca_model.transform(cluster_predictions)\n",
+        "\n",
+        "pca_pd = pca_result.select(\n",
+        "    \"cluster\",\n",
+        "    \"SPECIALIZED_OCCUPATION\",\n",
+        "    \"ONET_NAME\",\n",
+        "    \"pcaFeatures\"\n",
+        ").toPandas()\n",
+        "\n",
+        "pca_pd[\"PC1\"] = pca_pd[\"pcaFeatures\"].apply(lambda v: float(v[0]))\n",
+        "pca_pd[\"PC2\"] = pca_pd[\"pcaFeatures\"].apply(lambda v: float(v[1]))\n",
+        "\n",
+        "pca_pd.head()"
+      ],
+      "id": "c7b87485",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "plt.figure(figsize=(10, 7))\n",
+        "\n",
+        "sns.scatterplot(\n",
+        "    data=pca_pd,\n",
+        "    x=\"PC1\",\n",
+        "    y=\"PC2\",\n",
+        "    hue=\"cluster\",\n",
+        "    palette=[\"#DC1212\", \"#FA8072\", \"#8B0000\"]\n",
+        "    s=70,\n",
+        "    alpha=0.65,\n",
+        ")\n",
+        "\n",
+        "plt.title(\"K-Means Clusters Based on Required Skills\")\n",
+        "plt.xlabel(\"Principal Component 1\")\n",
+        "plt.ylabel(\"Principal Component 2\")\n",
+        "plt.legend(title=\"Cluster\")\n",
+        "plt.grid(alpha=0.2)\n",
+        "plt.tight_layout()\n",
+        "plt.savefig(\"./images/kmeans_clusters.png\", dpi=300)\n",
+        "plt.show()"
+      ],
+      "id": "f867f78f",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "![K-Means Clusters Based on Required Skills](images/kmeans_clusters.png)"
+      ],
+      "id": "9cdc7b9a"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "message": false
+      },
+      "source": [
+        "#| echo: true\n",
+        "#| eval: false\n",
+        "#| warning: false\n",
+        "cluster_counts_pd = (\n",
+        "    cluster_predictions.groupBy(\"cluster\")\n",
+        "    .count()\n",
+        "    .orderBy(\"cluster\")\n",
+        "    .toPandas()\n",
+        ")\n",
+        "\n",
+        "plt.figure(figsize=(6, 4))\n",
+        "sns.barplot(data=cluster_counts_pd, x=\"cluster\", y=\"count\")\n",
+        "\n",
+        "plt.title(\"Number of Job Postings in Each Cluster\")\n",
+        "plt.xlabel(\"Cluster\")\n",
+        "plt.ylabel(\"Count\")\n",
+        "plt.tight_layout()\n",
+        "plt.savefig(\"./images/cluster_counts.png\", dpi=300)\n",
+        "plt.show()"
+      ],
+      "id": "c7beb308",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "![Number of Job Postings in Each Cluster](images/cluster_counts.png)"
+      ],
+      "id": "1953b26f"
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python3",
+      "language": "python",
+      "display_name": "Python 3 (ipykernel)",
+      "path": "/usr/share/jupyter/kernels/python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}

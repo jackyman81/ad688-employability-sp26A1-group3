@@ -441,16 +441,18 @@ plt.figure(figsize=(10, 6))
 sns.barplot(
     data=top10_rf_clean,
     x="Importance",
-    y="Feature",
-    color="steelblue"
+    y="Feature"
 )
 
-plt.title("Top 10 Feature Importances - Random Forest Regression")
+plt.title("Top 10 Feature Importances", loc="left")
 plt.xlabel("Importance")
 plt.ylabel("Feature")
 plt.tight_layout()
+plt.savefig("./images/rf_feature_importance.png", dpi=300)
 plt.show()
 ```
+![Feature Importances - Random Forest Regression](images/rf_feature_importance.png)
+
 ## K-Means Clustering
 ```{python}
 #| echo: true
@@ -591,20 +593,21 @@ sns.scatterplot(
     x="PC1",
     y="PC2",
     hue="cluster",
-    palette="Dark2",
+    palette=["#DC1212", "#FA8072", "#8B0000"],
     s=70,
     alpha=0.65,
-    edgecolor="white"
 )
 
-plt.title("K-Means Clusters Based on Required Skills", fontsize=15, fontweight="bold")
-plt.xlabel("Principal Component 1", fontsize=12)
-plt.ylabel("Principal Component 2", fontsize=12)
+plt.title("K-Means Clusters Based on Skills",loc="left")
+plt.xlabel("Principal Component 1")
+plt.ylabel("Principal Component 2")
 plt.legend(title="Cluster")
 plt.grid(alpha=0.2)
 plt.tight_layout()
+plt.savefig("./images/kmeans_clusters.png", dpi=300)
 plt.show()
 ```
+![K-Means Clusters Based on Required Skills](images/kmeans_clusters.png)
 ```{python}
 #| echo: true
 #| eval: false
@@ -617,12 +620,14 @@ cluster_counts_pd = (
     .toPandas()
 )
 
-plt.figure(figsize=(6, 4))
-sns.barplot(data=cluster_counts_pd, x="cluster", y="count", color="steelblue")
+plt.figure(figsize=(10, 6))
+sns.barplot(data=cluster_counts_pd, x="cluster", y="count")
 
-plt.title("Number of Job Postings in Each Cluster")
+plt.title("Number of Job Postings in Each Cluster", loc="left")
 plt.xlabel("Cluster")
 plt.ylabel("Count")
 plt.tight_layout()
+plt.savefig("./images/cluster_counts.png", dpi=300)
 plt.show()
 ```
+![Number of Job Postings in Each Cluster](images/cluster_counts.png)
