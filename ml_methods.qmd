@@ -1,5 +1,232 @@
 ---
 title: "Predictive Modeling"
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    code-overflow: wrap
+execute:
+  echo: true
+  eval: false
 ---
 
-Using machine learning methods to predict job growth trends
+Using machine learning methods to predict job growth trends.
+```{python}
+#| echo: true
+#| eval: false
+from pyspark.sql import SparkSession
+
+# Start a Spark session
+spark = SparkSession.builder.config("spark.driver.host", "localhost").appName("JobPostingsAnalysis").getOrCreate()
+spark.catalog.clearCache()
+
+# Load the CSV file into a Spark DataFrame
+df = spark.read.option("header", "true").option("inferSchema", "true").option(
+    "multiLine", "true").option("escape", "\"").csv("./data/clean_job_postings.csv")
+
+# Register the DataFrame as a temporary SQL view
+df.createOrReplaceTempView("clean_job_postings")
+
+# Show Schema and Sample Data
+#print("---This is Diagnostic check, No need to print it in the final doc---")
+
+# comment the lines below when rendering the submission
+#df.printSchema()
+#df.show(5)
+```
+# Filtering and Feature Selection
+```{python}
+#| echo: true
+#| eval: false
+from pyspark.sql import functions as F
+
+topic_keywords = [
+    "data scientist",
+    "data analyst",
+    "business analyst",
+    "business intelligence",
+    "machine learning",
+    "analytics"
+]
+
+condition = None
+for kw in topic_keywords:
+    c = F.lower(F.col("SPECIALIZED_OCCUPATION")).contains(kw)
+    condition = c if condition is None else (condition | c)
+
+df_reg = (
+    df
+    .filter(F.col("SALARY").isNotNull())
+    .filter(F.col("SPECIALIZED_OCCUPATION").isNotNull())
+    .filter(condition)
+)
+
+print("Filtered rows:", df_reg.count())
+df_reg.select("SPECIALIZED_OCCUPATION", "SALARY").show(20, truncate=False)
+```
+```{python}
+#| echo: true
+#| eval: false
+skill_features = [
+    "Python (Programming Language)",
+    "SQL (Programming Language)",
+    "Microsoft Excel",
+    "Data Analysis",
+    "Machine Learning",
+    "Power BI",
+    "Tableau (Business Intelligence Software)"
+]
+
+df_reg = df_reg.withColumn(
+    "ALL_SKILLS_TEXT",
+    F.concat_ws(
+        " ",
+        F.coalesce(F.col("SOFTWARE_SKILLS_NAME"), F.lit("")),
+        F.coalesce(F.col("SPECIALIZED_SKILLS_NAME"), F.lit("")),
+        F.coalesce(F.col("COMMON_SKILLS_NAME"), F.lit(""))
+    )
+)
+for skill in skill_features:
+    safe_name = (
+        skill.replace(" ", "_")
+        .replace("(", "")
+        .replace(")", "")
+        .replace("/", "_")
+        .replace("-", "_")
+    )
+    
+    df_reg = df_reg.withColumn(
+        safe_name,
+        F.when(F.col("ALL_SKILLS_TEXT").contains(skill), 1).otherwise(0)
+    )
+
+df_reg.select(
+    "SALARY",
+    "Python_Programming_Language",
+    "SQL_Programming_Language",
+    "Microsoft_Excel",
+    "Data_Analysis",
+    "Machine_Learning",
+    "Power_BI",
+    "Tableau_Business_Intelligence_Software"
+).show(5)
+```
+```{python}
+# | echo: true
+# | eval: false
+
+df_reg = df_reg.withColumn(
+    "MIN_YEARS_EXPERIENCE_NUM",
+    F.when(
+        F.col("MIN_YEARS_EXPERIENCE").rlike("^[0-9]+(\\.[0-9]+)?$"),
+        F.col("MIN_YEARS_EXPERIENCE").cast("double")
+    ).otherwise(0.0)
+)
+
+df_reg = df_reg.fillna({
+    "REMOTE_TYPE_NAME": "Not Listed",
+    "MIN_EDULEVELS_NAME": "Not Listed"
+})
+
+df_reg.select(
+    "MIN_YEARS_EXPERIENCE",
+    "MIN_YEARS_EXPERIENCE_NUM",
+    "REMOTE_TYPE_NAME",
+    "MIN_EDULEVELS_NAME"
+).show(10, truncate=False)
+```
+# Pipeline for ML
+```{python}
+# | echo: true
+# | eval: false
+
+
+from pyspark.ml.feature import StringIndexer, OneHotEncoder, VectorAssembler
+from pyspark.ml import Pipeline
+
+skill_cols_clean = [
+    "Python_Programming_Language",
+    "SQL_Programming_Language",
+    "Microsoft_Excel",
+    "Data_Analysis",
+    "Machine_Learning",
+    "Power_BI",
+    "Tableau_Business_Intelligence_Software"
+]
+
+categorical_cols = ["REMOTE_TYPE_NAME", "MIN_EDULEVELS_NAME"]
+numeric_cols = ["MIN_YEARS_EXPERIENCE_NUM"] + skill_cols_clean
+
+indexers = [
+    StringIndexer(inputCol=col, outputCol=f"{col}_idx", handleInvalid="keep")
+    for col in categorical_cols
+]
+
+encoders = [
+    OneHotEncoder(inputCol=f"{col}_idx", outputCol=f"{col}_vec")
+    for col in categorical_cols
+]
+
+assembler = VectorAssembler(
+    inputCols=numeric_cols + [f"{col}_vec" for col in categorical_cols],
+    outputCol="features"
+)
+```
+# Train-Test Split
+```{python}
+# | echo: true
+# | eval: false
+
+from pyspark.ml.regression import LinearRegression
+
+train_df, test_df = df_reg.randomSplit([0.8, 0.2], seed=42)
+
+lr = LinearRegression(
+    featuresCol="features",
+    labelCol="SALARY",
+    predictionCol="prediction"
+)
+
+pipeline = Pipeline(stages=indexers + encoders + [assembler, lr])
+
+lr_model = pipeline.fit(train_df)
+predictions = lr_model.transform(test_df)
+
+predictions.select("SALARY", "prediction").show(10, truncate=False)
+```
+```{python}
+# | echo: true
+# | eval: false
+from pyspark.ml.evaluation import RegressionEvaluator
+
+rmse_evaluator = RegressionEvaluator(
+    labelCol="SALARY",
+    predictionCol="prediction",
+    metricName="rmse"
+)
+
+r2_evaluator = RegressionEvaluator(
+    labelCol="SALARY",
+    predictionCol="prediction",
+    metricName="r2"
+)
+
+mae_evaluator = RegressionEvaluator(
+    labelCol="SALARY",
+    predictionCol="prediction",
+    metricName="mae"
+)
+
+rmse = rmse_evaluator.evaluate(predictions)
+r2 = r2_evaluator.evaluate(predictions)
+mae = mae_evaluator.evaluate(predictions)
+
+print("RMSE:", round(rmse, 2))
+print("MAE:", round(mae, 2))
+print("R-squared:", round(r2, 4))
+```
+```{python}
+# | echo: true
+# | eval: false
+
+```

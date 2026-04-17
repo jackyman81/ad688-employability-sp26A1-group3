@@ -28,11 +28,11 @@ df = spark.read.option("header", "true").option("inferSchema", "true").option(
 df.createOrReplaceTempView("clean_job_postings")
 
 # Show Schema and Sample Data
-print("---This is Diagnostic check, No need to print it in the final doc---")
+#print("---This is Diagnostic check, No need to print it in the final doc---")
 
 # comment the lines below when rendering the submission
-df.printSchema()
-df.show(5)
+#df.printSchema()
+#df.show(5)
 ``` 
 # Top Skills in Job Postings
 ```{python}
@@ -118,7 +118,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 plt.figure(figsize=(8, 6))
-sns.heatmap(df_skills, annot=True, cmap="coolwarm", linewidths=0.5)
+sns.heatmap(df_skills, annot=True, cmap="Reds", linewidths=0.5)
 plt.title("Team Skill Levels Heatmap")
 plt.show()
 ```

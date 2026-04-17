@@ -29,7 +29,7 @@ spark.catalog.clearCache()
 
 # Load the CSV file into a Spark DataFrame
 df = spark.read.option("header", "true").option("inferSchema", "true").option(
-    "multiLine", "true").option("escape", "\"").csv("data/lightcast_job_postings.csv")
+    "multiLine", "true").option("escape", "\"").csv("./data/lightcast_job_postings.csv")
 
 # Register the DataFrame as a temporary SQL view
 df.createOrReplaceTempView("job_postings")
@@ -74,10 +74,10 @@ clean_df = df.select(
     col("CERTIFICATIONS_NAME"),
     col("COMMON_SKILLS_NAME"),
     col("SOFTWARE_SKILLS_NAME"),
-    # col("ONET_NAME"),
+    col("ONET_NAME"),
     col("CIP6_NAME"),
-    # col("SOC_5_NAME").alias("SOC_NAME"),
-    # col("SOC_5").alias("SOC_CODE"),
+    col("SOC_5_NAME").alias("SOC_NAME"),
+    col("SOC_5").alias("SOC_CODE"),
     col("LOT_V6_SPECIALIZED_OCCUPATION_NAME").alias("SPECIALIZED_OCCUPATION"),
     col("LOT_V6_OCCUPATION_NAME").alias("OCCUPATION"),
     col("LOT_V6_OCCUPATION_GROUP_NAME").alias("OCCUPATION_GROUP"),
@@ -88,7 +88,7 @@ clean_df = df.select(
 
 
 ## Handling Missing Values
-### Numerical Fields - Filled with Median
+### Numerical Fields - Filled with Median or 0
 ```{python}
 #| echo: true
 #| eval: false
@@ -108,41 +108,33 @@ median_from = compute_median(clean_df, "SALARY_FROM")
 median_to = compute_median(clean_df, "SALARY_TO")
 median_salary = compute_median(clean_df, "SALARY")
 
-print("Medians:", median_from, median_to, median_salary)
 
 clean_df = clean_df.fillna({
     "SALARY_FROM": median_from,
-    "SALARY_TO": median_to
+    "SALARY_TO": median_to,
+    "SALARY": median_salary
 })
-
-clean_df = clean_df.withColumn("AVERAGE_SALARY", (col("SALARY_FROM") + col("SALARY_TO")) / 2)
 
 clean_df = clean_df.withColumn(
     "EDUCATION_LEVELS_NAME",
     regexp_replace(col("EDUCATION_LEVELS_NAME"), r"[\n\r]","")
 )
-
-# clean_df.show(10)
-clean_pd = clean_df.toPandas()
-clean_pd.head()
 ```
-
-### Columns with >50% Missing - Dropped
 
 ```{python}
 #| echo: true
 #| eval: false
-import matplotlib.pyplot as plt
-import missingno as msno
+from pyspark.sql import functions as F
+from pyspark.sql.functions import col, when
+# Min Years Experience: Replace nulls with 0
 
-msno.heatmap(clean_pd)
-plt.title("Missing Values Heatmap")
-plt.savefig("./images/missing_values_heatmap.png")
-plt.show()
+clean_df = clean_df.fillna({
+    "MIN_YEARS_EXPERIENCE": 0
+})
+
+clean_pd = clean_df.toPandas()
+clean_pd.head()
 ```
-
-![Missing Values Heatmap](./images/missing_values_heatmap.png){width="80%" fig-align="center" #fig-heatmap}
-
 ### Categorical Fields - Filled with "Unknown"
 ```{python}
 #| echo: true
@@ -167,15 +159,6 @@ clean_pd[cols] = clean_pd[cols].fillna("Unknown")
 clean_pd.isnull().sum()
 clean_pd.head(10)
 ```
-
-## Remove Duplicates
-This step helps to ensure that there is no duplication in the data set and only each job posting is counted once. 
-```{python}
-#| echo: true
-#| eval: false
-# clean_pd = clean_pd.drop_duplicates(subset=["TITLE_NAME", "COMPANY_NAME", "LOCATION", "POSTED"], keep="first")
-```
-
 ## Save as CSV
 ```{python}
 #| echo: true
@@ -185,7 +168,6 @@ schema_str = clean_df._jdf.schema().treeString()
 
 with open("./data/schema_output.txt", "w") as f:
     f.write(schema_str)
-
 ```
 
 ```{python}
