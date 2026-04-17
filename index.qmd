@@ -2,10 +2,6 @@
 title: "Data Science & Business Analytics Trends"
 author: "Jessica Benun & Jacky Man"
 date: "Spring 2026"
-format:
-  html:
-    theme: journal
-    toc: true
 ---
 
 ## Introduction and Research Rationale
