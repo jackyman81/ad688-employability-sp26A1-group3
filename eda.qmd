@@ -13,6 +13,7 @@ Exploratory Data Analysis (EDA) is a crucial step in the data analysis process t
 
 ```{python}
 #| echo: true
+#| eval: true
 #| warning: false
 #| message: false
 from pyspark.sql import SparkSession

@@ -12,7 +12,7 @@ execute:
 # Data Loading 
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 from pyspark.sql import SparkSession
 
 # Start a Spark session
