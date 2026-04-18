@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/eda.html</loc>
-    <lastmod>2026-04-18T01:37:37.876Z</lastmod>
-  </url>
-  <url>
-    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/about.html</loc>
-    <lastmod>2026-04-15T23:55:50.309Z</lastmod>
-  </url>
-  <url>
-    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/research_introduction.html</loc>
-    <lastmod>2026-04-09T00:03:50.675Z</lastmod>
-  </url>
-  <url>
-    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/data_cleaning.html</loc>
-    <lastmod>2026-04-18T02:45:39.109Z</lastmod>
-  </url>
-  <url>
-    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/index.html</loc>
-    <lastmod>2026-04-18T01:37:37.903Z</lastmod>
-  </url>
-  <url>
-    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/introduction.html</loc>
-    <lastmod>2026-04-09T00:03:50.675Z</lastmod>
-  </url>
-  <url>
     <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/skill_gap_analysis.html</loc>
-    <lastmod>2026-04-18T01:37:37.903Z</lastmod>
+    <lastmod>2026-04-18T17:04:12.499Z</lastmod>
   </url>
   <url>
     <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/ml_methods.html</loc>
-    <lastmod>2026-04-18T03:12:22.036Z</lastmod>
+    <lastmod>2026-04-18T18:09:16.854Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/index.html</loc>
+    <lastmod>2026-04-18T17:04:12.493Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/data_cleaning.html</loc>
+    <lastmod>2026-04-18T17:07:01.528Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/about.html</loc>
+    <lastmod>2026-04-10T00:43:59.116Z</lastmod>
   </url>
   <url>
     <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/career_plan.html</loc>
-    <lastmod>2026-04-09T00:03:50.674Z</lastmod>
+    <lastmod>2026-04-18T17:04:12.331Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/eda.html</loc>
+    <lastmod>2026-04-18T17:23:41.837Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/introduction.html</loc>
+    <lastmod>2026-04-09T23:06:54.024Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jackyman81.github.io/ad688-employability-sp26A1-group3/research_introduction.html</loc>
+    <lastmod>2026-04-09T23:06:54.027Z</lastmod>
   </url>
 </urlset>

@@ -21,9 +21,14 @@ import matplotlib_setup
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
+
+import os
+import pandas as pd
+import numpy as np
+
 from pyspark.sql import SparkSession
 
 # Start a Spark session
@@ -44,10 +49,12 @@ df.createOrReplaceTempView("clean_job_postings")
 #df.printSchema()
 #df.show(5)
 ```
+
 # Filtering and Feature Selection
+
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 from pyspark.sql import functions as F
@@ -73,10 +80,12 @@ df_analysis = df.filter(F.col("SALARY").isNotNull()) \
 df_analysis.select("SPECIALIZED_OCCUPATION", "SALARY").show(10, truncate=False)
 print("Filtered row count:", df_analysis.count())
 ```
+
 # Feature Engineering
+
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 skill_features = [
@@ -127,7 +136,7 @@ df_analysis.select(
 
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 
@@ -154,7 +163,7 @@ df_analysis.select(
 # Variable Selection
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 continuous_cols = [
@@ -184,9 +193,10 @@ df_final.show(5, truncate=False)
 ```
 
 # String Indexing and One-Hot Encoding
+
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 from pyspark.ml.feature import StringIndexer, OneHotEncoder, VectorAssembler
@@ -213,10 +223,12 @@ data = pipeline.fit(df_final).transform(df_final)
 ml_ready = data.select("SALARY", "features")
 ml_ready.show(5, truncate=False)
 ```
+
 # Train-Test Split
+
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 
@@ -226,11 +238,14 @@ print(f"Dimensions of full data: ({ml_ready.count()}, {len(ml_ready.columns)})")
 print(f"Dimensions of training data: ({train_df.count()}, {len(train_df.columns)})")
 print(f"Dimensions of test data: ({test_df.count()}, {len(test_df.columns)})")
 ```
+
 # Models
+
 ## Linear Regression Model
+
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 from pyspark.ml.regression import LinearRegression
@@ -251,9 +266,10 @@ predictions = lr_model.transform(test_df)
 
 predictions.select("SALARY", "prediction").show(10, truncate=False)
 ```
+
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 r2 = RegressionEvaluator(
@@ -282,7 +298,7 @@ print("MAE:", mae)
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 num_features = lr_model.coefficients.size
@@ -299,7 +315,7 @@ print("Length of coefs:", lr_model.coefficients.size)
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 summary = lr_model.summary
@@ -318,34 +334,140 @@ print("Length of se:", len(standard_errors))
 print("Length of tvals:", len(t_values))
 print("Length of p vals:", len(p_values))
 ```
+
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
-rows = []
+# rows = []
 
-for i in range(len(feature_names_with_intercept)):
-    rows.append((
-        feature_names_with_intercept[i],
-        float(coefficients_with_intercept[i]),
-        float(standard_errors[i]),
-        float(t_values[i]),
-        float(p_values[i])
-    ))
+# for i in range(len(feature_names_with_intercept)):
+#     rows.append((
+#         feature_names_with_intercept[i],
+#         float(coefficients_with_intercept[i]),
+#         float(standard_errors[i]),
+#         float(t_values[i]),
+#         float(p_values[i])
+#     ))
 
-coef_table = spark.createDataFrame(
-    rows,
-    ["Feature", "Estimate", "Std Error", "t-stat", "P-Value"]
-)
+# coef_table = spark.createDataFrame(
+#     rows,
+#     ["Feature", "Estimate", "Std Error", "t-stat", "P-Value"]
+# )
 
-coef_table_pd = coef_table.toPandas()
-coef_table_pd
+coef_table = pd.DataFrame({
+    "Feature": feature_names_with_intercept,
+    "Estimate": [f"{v:.4f}" if v is not None else None for v in coefficients_with_intercept],
+    "Std Error": [f"{v:.4f}" if v is not None else None for v in standard_errors],
+    "t-stat": [f"{v:.4f}" if v is not None else None for v in t_values],
+    "P-Value": [f"{v:.4f}" if v is not None else None for v in p_values]
+})
+
+coef_table.to_csv("./data/lr_summary.csv", index=False)
+
+# coef_table.show(truncate=False)
+# coef_table_pd = coef_table.toPandas()
+# coef_table_pd
 ```
-## Random Forest Regression Model
+
+```{python}
+#| echo: false
+#| eval: true
+
+coef_table_pd = pd.read_csv("./data/lr_summary.csv")
+
+coef_table_pd.style.hide(axis='index')
+```
+
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
+#| warning: false
+#| message: false
+
+from IPython.display import display
+
+summary = lr_model.summary
+
+coef_table = pd.DataFrame({
+    "Term": feature_names + ["Intercept"],
+    "Estimate": list(lr_model.coefficients.toArray()) + [lr_model.intercept],
+    "Std. Error": list(summary.coefficientStandardErrors),
+    "t value": list(summary.tValues),
+    "Pr(>|t|)": list(summary.pValues)
+})
+
+def significance_stars(p):
+    if p < 0.001:
+        return "***"
+    if p < 0.01:
+        return "**"
+    if p < 0.05:
+        return "*"
+    if p < 0.1:
+        return "."
+    return ""
+
+coef_table["stars"] = coef_table["Pr(>|t|)"].apply(significance_stars)
+
+model_stats = pd.DataFrame({
+    "Statistic": ["R-squared", "RMSE", "MAE", "Observations", "Residual DF"],
+    "Value": [r2, rmse, mae, summary.numInstances, summary.degreesOfFreedom]
+})
+
+# Save raw data tables
+coef_table.to_csv("./data/lr_coefficients.csv", index=False)
+model_stats.to_csv("./data/lr_model_stats.csv", index=False)
+
+# Build display versions
+coef_display = coef_table.copy()
+coef_display["Estimate"] = coef_display.apply(
+    lambda row: f"{row['Estimate']:.4f}{row['stars']}", axis=1
+)
+coef_display["Std. Error"] = coef_display["Std. Error"].map(lambda x: f"{x:.4f}")
+coef_display["t value"] = coef_display["t value"].map(lambda x: f"{x:.4f}")
+coef_display["Pr(>|t|)"] = coef_display["Pr(>|t|)"].map(lambda x: f"{x:.4f}")
+coef_display = coef_display.drop(columns=["stars"])
+
+model_stats_display = model_stats.copy()
+model_stats_display["Value"] = model_stats_display["Value"].map(
+    lambda x: f"{x:.4f}" if isinstance(x, (int, float, np.floating)) else x
+)
+
+# Show nicely in Quarto
+# display(coef_display.style.hide(axis="index"))
+# display(model_stats_display.style.hide(axis="index"))
+```
+
+```{python}
+#| echo: false
+#| eval: true
+coef_html = coef_display.style.hide(axis="index").to_html()
+stats_html = model_stats_display.style.hide(axis="index").to_html()
+
+with open("./data/lr_report.html", "w", encoding="utf-8") as f:
+    f.write("<h2>Linear Regression Results</h2>")
+    f.write("<h3>Coefficients</h3>")
+    f.write(coef_html)
+    f.write("<h3>Model Fit</h3>")
+    f.write(stats_html)
+
+# Import the saved HTML for display in the Quarto document
+from IPython.display import HTML
+with open("./data/lr_report.html", "r", encoding="utf-8") as f:
+    report_html = f.read()
+
+HTML(report_html)
+
+```
+
+
+## Random Forest Regression Model
+
+```{python}
+#| echo: true
+#| eval: true
 #| warning: false
 #| message: false
 from pyspark.ml.regression import RandomForestRegressor
@@ -365,9 +487,10 @@ rf_predictions = rf_model.transform(test_df)
 
 rf_predictions.select("SALARY", "prediction_rf").show(10, truncate=False)
 ```
+
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 r2_rf = RegressionEvaluator(
@@ -394,7 +517,7 @@ print("Random Forest Regression MAE:", mae_rf)
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 num_rf_features = rf_model.featureImportances.size
@@ -411,7 +534,7 @@ print("Length of importances:", rf_model.featureImportances.size)
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 import pandas as pd
@@ -427,7 +550,7 @@ rf_importance_df
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 import matplotlib.pyplot as plt
@@ -457,6 +580,7 @@ plt.show()
 ![Feature Importances - Random Forest Regression](images/rf_feature_importance_v2.png)
 
 ## K-Means Clustering
+
 ```{python}
 #| echo: true
 #| eval: false

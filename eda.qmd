@@ -5,12 +5,14 @@ format:
     toc: true
     html-math-method: katex
     code-overflow: wrap
+    df-print: paged
 execute:
   echo: true
   eval: false
 ---
 
 Exploratory Data Analysis (EDA) is a crucial step in the data analysis process that involves summarizing the main characteristics of a dataset, often using visual methods. The goal of EDA is to gain insights into the data, identify patterns, detect anomalies, and test hypotheses before applying more formal statistical modeling techniques.
+
 ```{python}
 #| echo: false
 #| eval: true
@@ -46,9 +48,10 @@ df.createOrReplaceTempView("clean_job_postings")
 #df.printSchema()
 #df.show(5)
 ```
+
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 with open("./data/schema_output.txt", "r") as f:
@@ -58,7 +61,9 @@ print(schema_str)
 ```
 
 # Count of Specialized Occupation
+
 ## Table
+
 ```{python}
 #| echo: true
 #| eval: false
@@ -76,7 +81,6 @@ specialized_occupation_counts = (
 
 top_specialized_occupations = (
     specialized_occupation_counts
-    .limit(15)
     .toPandas()
 )
 
@@ -85,15 +89,27 @@ top_specialized_occupations.columns = [
     "Count"
 ]
 
-top_specialized_occupations
+top_specialized_occupations.to_csv("./data/top_specialized_occupations.csv", index=False)
+
 ```
+
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+top_specialized_occupations = pd.read_csv("./data/top_specialized_occupations.csv")
+
+top_specialized_occupations.head(15).style.hide(axis="index")
+```
+
 ## Visualization
 ```{python}
 #| echo: true
 #| eval: false
 #| warning: false
 #| message: false
-plt.figure(figsize=(12, 8))
+plt.figure(figsize=(12, 10))
 
 plt.barh(
     top_specialized_occupations["Specialized Occupation"],
@@ -106,12 +122,14 @@ plt.title("Top Occupations in the Job Market", loc="left")
 
 plt.gca().invert_yaxis()
 plt.tight_layout()
-plt.savefig("./images/top_specialized_occupations.png", dpi=300)
-plt.show()
+plt.savefig("./images/top_specialized_occupations.png", dpi=200)
+# plt.show()
 ```
-![Top Specialized Occupations in the Job Market](images/top_specialized_occupations.png)
 
-Data Analyst is by far the most common role in the dataset, which suggests the market is heavily centered on analyst-type positions. After that, roles like General ERP Analyst / Consultant, Enterprise Architect, Oracle Consultant / Analyst, and SAP Analyst / Admin also show strong demand, but at a much lower level than Data Analyst. This points to a job market with one very dominant general role and several more specialized enterprise-focused roles.
+
+![Top Specialized Occupations in the Job Market](images/top_specialized_occupations.png){width=80% fig-align="center" #fig-top-specialized-occupations fig-alt="Bar chart showing the top specialized occupations in the job market, with Data Analyst being the most common by a wide margin."}
+
+@fig-top-specialized-occupations shows the top 15 specialized occupations in the job market. Data Analyst is by far the most common role in the dataset, which suggests the market is heavily centered on analyst-type positions. After that, roles like General ERP Analyst / Consultant, Enterprise Architect, Oracle Consultant / Analyst, and SAP Analyst / Admin also show strong demand, but at a much lower level than Data Analyst. This points to a job market with one very dominant general role and several more specialized enterprise-focused roles.
 
 # Skill Demand Analysis
 ## Table

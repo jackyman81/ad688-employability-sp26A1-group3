@@ -7,7 +7,7 @@ format:
     code-overflow: wrap
 execute:
   echo: true
-  eval: false
+  eval: true
 ---
 
 Cleaning the data set is a crucial step to the analysis process. Keeping relevant data only and removing any duplicates or replacing any missing values helps to bring more accuracy and consiceness to the analysis. 
@@ -162,8 +162,9 @@ cols = ['COMPANY_IS_STAFFING', 'EDUCATION_LEVELS_NAME', 'MIN_EDULEVELS_NAME', 'E
 clean_pd[cols] = clean_pd[cols].fillna("Unknown")
 
 clean_pd.isnull().sum()
-clean_pd.head(10)
+# clean_pd.head(10)
 ```
+
 ## Save as CSV
 ```{python}
 #| echo: true
@@ -177,7 +178,7 @@ with open("./data/schema_output.txt", "w") as f:
 
 ```{python}
 #| echo: false
-#| eval: false
+#| eval: true
 
 with open("./data/schema_output.txt", "r") as f:
     schema_str = f.read()
