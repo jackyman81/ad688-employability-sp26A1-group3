@@ -156,6 +156,7 @@ plt.show()
 ![Team Skill Levels Heatmap](images/team_skill_levels_heatmap.png)
 
 
+## Skill Gap Analysis Summary
 We looked at our own skill set against what the market is asking for in data science and business analytics to see where we’re strong and where we need to improve. We have a solid foundation in Excel, communication, and project management, but there’s a clear opportunity to get closer to market demand by building more technical depth and getting better at connecting analysis to real business decisions.
 
 The biggest gap for both of us is around Python, SQL, data analysis, and visualization tools. We’ve both used them, but we’re still at a mid-level, which makes this the highest impact area to focus on. Individually, Jessica is strong on the business and communication side and would benefit from building more technical depth. Jacky is stronger technically, but can improve in storytelling and turning analysis into clear insights.
