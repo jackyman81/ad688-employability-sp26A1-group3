@@ -10,9 +10,9 @@ I already have a solid foundation in tools like Python, SQL, and data analysis, 
 
 Over the next few months, I plan to:
 
-Spend more time working with internal datasets to explore trends and patterns
-Rebuild or improve existing reports and dashboards to better understand how the data flows
-Start incorporating more advanced techniques like basic modeling or segmentation into my work
+Spend more time working with internal datasets to analyze pricing strategy in the marketplace and how it impacts leads per unit
+Rebuild or improve existing reports and dashboards to better understand how pricing, inventory, and performance metrics connect
+Start incorporating more advanced techniques like basic modeling or segmentation to identify patterns in pricing and lead performance
 
 # Improve How I Translate Analysis Into Insights
 
