@@ -171,7 +171,7 @@ with open("./data/schema_output.txt", "w") as f:
 
 ```{python}
 #| echo: false
-#| eval: true
+#| eval: false
 
 with open("./data/schema_output.txt", "r") as f:
     schema_str = f.read()

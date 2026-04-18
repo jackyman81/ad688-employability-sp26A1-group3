@@ -7,7 +7,7 @@ format:
     code-overflow: wrap
 execute:
   echo: true
-  eval: false
+  eval: true
 ---
 
 Using machine learning methods to predict job growth trends.
@@ -21,7 +21,7 @@ import matplotlib_setup
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 from pyspark.sql import SparkSession
@@ -47,7 +47,7 @@ df.createOrReplaceTempView("clean_job_postings")
 # Filtering and Feature Selection
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 from pyspark.sql import functions as F
@@ -76,7 +76,7 @@ print("Filtered row count:", df_analysis.count())
 # Feature Engineering
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 skill_features = [
@@ -127,7 +127,7 @@ df_analysis.select(
 
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 
@@ -154,7 +154,7 @@ df_analysis.select(
 # Variable Selection
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 continuous_cols = [
@@ -186,7 +186,7 @@ df_final.show(5, truncate=False)
 # String Indexing and One-Hot Encoding
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 from pyspark.ml.feature import StringIndexer, OneHotEncoder, VectorAssembler
@@ -216,7 +216,7 @@ ml_ready.show(5, truncate=False)
 # Train-Test Split
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 
@@ -230,7 +230,7 @@ print(f"Dimensions of test data: ({test_df.count()}, {len(test_df.columns)})")
 ## Linear Regression Model
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 from pyspark.ml.regression import LinearRegression
@@ -253,7 +253,7 @@ predictions.select("SALARY", "prediction").show(10, truncate=False)
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 r2 = RegressionEvaluator(
@@ -282,7 +282,7 @@ print("MAE:", mae)
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 num_features = lr_model.coefficients.size
@@ -299,7 +299,7 @@ print("Length of coefs:", lr_model.coefficients.size)
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 summary = lr_model.summary
@@ -320,7 +320,7 @@ print("Length of p vals:", len(p_values))
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 rows = []
@@ -345,7 +345,7 @@ coef_table_pd
 ## Random Forest Regression Model
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 from pyspark.ml.regression import RandomForestRegressor
@@ -367,7 +367,7 @@ rf_predictions.select("SALARY", "prediction_rf").show(10, truncate=False)
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 r2_rf = RegressionEvaluator(
@@ -394,7 +394,7 @@ print("Random Forest Regression MAE:", mae_rf)
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 num_rf_features = rf_model.featureImportances.size
@@ -411,7 +411,7 @@ print("Length of importances:", rf_model.featureImportances.size)
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 import pandas as pd
@@ -427,7 +427,7 @@ rf_importance_df
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 import matplotlib.pyplot as plt
@@ -451,15 +451,15 @@ plt.title("Top 10 Feature Importances", loc="left")
 plt.xlabel("Importance")
 plt.ylabel("Feature")
 plt.tight_layout()
-plt.savefig("./images/rf_feature_importance.png", dpi=300)
+plt.savefig("images/rf_feature_importance_v2.png", dpi=300)
 plt.show()
 ```
-![Feature Importances - Random Forest Regression](images/rf_feature_importance.png)
+![Feature Importances - Random Forest Regression](images/rf_feature_importance_v2.png)
 
 ## K-Means Clustering
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 cluster_features = [
@@ -469,7 +469,7 @@ cluster_features = [
     "Data_Analysis",
     "Machine_Learning",
     "Power_BI",
-    "Tableau_Business_Intelligence_Software"
+    "Tableau_Business_Intelligence_Software",
     "Communication"
 ]
 
@@ -484,7 +484,7 @@ print("Rows ready for clustering:", df_cluster_ready.count())
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 from pyspark.ml.feature import VectorAssembler
@@ -500,7 +500,7 @@ cluster_data.select("ONET_NAME", "SPECIALIZED_OCCUPATION", "features").show(5, t
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 from pyspark.ml.clustering import KMeans
@@ -524,7 +524,7 @@ cluster_predictions.select(
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 from pyspark.ml.evaluation import ClusteringEvaluator
@@ -541,7 +541,7 @@ print("Silhouette Score:", silhouette)
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 cluster_onet = cluster_predictions.groupBy("cluster", "ONET_NAME") \
@@ -552,7 +552,7 @@ cluster_onet.show(30, truncate=False)
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 centers = kmeans_model.clusterCenters()
@@ -564,7 +564,7 @@ for i, center in enumerate(centers):
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 from pyspark.ml.feature import PCA
@@ -587,7 +587,7 @@ pca_pd.head()
 ```
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 plt.figure(figsize=(10, 7))
@@ -614,7 +614,7 @@ plt.show()
 ![K-Means Clusters Based on Required Skills](images/kmeans_clusters.png)
 ```{python}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 cluster_counts_pd = (
