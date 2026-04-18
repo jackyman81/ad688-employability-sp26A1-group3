@@ -86,7 +86,8 @@ skill_features = [
     "Data Analysis",
     "Machine Learning",
     "Power BI",
-    "Tableau (Business Intelligence Software)"
+    "Tableau (Business Intelligence Software)",
+    "Communication"
 ]
 
 df_analysis = df_analysis.withColumn(
@@ -119,7 +120,8 @@ df_analysis.select(
     "Data_Analysis",
     "Machine_Learning",
     "Power_BI",
-    "Tableau_Business_Intelligence_Software"
+    "Tableau_Business_Intelligence_Software",
+    "Communication"
 ).show(5, truncate=False)
 ```
 
@@ -163,7 +165,8 @@ continuous_cols = [
     "Data_Analysis",
     "Machine_Learning",
     "Power_BI",
-    "Tableau_Business_Intelligence_Software"
+    "Tableau_Business_Intelligence_Software",
+    "Communication"
 ]
 
 categorical_cols = [
@@ -467,6 +470,7 @@ cluster_features = [
     "Machine_Learning",
     "Power_BI",
     "Tableau_Business_Intelligence_Software"
+    "Communication"
 ]
 
 df_cluster_ready = df_analysis.select(
