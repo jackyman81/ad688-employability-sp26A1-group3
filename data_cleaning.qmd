@@ -88,6 +88,9 @@ clean_df = df.select(
 
 
 ## Handling Missing Values
+
+Filling missing salary values with the median helps maintain realistic distributions without being overly influenced by outliers. This approach keeps the data stable and avoids skewing results, especially in salary-based analyses where extreme values can distort averages.
+
 ### Numerical Fields - Filled with Median or 0
 ```{python}
 #| echo: true
@@ -136,6 +139,9 @@ clean_pd = clean_df.toPandas()
 clean_pd.head()
 ```
 ### Categorical Fields - Filled with "Unknown"
+
+Replacing missing categorical values with “Unknown” ensures that no data is dropped unnecessarily while still preserving the structure of the dataset. This allows all records to be included in analysis while clearly flagging incomplete information.
+
 ```{python}
 #| echo: true
 #| eval: false
