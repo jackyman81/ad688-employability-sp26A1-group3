@@ -182,8 +182,19 @@ skill_frequency = (
 )
 top_skills = skill_frequency.limit(20).toPandas()
 
-top_skills
+top_skills.to_csv("./data/top_skills.csv", index=False)
 ```
+
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+top_skills = pd.read_csv("./data/top_skills.csv")
+
+top_skills.head(15).style.hide(axis="index")
+```
+
 ## Visualization
 ```{python}
 #| echo: true
@@ -206,9 +217,9 @@ plt.tight_layout()
 plt.savefig("./images/top_skills.png", dpi=300)
 plt.show()
 ```
-![Top Skills Across Software, Specialized, and Common Skill Categories](images/top_skills.png)
+![Top Skills Across Software, Specialized, and Common Skill Categories](images/top_skills.png){width=80% fig-align="center" #fig-top-skills fig-alt="Bar chart showing the top skills across software, specialized, and common skill categories, with SQL being the most mentioned skill by a wide margin."}
 
-The top skills results shows that SQL, Data Analysis, Communication, and Python are among the most requested skills. That is a strong sign that employers want a mix of technical ability and business communication, not just coding alone. Tools like Excel, Power BI, Tableau, and dashboards also rank high, which reinforces that reporting, analysis, and decision support are major parts of these jobs. The presence of communication, project management, and business analysis skills suggests that employers value candidates who can manage projects and understand business needs, not just execute technical tasks. Overall, the skill demand analysis indicates a market that values a combination of technical proficiency, analytical thinking, communication, and business acumen.
+@fig-top-skills The top skills results shows that SQL, Data Analysis, Communication, and Python are among the most requested skills. That is a strong sign that employers want a mix of technical ability and business communication, not just coding alone. Tools like Excel, Power BI, Tableau, and dashboards also rank high, which reinforces that reporting, analysis, and decision support are major parts of these jobs. The presence of communication, project management, and business analysis skills suggests that employers value candidates who can manage projects and understand business needs, not just execute technical tasks. Overall, the skill demand analysis indicates a market that values a combination of technical proficiency, analytical thinking, communication, and business acumen.
 
 
 # Skill-by-Role Analysis
@@ -290,8 +301,20 @@ top_skills_by_role = (
 
 top_skills_by_role_pd = top_skills_by_role.toPandas()
 
-top_skills_by_role_pd
+top_skills_by_role_pd.to_csv("./data/top_skills_by_role.csv", index=False)
+
 ```
+
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+top_skills_by_role_pd = pd.read_csv("./data/top_skills_by_role.csv")
+
+top_skills_by_role_pd.head(15).style.hide(axis="index")
+```
+
 ## Visualization
 ```{python}
 #| echo: true
@@ -331,10 +354,9 @@ plt.tight_layout()
 plt.savefig("./images/top_skills_by_role.png", dpi=300)
 plt.show()
 ```
-![Top Skills by Major Role Group](images/top_skills_by_role.png)
+![Top Skills by Major Role Group](images/top_skills_by_role.png){width=80% fig-align="center" #fig-top-skills-by-role fig-alt="Heatmap showing the top skills by major role group, with darker colors indicating higher counts of skill mentions for each specialized occupation."}
 
-
-The heatmap shows that skill demand clearly varies by role. For example, Data Analyst roles are strongly tied to SQL, Python, dashboards, and data analysis, while Oracle, SAP, and ERP roles lean more toward platform-specific and business process skills. At the same time, communication appears across multiple roles, not just analyst positions, which suggests it’s a core expectation regardless of specialization. Overall, while some technical skills are role-specific, there is a consistent need for both technical execution and the ability to communicate insights, depending on whether the role is more technical, operational, or business systems focused.
+@fig-top-skills-by-role The heatmap shows that skill demand clearly varies by role. For example, Data Analyst roles are strongly tied to SQL, Python, dashboards, and data analysis, while Oracle, SAP, and ERP roles lean more toward platform-specific and business process skills. At the same time, communication appears across multiple roles, not just analyst positions, which suggests it’s a core expectation regardless of specialization. Overall, while some technical skills are role-specific, there is a consistent need for both technical execution and the ability to communicate insights, depending on whether the role is more technical, operational, or business systems focused.
 
 
 # Salary vs Demand by Specialized Occupation Analysis
@@ -361,8 +383,20 @@ salary_demand_by_role = (
 
 salary_demand_roles_pd = salary_demand_by_role.toPandas()
 
-salary_demand_roles_pd.head(15)
+salary_demand_roles_pd.to_csv("./data/salary_demand_roles.csv", index=False)
+
 ```
+
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+salary_demand_roles_pd = pd.read_csv("./data/salary_demand_roles.csv")
+
+salary_demand_roles_pd.head(15).style.hide(axis="index")
+```
+
 ## Visualization
 ```{python}
 #| echo: true
@@ -423,9 +457,9 @@ plt.tight_layout()
 plt.savefig("./images/salary_demand_by_role.png", dpi=300)
 plt.show()
 ```
-![Salary vs. Demand by Specialized Occupation](images/salary_demand_by_role.png)
+![Salary vs. Demand by Specialized Occupation](images/salary_demand_by_role.png){width=80% fig-align="center" #fig-salary-demand-by-role fig-alt="Bubble chart showing salary vs. demand by specialized occupation, with bubble size representing demand count and labels for key occupations."}
 
-This bubble chart suggests that high demand does not always mean highest pay. Data Analyst has the largest number of postings, but roles like Enterprise Architect, Oracle Consultant / Analyst, and General ERP Analyst / Consultant appear to have higher average salaries. That suggests more specialized or enterprise-heavy roles may offer stronger pay even if they are less common.
+@fig-salary-demand-by-role This bubble chart suggests that high demand does not always mean highest pay. Data Analyst has the largest number of postings, but roles like Enterprise Architect, Oracle Consultant / Analyst, and General ERP Analyst / Consultant appear to have higher average salaries. That suggests more specialized or enterprise-heavy roles may offer stronger pay even if they are less common.
 
 
 # Salary vs Demand by Top Skills Analysis
@@ -485,8 +519,19 @@ salary_demand_by_skill = (
 
 salary_demand_skills_pd = salary_demand_by_skill.toPandas()
 
-salary_demand_skills_pd.head(20)
+salary_demand_skills_pd.to_csv("./data/salary_demand_skills.csv", index=False)
 ```
+
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+salary_demand_skills_pd = pd.read_csv("./data/salary_demand_skills.csv")
+
+salary_demand_skills_pd.head(20).style.hide(axis="index")
+```
+
 ## Visualization
 ```{python}
 #| echo: true
@@ -548,10 +593,10 @@ plt.tight_layout()
 plt.savefig("./images/salary_demand_by_skill.png", dpi=300)
 plt.show()
 ```
-![Salary vs. Demand by Skill](images/salary_demand_by_skill.png)
+![Salary vs. Demand by Skill](images/salary_demand_by_skill.png){width=80% fig-align="center" #fig-salary-demand-by-skill fig-alt="Bubble chart showing salary vs. demand by skill, with bubble size representing demand count and labels for key skills."}
 
 
-The skill-level salary chart shows that SQL has the strongest overall demand, while Python and Communication also combine high demand with solid salary outcomes. Some skills like Leadership, Business Requirements, SAP Applications, and Project Management appear to be tied to higher average salaries even with lower demand than SQL, which suggests these skills may carry a premium because they are connected to more senior or business-facing roles. On the other hand, some highly demanded skills like Excel and Power BI have more moderate average salaries, which could indicate they are more common baseline skills that don’t differentiate as much on pay. Overall, the salary vs. demand analysis by skill suggests that while technical skills are important, certain leadership and business-oriented skills may offer stronger salary potential even if they are less frequently mentioned in job postings.
+@fig-salary-demand-by-skill The skill-level salary chart shows that SQL has the strongest overall demand, while Python and Communication also combine high demand with solid salary outcomes. Some skills like Leadership, Business Requirements, SAP Applications, and Project Management appear to be tied to higher average salaries even with lower demand than SQL, which suggests these skills may carry a premium because they are connected to more senior or business-facing roles. On the other hand, some highly demanded skills like Excel and Power BI have more moderate average salaries, which could indicate they are more common baseline skills that don’t differentiate as much on pay. Overall, the salary vs. demand analysis by skill suggests that while technical skills are important, certain leadership and business-oriented skills may offer stronger salary potential even if they are less frequently mentioned in job postings.
 
 
 ## Summary of EDA Findings

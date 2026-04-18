@@ -1,0 +1,32 @@
+SPECIALIZED_OCCUPATION,Skill,count,rank
+Business Analyst (General),Communication,1821,1
+Business Analyst (General),Microsoft Excel,1724,2
+Business Analyst (General),Microsoft PowerPoint,1483,3
+Business Analyst (General),Leadership,1329,4
+Business Analyst (General),Operations,1324,5
+Data Analyst,SQL (Programming Language),25109,1
+Data Analyst,Data Analysis,20185,2
+Data Analyst,Python (Programming Language),15798,3
+Data Analyst,Dashboard,14197,4
+Data Analyst,Microsoft Excel,10866,5
+Enterprise Architect,Enterprise Architecture,4360,1
+Enterprise Architect,Microsoft Azure,4076,2
+Enterprise Architect,Amazon Web Services,3901,3
+Enterprise Architect,Leadership,3442,4
+Enterprise Architect,Communication,3174,5
+General ERP Analyst / Consultant,SAP Applications,8023,1
+General ERP Analyst / Consultant,Communication,3297,2
+General ERP Analyst / Consultant,Business Process,2539,3
+General ERP Analyst / Consultant,Finance,2524,4
+General ERP Analyst / Consultant,Business Requirements,2451,5
+Oracle Consultant / Analyst,Oracle Cloud,3223,1
+Oracle Consultant / Analyst,"
+  Oracle Cloud",3194,2
+Oracle Consultant / Analyst,Business Process,2840,3
+Oracle Consultant / Analyst,Communication,2632,4
+Oracle Consultant / Analyst,Business Requirements,2472,5
+SAP Analyst / Admin,SAP Applications,7181,1
+SAP Analyst / Admin,Communication,2146,2
+SAP Analyst / Admin,Business Process,2114,3
+SAP Analyst / Admin,SAP ERP,2064,4
+SAP Analyst / Admin,Business Requirements,1897,5

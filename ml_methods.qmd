@@ -7,7 +7,7 @@ format:
     code-overflow: wrap
 execute:
   echo: true
-  eval: true
+  eval: false
 ---
 
 Using machine learning methods to predict job growth trends.
@@ -21,7 +21,7 @@ import matplotlib_setup
 ```
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 
@@ -54,7 +54,7 @@ df.createOrReplaceTempView("clean_job_postings")
 
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 from pyspark.sql import functions as F
@@ -77,25 +77,35 @@ df_analysis = df.filter(F.col("SALARY").isNotNull()) \
     .filter(F.col("SPECIALIZED_OCCUPATION").isNotNull()) \
     .filter(condition)
 
-df_analysis.select("SPECIALIZED_OCCUPATION", "SALARY").show(10, truncate=False)
-print("Filtered row count:", df_analysis.count())
-```
+df_analysis_show = df_analysis.select("SPECIALIZED_OCCUPATION", "SALARY")
 
+df_analysis_pd = df_analysis_show.toPandas()
+df_analysis_pd.to_csv("./data/filtered_job_postings.csv", index=False)
+```
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+df_analysis_pd = pd.read_csv("./data/filtered_job_postings.csv")
+
+df_analysis_pd.head(15).style.hide(axis="index")
+```
 # Feature Engineering
 
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 skill_features = [
-    "Python (Programming Language)",
-    "SQL (Programming Language)",
+    "Python",
+    "SQL",
     "Microsoft Excel",
     "Data Analysis",
     "Machine Learning",
     "Power BI",
-    "Tableau (Business Intelligence Software)",
+    "Tableau",
     "Communication"
 ]
 
@@ -121,22 +131,32 @@ for skill in skill_features:
         F.when(F.col("ALL_SKILLS_TEXT").contains(skill), 1).otherwise(0)
     )
 
-df_analysis.select(
+feature_eng_show = df_analysis.select(
     "SALARY",
-    "Python_Programming_Language",
-    "SQL_Programming_Language",
+    "Python",
+    "SQL",
     "Microsoft_Excel",
     "Data_Analysis",
     "Machine_Learning",
     "Power_BI",
-    "Tableau_Business_Intelligence_Software",
-    "Communication"
-).show(5, truncate=False)
-```
+    "Tableau",
+    "Communication")
 
+feature_eng_pd = feature_eng_show.toPandas()
+feature_eng_pd.to_csv("./data/feature_engineered_job_postings.csv", index=False)
+```
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+df_analysis_pd = pd.read_csv("./data/feature_engineered_job_postings.csv")
+
+df_analysis_pd.head(15).style.hide(axis="index")
+```
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 
@@ -157,24 +177,23 @@ df_analysis.select(
     "MIN_YEARS_EXPERIENCE",
     "MIN_YEARS_EXPERIENCE_NUM",
     "REMOTE_TYPE_NAME",
-    "MIN_EDULEVELS_NAME"
-).show(10, truncate=False)
+    "MIN_EDULEVELS_NAME")
 ```
 # Variable Selection
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 continuous_cols = [
     "MIN_YEARS_EXPERIENCE_NUM",
-    "Python_Programming_Language",
-    "SQL_Programming_Language",
+    "Python",
+    "SQL",
     "Microsoft_Excel",
     "Data_Analysis",
     "Machine_Learning",
     "Power_BI",
-    "Tableau_Business_Intelligence_Software",
+    "Tableau",
     "Communication"
 ]
 
@@ -189,14 +208,24 @@ df_final = df_analysis.select(continuous_cols + categorical_cols + [target_col])
 
 df_final = df_final.dropna(subset=continuous_cols + categorical_cols + [target_col])
 
-df_final.show(5, truncate=False)
+df_final_pd = feature_eng_show.toPandas()
+df_final_pd.to_csv("./data/variable_selection.csv", index=False)
+```
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+df_final_pd = pd.read_csv("./data/variable_selection.csv")
+
+df_final_pd.head(15).style.hide(axis="index")
 ```
 
 # String Indexing and One-Hot Encoding
 
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 from pyspark.ml.feature import StringIndexer, OneHotEncoder, VectorAssembler
@@ -221,22 +250,50 @@ pipeline = Pipeline(stages=indexers + encoders + [assembler])
 data = pipeline.fit(df_final).transform(df_final)
 
 ml_ready = data.select("SALARY", "features")
-ml_ready.show(5, truncate=False)
+
+ml_ready_pd = ml_ready .toPandas()
+ml_ready_pd.to_csv("./data/string_indexed_job_postings.csv", index=False)
+```
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+ml_ready_pd = pd.read_csv("./data/string_indexed_job_postings.csv")
+
+ml_ready_pd.head(15).style.hide(axis="index")
 ```
 
 # Train-Test Split
 
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 
 train_df, test_df = ml_ready.randomSplit([0.8, 0.2], seed=42)
 
-print(f"Dimensions of full data: ({ml_ready.count()}, {len(ml_ready.columns)})")
-print(f"Dimensions of training data: ({train_df.count()}, {len(train_df.columns)})")
-print(f"Dimensions of test data: ({test_df.count()}, {len(test_df.columns)})")
+#print(f"Dimensions of full data: ({ml_ready.count()}, {len(ml_ready.columns)})")
+#print(f"Dimensions of training data: ({train_df.count()}, {len(train_df.columns)})")
+#print(f"Dimensions of test data: ({test_df.count()}, {len(test_df.columns)})")
+
+split_summary = pd.DataFrame({
+    "Dataset": ["Full", "Training", "Test"],
+    "Rows": [ml_ready.count(), train_df.count(), test_df.count()],
+    "Columns": [len(ml_ready.columns), len(train_df.columns), len(test_df.columns)]
+})
+
+split_summary.to_csv("./data/train_test_split_summary.csv", index=False)
+```
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+split_summary = pd.read_csv("./data/train_test_split_summary.csv")
+
+split_summary.head(15).style.hide(axis="index")
 ```
 
 # Models
@@ -245,7 +302,7 @@ print(f"Dimensions of test data: ({test_df.count()}, {len(test_df.columns)})")
 
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 from pyspark.ml.regression import LinearRegression
@@ -264,12 +321,24 @@ lr_model = lr.fit(train_df)
 
 predictions = lr_model.transform(test_df)
 
-predictions.select("SALARY", "prediction").show(10, truncate=False)
+predictions_show = predictions.select("SALARY", "prediction")
+
+predictions_show_pd = predictions_show.toPandas()
+predictions_show_pd.to_csv("./data/predictions.csv", index=False)
+```
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+prediction_show_pd = pd.read_csv("./data/predictions.csv")
+
+prediction_show_pd.head(15).style.hide(axis="index")
 ```
 
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 r2 = RegressionEvaluator(
@@ -290,15 +359,37 @@ mae = RegressionEvaluator(
     metricName="mae"
 ).evaluate(predictions)
 
-print("Intercept:", lr_model.intercept)
-print("Coefficients:", lr_model.coefficients)
-print("R-squared:", r2)
-print("RMSE:", rmse)
-print("MAE:", mae)
+#print("Intercept:", lr_model.intercept)
+#print("Coefficients:", lr_model.coefficients)
+#print("R-squared:", r2)
+#print("RMSE:", rmse)
+#print("MAE:", mae)
+
+lr_results = pd.DataFrame({
+    "Metric": ["Intercept", "Coefficients", "R-squared", "RMSE", "MAE"],
+    "Value": [round(lr_model.intercept, 2),
+        str([round(float(c), 2) for c in lr_model.coefficients]),
+        round(r2, 4),
+        round(rmse, 2),
+        round(mae, 2)
+]
+})
+lr_results.to_csv("./data/linear_regression_results.csv", index=False)
 ```
+
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+lr_results = pd.read_csv("./data/linear_regression_results.csv")
+
+lr_results.head(15).style.hide(axis="index")
+```
+
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 num_features = lr_model.coefficients.size
@@ -310,12 +401,13 @@ remaining_features = num_features - len(feature_names)
 for i in range(remaining_features):
     feature_names.append(f"encoded_category_{i}")
 
-print("Length of features:", len(feature_names))
-print("Length of coefs:", lr_model.coefficients.size)
+#print("Length of features:", len(feature_names))
+#print("Length of coefs:", lr_model.coefficients.size)
 ```
+
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 summary = lr_model.summary
@@ -328,61 +420,25 @@ p_values = list(summary.pValues)
 feature_names_with_intercept = feature_names + ["intercept"]
 coefficients_with_intercept = coefficients + [lr_model.intercept]
 
-print("Length of features:", len(feature_names_with_intercept))
-print("Length of coefs:", len(coefficients_with_intercept))
-print("Length of se:", len(standard_errors))
-print("Length of tvals:", len(t_values))
-print("Length of p vals:", len(p_values))
-```
-
-```{python}
-#| echo: true
-#| eval: true
-#| warning: false
-#| message: false
-# rows = []
-
-# for i in range(len(feature_names_with_intercept)):
-#     rows.append((
-#         feature_names_with_intercept[i],
-#         float(coefficients_with_intercept[i]),
-#         float(standard_errors[i]),
-#         float(t_values[i]),
-#         float(p_values[i])
-#     ))
-
-# coef_table = spark.createDataFrame(
-#     rows,
-#     ["Feature", "Estimate", "Std Error", "t-stat", "P-Value"]
-# )
+#print("Length of features:", len(feature_names_with_intercept))
+#print("Length of coefs:", len(coefficients_with_intercept))
+#print("Length of se:", len(standard_errors))
+#print("Length of tvals:", len(t_values))
+#print("Length of p vals:", len(p_values))
 
 coef_table = pd.DataFrame({
-    "Feature": feature_names_with_intercept,
-    "Estimate": [f"{v:.4f}" if v is not None else None for v in coefficients_with_intercept],
-    "Std Error": [f"{v:.4f}" if v is not None else None for v in standard_errors],
-    "t-stat": [f"{v:.4f}" if v is not None else None for v in t_values],
-    "P-Value": [f"{v:.4f}" if v is not None else None for v in p_values]
+    "Feature": feature_names + ["Intercept"],
+    "Estimate": [round(float(v), 4) for v in list(lr_model.coefficients.toArray()) + [lr_model.intercept]],
+    "Std. Error": [round(float(v), 4) for v in summary.coefficientStandardErrors],
+    "t value": [round(float(v), 4) for v in summary.tValues],
+    "P-Value": [round(float(v), 4) for v in summary.pValues]
 })
-
-coef_table.to_csv("./data/lr_summary.csv", index=False)
-
-# coef_table.show(truncate=False)
-# coef_table_pd = coef_table.toPandas()
-# coef_table_pd
-```
-
-```{python}
-#| echo: false
-#| eval: true
-
-coef_table_pd = pd.read_csv("./data/lr_summary.csv")
-
-coef_table_pd.style.hide(axis='index')
+coef_table.to_csv("./data/lr_coefficients.csv", index=False)
 ```
 
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 
@@ -390,13 +446,6 @@ from IPython.display import display
 
 summary = lr_model.summary
 
-coef_table = pd.DataFrame({
-    "Term": feature_names + ["Intercept"],
-    "Estimate": list(lr_model.coefficients.toArray()) + [lr_model.intercept],
-    "Std. Error": list(summary.coefficientStandardErrors),
-    "t value": list(summary.tValues),
-    "Pr(>|t|)": list(summary.pValues)
-})
 
 def significance_stars(p):
     if p < 0.001:
@@ -436,8 +485,8 @@ model_stats_display["Value"] = model_stats_display["Value"].map(
 )
 
 # Show nicely in Quarto
-# display(coef_display.style.hide(axis="index"))
-# display(model_stats_display.style.hide(axis="index"))
+display(coef_display.style.hide(axis="index"))
+display(model_stats_display.style.hide(axis="index"))
 ```
 
 ```{python}
@@ -459,7 +508,6 @@ with open("./data/lr_report.html", "r", encoding="utf-8") as f:
     report_html = f.read()
 
 HTML(report_html)
-
 ```
 
 
@@ -467,7 +515,7 @@ HTML(report_html)
 
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 from pyspark.ml.regression import RandomForestRegressor
@@ -485,12 +533,23 @@ rf_model = rf.fit(train_df)
 
 rf_predictions = rf_model.transform(test_df)
 
-rf_predictions.select("SALARY", "prediction_rf").show(10, truncate=False)
-```
+rf_predictions_show = rf_predictions.select("SALARY", "prediction_rf")
 
+rf_predictions_show_pd = rf_predictions_show.toPandas()
+rf_predictions_show_pd.to_csv("./data/rf_predictions.csv", index=False)
+```
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+rf_prediction_show_pd = pd.read_csv("./data/rf_predictions.csv")
+
+rf_prediction_show_pd.head(15).style.hide(axis="index")
+```
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 r2_rf = RegressionEvaluator(
@@ -511,13 +570,29 @@ mae_rf = RegressionEvaluator(
     metricName="mae"
 ).evaluate(rf_predictions)
 
-print("Random Forest Regression R-squared:", r2_rf)
-print("Random Forest Regression RMSE:", rmse_rf)
-print("Random Forest Regression MAE:", mae_rf)
+#print("Random Forest Regression R-squared:", r2_rf)
+#print("Random Forest Regression RMSE:", rmse_rf)
+#print("Random Forest Regression MAE:", mae_rf)
+
+rf_results = pd.DataFrame({
+    "Metric": ["R-squared", "RMSE", "MAE"],
+    "Value": [r2_rf, rmse_rf, mae_rf]
+})
+rf_results.to_csv("./data/random_forest_results.csv", index=False)
 ```
 ```{python}
-#| echo: true
+#| echo: false
 #| eval: true
+
+import pandas as pd
+rf_results_pd = pd.read_csv("./data/random_forest_results.csv")
+
+rf_results_pd.head(15).style.hide(axis="index")
+```
+
+```{python}
+#| echo: true
+#| eval: false
 #| warning: false
 #| message: false
 num_rf_features = rf_model.featureImportances.size
@@ -529,12 +604,12 @@ remaining_rf_features = num_rf_features - len(rf_feature_names)
 for i in range(remaining_rf_features):
     rf_feature_names.append(f"encoded_category_{i}")
 
-print("Length of feature names:", len(rf_feature_names))
-print("Length of importances:", rf_model.featureImportances.size)
+#print("Length of feature names:", len(rf_feature_names))
+#print("Length of importances:", rf_model.featureImportances.size)
 ```
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 import pandas as pd
@@ -546,11 +621,21 @@ rf_importance_df = pd.DataFrame({
     "Importance": rf_importances
 }).sort_values(by="Importance", ascending=False)
 
-rf_importance_df
+rf_importance_df.to_csv("./data/rf_feature_importance.csv", index=False)
+```
+
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+rf_importance_pd = pd.read_csv("./data/rf_feature_importance.csv")
+
+rf_importance_pd.head(15).style.hide(axis="index")
 ```
 ```{python}
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 import matplotlib.pyplot as plt
@@ -575,9 +660,11 @@ plt.xlabel("Importance")
 plt.ylabel("Feature")
 plt.tight_layout()
 plt.savefig("images/rf_feature_importance_v2.png", dpi=300)
-plt.show()
+#plt.show()
 ```
-![Feature Importances - Random Forest Regression](images/rf_feature_importance_v2.png)
+![Feature Importances - Random Forest Regression](images/rf_feature_importance_v2.png){width=80% fig-align="center" #fig-rf-feature-importance fig-alt="Bar chart showing the top 10 feature importances from the random forest regression model. The most important features are Python, Data Analysis, and Machine Learning."}
+
+@fig-rf-feature-importance: Bar chart showing the top 10 feature importances from the random forest regression model. The most important features are Python, Data Analysis, and Machine Learning.
 
 ## K-Means Clustering
 
@@ -587,13 +674,13 @@ plt.show()
 #| warning: false
 #| message: false
 cluster_features = [
-    "Python_Programming_Language",
-    "SQL_Programming_Language",
+    "Python",
+    "SQL",
     "Microsoft_Excel",
     "Data_Analysis",
     "Machine_Learning",
     "Power_BI",
-    "Tableau_Business_Intelligence_Software",
+    "Tableau",
     "Communication"
 ]
 
@@ -603,8 +690,20 @@ df_cluster_ready = df_analysis.select(
     *cluster_features
 ).dropna(subset=["ONET_NAME"])
 
-df_cluster_ready.show(5, truncate=False)
-print("Rows ready for clustering:", df_cluster_ready.count())
+df_cluster_ready
+#print("Rows ready for clustering:", df_cluster_ready.count())
+
+df_cluster_ready_pd = df_cluster_ready.toPandas()
+df_cluster_ready_pd.to_csv("./data/cluster_ready_data.csv", index=False)
+```
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+df_cluster_ready_pd = pd.read_csv("./data/cluster_ready_data.csv")
+
+df_cluster_ready_pd.head(15).style.hide(axis="index")
 ```
 ```{python}
 #| echo: true
@@ -620,7 +719,20 @@ assembler = VectorAssembler(
 
 cluster_data = assembler.transform(df_cluster_ready)
 
-cluster_data.select("ONET_NAME", "SPECIALIZED_OCCUPATION", "features").show(5, truncate=False)
+cluster_data_show = cluster_data.select("ONET_NAME", "SPECIALIZED_OCCUPATION", "features")
+
+cluster_data_show_pd = cluster_data_show.toPandas()
+cluster_data_show_pd.to_csv("./data/cluster_data.csv", index=False)
+```
+
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+cluster_data_show_pd = pd.read_csv("./data/cluster_data.csv")
+
+cluster_data_show_pd.head(15).style.hide(axis="index")
 ```
 ```{python}
 #| echo: true
@@ -640,11 +752,24 @@ kmeans_model = kmeans.fit(cluster_data)
 
 cluster_predictions = kmeans_model.transform(cluster_data)
 
-cluster_predictions.select(
+cluster_predictions_show = cluster_predictions.select(
     "SPECIALIZED_OCCUPATION",
     "ONET_NAME",
-    "cluster"
-).show(15, truncate=False)
+    "cluster")
+
+cluster_predictions_show_pd = cluster_predictions_show.toPandas()
+cluster_predictions_show_pd.to_csv("./data/cluster_predictions.csv", index=False)
+
+```
+
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+cluster_predictions_show_pd = pd.read_csv("./data/cluster_predictions.csv")
+
+cluster_predictions_show_pd.head(15).style.hide(axis="index")
 ```
 ```{python}
 #| echo: true
@@ -661,8 +786,25 @@ evaluator = ClusteringEvaluator(
 
 silhouette = evaluator.evaluate(cluster_predictions)
 
-print("Silhouette Score:", silhouette)
+#print("Silhouette Score:", silhouette)
+
+silhouette_df = pd.DataFrame({
+    "Metric": ["Silhouette Score"],
+    "Value": [round(silhouette, 4)]
+})
+silhouette_df.to_csv("./data/kmeans_silhouette.csv", index=False)
 ```
+
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+silhouette_df = pd.read_csv("./data/kmeans_silhouette.csv")
+
+silhouette_df.head(15).style.hide(axis="index")
+```
+
 ```{python}
 #| echo: true
 #| eval: false
@@ -672,7 +814,20 @@ cluster_onet = cluster_predictions.groupBy("cluster", "ONET_NAME") \
     .count() \
     .orderBy("cluster", F.col("count").desc())
 
-cluster_onet.show(30, truncate=False)
+#cluster_onet.show(30, truncate=False)
+
+cluster_onet_pd = cluster_onet.toPandas()
+cluster_onet_pd.to_csv("./data/cluster_onet_counts.csv", index=False)
+```
+
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+cluster_onet_pd = pd.read_csv("./data/cluster_onet_counts.csv")
+
+cluster_onet_pd.head(15).style.hide(axis="index")
 ```
 ```{python}
 #| echo: true
@@ -681,10 +836,30 @@ cluster_onet.show(30, truncate=False)
 #| message: false
 centers = kmeans_model.clusterCenters()
 
+#for i, center in enumerate(centers):
+    #print(f"Cluster {i} center:")
+    #for feature_name, value in zip(cluster_features, center):
+        #print(f"  {feature_name}: {round(float(value), 3)}")
+
+rows = []
 for i, center in enumerate(centers):
-    print(f"Cluster {i} center:")
+    row = {"Cluster": i}
     for feature_name, value in zip(cluster_features, center):
-        print(f"  {feature_name}: {round(float(value), 3)}")
+        row[feature_name] = round(float(value), 3)
+    rows.append(row)
+
+centers_df = pd.DataFrame(rows)
+centers_df.to_csv("./data/kmeans_cluster_centers.csv", index=False)
+```
+
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+centers_df = pd.read_csv("./data/kmeans_cluster_centers.csv")
+
+centers_df.head(15).style.hide(axis="index")
 ```
 ```{python}
 #| echo: true
@@ -707,7 +882,19 @@ pca_pd = pca_result.select(
 pca_pd["PC1"] = pca_pd["pcaFeatures"].apply(lambda v: float(v[0]))
 pca_pd["PC2"] = pca_pd["pcaFeatures"].apply(lambda v: float(v[1]))
 
-pca_pd.head()
+#pca_pd.head()
+
+pca_pd.to_csv("./data/pca_results.csv", index=False)
+```
+
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+pca_pd = pd.read_csv("./data/pca_results.csv")
+
+pca_pd.head(15).style.hide(axis="index")
 ```
 ```{python}
 #| echo: true
@@ -733,9 +920,11 @@ plt.legend(title="Cluster")
 plt.grid(alpha=0.2)
 plt.tight_layout()
 plt.savefig("./images/kmeans_clusters.png", dpi=300)
-plt.show()
+#plt.show()
 ```
-![K-Means Clusters Based on Required Skills](images/kmeans_clusters.png)
+![K-Means Clusters Based on Required Skills](images/kmeans_clusters.png){width=80% fig-align="center" #fig-kmeans-clusters fig-alt="Scatter plot showing the K-means clusters of job postings based on their required skills. The x-axis is the first principal component and the y-axis is the second principal component. Points are colored by cluster."}
+
+@fig-kmeans-clusters: Scatter plot showing the K-means clusters of job postings based on their required skills. The x-axis is the first principal component and the y-axis is the second principal component. Points are colored by cluster.
 ```{python}
 #| echo: true
 #| eval: false
@@ -756,6 +945,8 @@ plt.xlabel("Cluster")
 plt.ylabel("Count")
 plt.tight_layout()
 plt.savefig("./images/cluster_counts.png", dpi=300)
-plt.show()
+#plt.show()
 ```
-![Number of Job Postings in Each Cluster](images/cluster_counts.png)
+![Number of Job Postings in Each Cluster](images/cluster_counts.png){width=80% fig-align="center" #fig-cluster-counts fig-alt="Bar chart showing the number of job postings in each K-means cluster."}
+
+@fig-cluster-counts: Bar chart showing the number of job postings in each K-means cluster.
