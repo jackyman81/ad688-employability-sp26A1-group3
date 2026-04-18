@@ -403,8 +403,25 @@ for i in range(remaining_features):
 
 #print("Length of features:", len(feature_names))
 #print("Length of coefs:", lr_model.coefficients.size)
-```
 
+coef_table = pd.DataFrame({
+    "Feature": feature_names + ["Intercept"],
+    "Estimate": [round(float(v), 4) for v in list(lr_model.coefficients.toArray()) + [lr_model.intercept]],
+    "Std. Error": [round(float(v), 4) for v in summary.coefficientStandardErrors],
+    "t value": [round(float(v), 4) for v in summary.tValues],
+    "P-Value": [round(float(v), 4) for v in summary.pValues]
+})
+coef_table.to_csv("./data/lr_coefficients.csv", index=False)
+```
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+coef_table = pd.read_csv("./data/lr_coefficients.csv")
+
+coef_table.head(15).style.hide(axis="index")
+```
 ```{python}
 #| echo: true
 #| eval: false
@@ -426,16 +443,29 @@ coefficients_with_intercept = coefficients + [lr_model.intercept]
 #print("Length of tvals:", len(t_values))
 #print("Length of p vals:", len(p_values))
 
-coef_table = pd.DataFrame({
-    "Feature": feature_names + ["Intercept"],
-    "Estimate": [round(float(v), 4) for v in list(lr_model.coefficients.toArray()) + [lr_model.intercept]],
-    "Std. Error": [round(float(v), 4) for v in summary.coefficientStandardErrors],
-    "t value": [round(float(v), 4) for v in summary.tValues],
-    "P-Value": [round(float(v), 4) for v in summary.pValues]
+lengths_df = pd.DataFrame({
+    "Variable": ["Features", "Coefficients", "Std Errors", "t-values", "p-values"],
+    "Length": [
+        len(feature_names_with_intercept),
+        len(coefficients_with_intercept),
+        len(standard_errors),
+        len(t_values),
+        len(p_values)
+    ]
 })
-coef_table.to_csv("./data/lr_coefficients.csv", index=False)
+
+lengths_df.to_csv("./data/lr_lengths.csv", index=False)
 ```
 
+```{python}
+#| echo: false
+#| eval: true
+
+import pandas as pd
+lengths_df = pd.read_csv("./data/lr_lengths.csv")
+
+lengths_df.head(15).style.hide(axis="index")
+```
 ```{python}
 #| echo: true
 #| eval: false
@@ -446,70 +476,22 @@ from IPython.display import display
 
 summary = lr_model.summary
 
-
-def significance_stars(p):
-    if p < 0.001:
-        return "***"
-    if p < 0.01:
-        return "**"
-    if p < 0.05:
-        return "*"
-    if p < 0.1:
-        return "."
-    return ""
-
-coef_table["stars"] = coef_table["Pr(>|t|)"].apply(significance_stars)
-
 model_stats = pd.DataFrame({
     "Statistic": ["R-squared", "RMSE", "MAE", "Observations", "Residual DF"],
     "Value": [r2, rmse, mae, summary.numInstances, summary.degreesOfFreedom]
 })
 
-# Save raw data tables
-coef_table.to_csv("./data/lr_coefficients.csv", index=False)
 model_stats.to_csv("./data/lr_model_stats.csv", index=False)
-
-# Build display versions
-coef_display = coef_table.copy()
-coef_display["Estimate"] = coef_display.apply(
-    lambda row: f"{row['Estimate']:.4f}{row['stars']}", axis=1
-)
-coef_display["Std. Error"] = coef_display["Std. Error"].map(lambda x: f"{x:.4f}")
-coef_display["t value"] = coef_display["t value"].map(lambda x: f"{x:.4f}")
-coef_display["Pr(>|t|)"] = coef_display["Pr(>|t|)"].map(lambda x: f"{x:.4f}")
-coef_display = coef_display.drop(columns=["stars"])
-
-model_stats_display = model_stats.copy()
-model_stats_display["Value"] = model_stats_display["Value"].map(
-    lambda x: f"{x:.4f}" if isinstance(x, (int, float, np.floating)) else x
-)
-
-# Show nicely in Quarto
-display(coef_display.style.hide(axis="index"))
-display(model_stats_display.style.hide(axis="index"))
 ```
-
 ```{python}
 #| echo: false
 #| eval: true
-coef_html = coef_display.style.hide(axis="index").to_html()
-stats_html = model_stats_display.style.hide(axis="index").to_html()
 
-with open("./data/lr_report.html", "w", encoding="utf-8") as f:
-    f.write("<h2>Linear Regression Results</h2>")
-    f.write("<h3>Coefficients</h3>")
-    f.write(coef_html)
-    f.write("<h3>Model Fit</h3>")
-    f.write(stats_html)
+import pandas as pd
+model_stats = pd.read_csv("./data/lr_model_stats.csv")
 
-# Import the saved HTML for display in the Quarto document
-from IPython.display import HTML
-with open("./data/lr_report.html", "r", encoding="utf-8") as f:
-    report_html = f.read()
-
-HTML(report_html)
+model_stats.head(15).style.hide(axis="index")
 ```
-
 
 ## Random Forest Regression Model
 
