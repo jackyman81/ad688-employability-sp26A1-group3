@@ -2,4 +2,36 @@
 title: "Career Plan"
 ---
 
-Planning for AI to take over
+## Jacky's Career Plan
+
+# Apply Technical Skills More Directly to My Work
+
+I already have a solid foundation in tools like Python, SQL, and data analysis, but the biggest opportunity is applying them more consistently to real business problems.
+
+Over the next few months, I plan to:
+
+Spend more time working with internal datasets to explore trends and patterns
+Rebuild or improve existing reports and dashboards to better understand how the data flows
+Start incorporating more advanced techniques like basic modeling or segmentation into my work
+
+# Improve How I Translate Analysis Into Insights
+
+A key gap for me is turning technical work into clear, actionable insights.
+
+To improve this, I will focus on:
+
+Communicating findings in a simple and clear way
+Connecting analysis back to business outcomes instead of just reporting numbers
+Bringing more data-driven insights into conversations and decision-making
+
+# Build Experience Through Projects and Collaboration
+
+To keep developing, I need to consistently apply what I’m learning and make that work visible.
+
+I plan to:
+
+Continue building hands-on projects using real datasets, including ones similar to the work I do at CarGurus
+Share these projects internally so other teams can use them and benefit from the insights
+Keep collaborating with my teammate to combine technical and business strengths
+
+My focus is on strengthening technical skills, improving how I communicate insights, and continuing to build real, applied experience through projects and collaboration, with the goal of getting more involved in data-focused work within CarGurus over time.
