@@ -111,6 +111,8 @@ plt.show()
 ```
 ![Top Specialized Occupations in the Job Market](images/top_specialized_occupations.png)
 
+Data Analyst is by far the most common role in the dataset, which suggests the market is heavily centered on analyst-type positions. After that, roles like General ERP Analyst / Consultant, Enterprise Architect, Oracle Consultant / Analyst, and SAP Analyst / Admin also show strong demand, but at a much lower level than Data Analyst. This points to a job market with one very dominant general role and several more specialized enterprise-focused roles.
+
 # Skill Demand Analysis
 ## Table
 ```{python}
@@ -187,6 +189,9 @@ plt.savefig("./images/top_skills.png", dpi=300)
 plt.show()
 ```
 ![Top Skills Across Software, Specialized, and Common Skill Categories](images/top_skills.png)
+
+The top skills results shows that SQL, Data Analysis, Communication, and Python are among the most requested skills. That is a strong sign that employers want a mix of technical ability and business communication, not just coding alone. Tools like Excel, Power BI, Tableau, and dashboards also rank high, which reinforces that reporting, analysis, and decision support are major parts of these jobs. The presence of communication, project management, and business analysis skills suggests that employers value candidates who can manage projects and understand business needs, not just execute technical tasks. Overall, the skill demand analysis indicates a market that values a combination of technical proficiency, analytical thinking, communication, and business acumen.
+
 
 # Skill-by-Role Analysis
 ## Table
@@ -310,6 +315,10 @@ plt.show()
 ```
 ![Top Skills by Major Role Group](images/top_skills_by_role.png)
 
+
+The heatmap shows that skill demand clearly varies by role. For example, Data Analyst roles are strongly tied to SQL, Python, dashboards, and data analysis, while Oracle, SAP, and ERP roles lean more toward platform-specific and business process skills. At the same time, communication appears across multiple roles, not just analyst positions, which suggests it’s a core expectation regardless of specialization. Overall, while some technical skills are role-specific, there is a consistent need for both technical execution and the ability to communicate insights, depending on whether the role is more technical, operational, or business systems focused.
+
+
 # Salary vs Demand by Specialized Occupation Analysis
 ## Table
 ```{python}
@@ -397,6 +406,9 @@ plt.savefig("./images/salary_demand_by_role.png", dpi=300)
 plt.show()
 ```
 ![Salary vs. Demand by Specialized Occupation](images/salary_demand_by_role.png)
+
+This bubble chart suggests that high demand does not always mean highest pay. Data Analyst has the largest number of postings, but roles like Enterprise Architect, Oracle Consultant / Analyst, and General ERP Analyst / Consultant appear to have higher average salaries. That suggests more specialized or enterprise-heavy roles may offer stronger pay even if they are less common.
+
 
 # Salary vs Demand by Top Skills Analysis
 ## Table
@@ -519,3 +531,10 @@ plt.savefig("./images/salary_demand_by_skill.png", dpi=300)
 plt.show()
 ```
 ![Salary vs. Demand by Skill](images/salary_demand_by_skill.png)
+
+
+The skill-level salary chart shows that SQL has the strongest overall demand, while Python and Communication also combine high demand with solid salary outcomes. Some skills like Leadership, Business Requirements, SAP Applications, and Project Management appear to be tied to higher average salaries even with lower demand than SQL, which suggests these skills may carry a premium because they are connected to more senior or business-facing roles. On the other hand, some highly demanded skills like Excel and Power BI have more moderate average salaries, which could indicate they are more common baseline skills that don’t differentiate as much on pay. Overall, the salary vs. demand analysis by skill suggests that while technical skills are important, certain leadership and business-oriented skills may offer stronger salary potential even if they are less frequently mentioned in job postings.
+
+
+## Summary of EDA Findings
+Through our exploratory data analysis, the data suggests that the market values both technical data skills and the ability to apply them in business settings, with specialized enterprise roles often paying more than general analyst roles.
