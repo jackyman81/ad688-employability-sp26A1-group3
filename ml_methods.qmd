@@ -82,6 +82,10 @@ df_analysis_show = df_analysis.select("SPECIALIZED_OCCUPATION", "SALARY")
 df_analysis_pd = df_analysis_show.toPandas()
 df_analysis_pd.to_csv("./data/filtered_job_postings.csv", index=False)
 ```
+
+We started by narrowing the dataset to relevant roles like data analyst, business analyst, and machine learning positions, while removing rows with missing salary data. Looking at the sample output, most salaries cluster around the ~$110k–$115k range, with a few outliers like $170k . This tells us early on that the dataset is fairly compressed around a midpoint, which will make it harder for the model to explain variation. We also see a heavy concentration of “Data Analyst” roles, meaning we are working with a relatively homogeneous group rather than a wide range of job types.
+
+
 ```{python}
 #| echo: false
 #| eval: true
@@ -91,6 +95,7 @@ df_analysis_pd = pd.read_csv("./data/filtered_job_postings.csv")
 
 df_analysis_pd.head(15).style.hide(axis="index")
 ```
+
 # Feature Engineering
 
 ```{python}
@@ -145,6 +150,9 @@ feature_eng_show = df_analysis.select(
 feature_eng_pd = feature_eng_show.toPandas()
 feature_eng_pd.to_csv("./data/feature_engineered_job_postings.csv", index=False)
 ```
+
+We then converted key skills like Python, SQL, Tableau, and Communication into binary features. From the output, Data Analysis appears in almost every row, while Python and SQL vary much more . This is important because it shows that Data Analysis is essentially a baseline requirement, while Python and SQL will act as stronger differentiators in the model. The fact that Communication is less common than technical skills also suggests it could be a key factor in explaining salary differences, as it may indicate more senior or cross-functional roles.
+
 ```{python}
 #| echo: false
 #| eval: true
@@ -179,6 +187,9 @@ df_analysis.select(
     "REMOTE_TYPE_NAME",
     "MIN_EDULEVELS_NAME")
 ```
+
+Years of experience columns were converted into a numeric field. This becomes critical later, as experience ends up being the single most influential variable in the model. Even in early outputs, we can see experience values embedded in the feature vectors, signaling its importance.
+
 # Variable Selection
 ```{python}
 #| echo: true
@@ -211,6 +222,10 @@ df_final = df_final.dropna(subset=continuous_cols + categorical_cols + [target_c
 df_final_pd = feature_eng_show.toPandas()
 df_final_pd.to_csv("./data/variable_selection.csv", index=False)
 ```
+
+We selected a combination of skill-based features, experience, and categorical variables. Most rows share baseline skills like Data Analysis, so the model is learning variation primarily from technical tools and experience rather than completely different job profiles. The presence of categorical variables like Remote Type and Specialized Occupation also allows the model to capture differences between, say, remote data analyst roles versus on-site machine learning positions, which may have distinct salary patterns.
+
+
 ```{python}
 #| echo: false
 #| eval: true
@@ -254,6 +269,9 @@ ml_ready = data.select("SALARY", "features")
 ml_ready_pd = ml_ready .toPandas()
 ml_ready_pd.to_csv("./data/string_indexed_job_postings.csv", index=False)
 ```
+
+Categorical variables were encoded and then we assembled all features into a single vector. At this point, the data is fully machine learning ready. The feature vectors show that only a subset of skills are active per job, meaning the model is learning from relatively sparse combinations. The presence of one-hot encoded vectors for Remote Type and Specialized Occupation allows the model to differentiate between different job categories, which is crucial for explaining salary variation in a dataset that is otherwise fairly homogeneous in terms of baseline skills.
+
 ```{python}
 #| echo: false
 #| eval: true
@@ -286,6 +304,9 @@ split_summary = pd.DataFrame({
 
 split_summary.to_csv("./data/train_test_split_summary.csv", index=False)
 ```
+
+We split the dataset into training and test sets using an 80/20 split, resulting in about 29k training rows and 7k test rows. This is a strong sample size, so any performance limitations we see are due to feature gaps, not lack of data. The training set is used to fit the models, while the test set provides an unbiased evaluation of how well the models generalize to new data. The fact that we have a large number of rows in both sets allows us to confidently assess model performance without worrying about overfitting or underfitting due to sample size constraints.
+
 ```{python}
 #| echo: false
 #| eval: true
@@ -326,6 +347,9 @@ predictions_show = predictions.select("SALARY", "prediction")
 predictions_show_pd = predictions_show.toPandas()
 predictions_show_pd.to_csv("./data/predictions.csv", index=False)
 ```
+
+The model predictions tend to cluster around ~$90k–$105k, even when actual salaries range widely. This shows the model is regressing toward the mean, struggling to capture both low and high salary extremes. The presence of many predictions around the $100k mark suggests the model is learning a general baseline salary for the types of jobs in the dataset, but it’s not effectively differentiating based on the features we provided. This indicates that while the model captures some underlying patterns, it’s missing key factors that drive salary variation, such as specific job titles, company size, or unmeasured skills.
+
 ```{python}
 #| echo: false
 #| eval: true
@@ -377,6 +401,7 @@ lr_results = pd.DataFrame({
 lr_results.to_csv("./data/linear_regression_results.csv", index=False)
 ```
 
+
 ```{python}
 #| echo: false
 #| eval: true
@@ -386,6 +411,11 @@ lr_results = pd.read_csv("./data/linear_regression_results.csv")
 
 lr_results.head(15).style.hide(axis="index")
 ```
+
+
+
+With an R² of about 0.10 and an average error of ~$17k, the model explains only a small portion of salary variation. This confirms that important drivers like location, company, or industry are missing. The coefficients show that experience has the largest positive impact, while skills like Communication and Power BI have smaller effects. However, the overall low R² indicates that even the most influential features are not capturing enough of the underlying salary dynamics, suggesting that there are significant unmeasured factors at play.
+
 
 ```{python}
 #| echo: true
@@ -562,6 +592,10 @@ rf_results = pd.DataFrame({
 })
 rf_results.to_csv("./data/random_forest_results.csv", index=False)
 ```
+
+The random forest improves performance slightly, increasing R² to about 0.21. This suggests nonlinear relationships exist, but the model still lacks key variables to fully explain salary. The RMSE and MAE are also reduced, indicating better predictions, but the model still struggles with outliers and extreme values. The improvement over linear regression confirms that there are complex interactions between features, but the overall low R² indicates that significant unmeasured factors are still driving salary variation.
+
+
 ```{python}
 #| echo: false
 #| eval: true
@@ -606,6 +640,7 @@ rf_importance_df = pd.DataFrame({
 rf_importance_df.to_csv("./data/rf_feature_importance.csv", index=False)
 ```
 
+
 ```{python}
 #| echo: false
 #| eval: true
@@ -615,6 +650,8 @@ rf_importance_pd = pd.read_csv("./data/rf_feature_importance.csv")
 
 rf_importance_pd.head(15).style.hide(axis="index")
 ```
+
+
 ```{python}
 #| echo: true
 #| eval: false
@@ -646,7 +683,7 @@ plt.savefig("images/rf_feature_importance_v2.png", dpi=300)
 ```
 ![Feature Importances - Random Forest Regression](images/rf_feature_importance_v2.png){width=80% fig-align="center" #fig-rf-feature-importance fig-alt="Bar chart showing the top 10 feature importances from the random forest regression model. The most important features are Python, Data Analysis, and Machine Learning."}
 
-@fig-rf-feature-importance: Bar chart showing the top 10 feature importances from the random forest regression model. The most important features are Python, Data Analysis, and Machine Learning.
+@fig-rf-feature-importance: Bar chart showing the top 10 feature importances from the random forest regression model. Experience dominates the model with nearly half of total importance. Skills like Python and SQL matter, but much less. This clearly shows that experience is the primary driver of salary. The model is learning that more experienced candidates command higher salaries, which aligns with real-world expectations. The fact that technical skills have much lower importance suggests that while they contribute to salary, they are not as critical as overall experience in this dataset. Categorical variables have minimal importance, indicating that the model is not finding strong salary differences based on job type or remote status, which may be due to the homogeneity of the dataset or missing contextual factors.
 
 ## K-Means Clustering
 
@@ -753,6 +790,9 @@ cluster_predictions_show_pd = pd.read_csv("./data/cluster_predictions.csv")
 
 cluster_predictions_show_pd.head(15).style.hide(axis="index")
 ```
+
+We grouped jobs into three clusters based on skill profiles. Even within similar job titles, we see distinct groupings driven by different combinations of skills. For example, one cluster may contain roles that heavily require Python and Machine Learning, while another cluster may focus more on SQL and Data Analysis. This shows that there are meaningful subgroups within the dataset that share similar skill requirements, which could correspond to different career paths or specializations within the broader field of data-related jobs.
+
 ```{python}
 #| echo: true
 #| eval: false
@@ -786,6 +826,8 @@ silhouette_df = pd.read_csv("./data/kmeans_silhouette.csv")
 
 silhouette_df.head(15).style.hide(axis="index")
 ```
+
+The silhouette score of ~0.33 indicates moderate clustering quality. This means the clusters are meaningful but not cleanly separated, which reflects real-world overlap in job roles. The fact that the score is above 0 suggests that the clusters are capturing some underlying structure in the data, but the relatively low value indicates that there is still significant overlap between clusters. This is expected given the nature of job postings, where many roles share similar skill requirements, leading to blurred boundaries between clusters.
 
 ```{python}
 #| echo: true
@@ -843,6 +885,9 @@ centers_df = pd.read_csv("./data/kmeans_cluster_centers.csv")
 
 centers_df.head(15).style.hide(axis="index")
 ```
+
+The clusters break into three clear groups: general analysts with low technical skills, business-focused roles with strong communication and Excel usage, and technical roles with high Python and SQL. This gives a strong segmentation of the job market. The first cluster likely represents entry-level or less technical roles, while the second cluster may correspond to business analyst positions that require strong communication and Excel skills. The third cluster is likely composed of more technical roles such as data scientists or machine learning engineers that require advanced programming skills. This segmentation provides valuable insights into the different types of roles within the dataset and how they group together based on required skills.
+
 ```{python}
 #| echo: true
 #| eval: false
@@ -878,6 +923,8 @@ pca_pd = pd.read_csv("./data/pca_results.csv")
 
 pca_pd.head(15).style.hide(axis="index")
 ```
+
+
 ```{python}
 #| echo: true
 #| eval: false
@@ -906,7 +953,8 @@ plt.savefig("./images/kmeans_clusters.png", dpi=300)
 ```
 ![K-Means Clusters Based on Required Skills](images/kmeans_clusters.png){width=80% fig-align="center" #fig-kmeans-clusters fig-alt="Scatter plot showing the K-means clusters of job postings based on their required skills. The x-axis is the first principal component and the y-axis is the second principal component. Points are colored by cluster."}
 
-@fig-kmeans-clusters: Scatter plot showing the K-means clusters of job postings based on their required skills. The x-axis is the first principal component and the y-axis is the second principal component. Points are colored by cluster.
+@fig-kmeans-clusters: Scatter plot showing the K-means clusters of job postings based on their required skills. The x-axis is the first principal component and the y-axis is the second principal component. Points are colored by cluster. The PCA plot reveals that while there are distinct groupings, there is also significant overlap between clusters, which is consistent with the moderate silhouette score. This suggests that many job postings share similar skill requirements, leading to blurred boundaries between clusters. The presence of hybrid roles that require a mix of technical and business skills likely contributes to this overlap, reflecting the real-world complexity of job markets where roles often do not fit neatly into isolated categories.
+
 ```{python}
 #| echo: true
 #| eval: false
@@ -931,4 +979,4 @@ plt.savefig("./images/cluster_counts.png", dpi=300)
 ```
 ![Number of Job Postings in Each Cluster](images/cluster_counts.png){width=80% fig-align="center" #fig-cluster-counts fig-alt="Bar chart showing the number of job postings in each K-means cluster."}
 
-@fig-cluster-counts: Bar chart showing the number of job postings in each K-means cluster.
+@fig-cluster-counts: Bar chart showing the number of job postings in each K-means cluster are forming but overlapping, confirming that roles are hybrid rather than strictly separated. We see that Cluster 0 contains the largest number of job postings at around 16,000, followed by Cluster 2 with roughly 13,000, while Cluster 1 is significantly smaller at about 7,800. This tells us that most roles fall into the more general or technical skill groupings, while fewer roles are purely business-focused. The imbalance also reinforces that the job market is not evenly distributed across skill types. Instead, there is higher demand for broadly applicable or technically oriented roles, with a smaller share of positions emphasizing primarily business or communication-heavy skill sets. This aligns with our earlier clustering results, where the business-focused cluster appeared more niche compared to the generalist and technical clusters.
