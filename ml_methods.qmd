@@ -651,8 +651,6 @@ rf_importance_pd = pd.read_csv("./data/rf_feature_importance.csv")
 rf_importance_pd.head(15).style.hide(axis="index")
 ```
 
-Experience dominates the model with nearly half of total importance. Skills like Python and SQL matter, but much less. This clearly shows that experience is the primary driver of salary. The model is learning that more experienced candidates command higher salaries, which aligns with real-world expectations. The fact that technical skills have much lower importance suggests that while they contribute to salary, they are not as critical as overall experience in this dataset. Categorical variables have minimal importance, indicating that the model is not finding strong salary differences based on job type or remote status, which may be due to the homogeneity of the dataset or missing contextual factors.
-
 
 ```{python}
 #| echo: true
@@ -685,7 +683,7 @@ plt.savefig("images/rf_feature_importance_v2.png", dpi=300)
 ```
 ![Feature Importances - Random Forest Regression](images/rf_feature_importance_v2.png){width=80% fig-align="center" #fig-rf-feature-importance fig-alt="Bar chart showing the top 10 feature importances from the random forest regression model. The most important features are Python, Data Analysis, and Machine Learning."}
 
-@fig-rf-feature-importance: Bar chart showing the top 10 feature importances from the random forest regression model. The most important features are Python, Data Analysis, and Machine Learning.
+@fig-rf-feature-importance: Bar chart showing the top 10 feature importances from the random forest regression model. Experience dominates the model with nearly half of total importance. Skills like Python and SQL matter, but much less. This clearly shows that experience is the primary driver of salary. The model is learning that more experienced candidates command higher salaries, which aligns with real-world expectations. The fact that technical skills have much lower importance suggests that while they contribute to salary, they are not as critical as overall experience in this dataset. Categorical variables have minimal importance, indicating that the model is not finding strong salary differences based on job type or remote status, which may be due to the homogeneity of the dataset or missing contextual factors.
 
 ## K-Means Clustering
 
@@ -926,7 +924,6 @@ pca_pd = pd.read_csv("./data/pca_results.csv")
 pca_pd.head(15).style.hide(axis="index")
 ```
 
-The visualization shows clusters forming but overlapping, confirming that roles are hybrid rather than strictly separated. The PCA plot reveals that while there are distinct groupings, there is also significant overlap between clusters, which is consistent with the moderate silhouette score. This suggests that many job postings share similar skill requirements, leading to blurred boundaries between clusters. The presence of hybrid roles that require a mix of technical and business skills likely contributes to this overlap, reflecting the real-world complexity of job markets where roles often do not fit neatly into isolated categories.
 
 ```{python}
 #| echo: true
@@ -956,7 +953,8 @@ plt.savefig("./images/kmeans_clusters.png", dpi=300)
 ```
 ![K-Means Clusters Based on Required Skills](images/kmeans_clusters.png){width=80% fig-align="center" #fig-kmeans-clusters fig-alt="Scatter plot showing the K-means clusters of job postings based on their required skills. The x-axis is the first principal component and the y-axis is the second principal component. Points are colored by cluster."}
 
-@fig-kmeans-clusters: Scatter plot showing the K-means clusters of job postings based on their required skills. The x-axis is the first principal component and the y-axis is the second principal component. Points are colored by cluster.
+@fig-kmeans-clusters: Scatter plot showing the K-means clusters of job postings based on their required skills. The x-axis is the first principal component and the y-axis is the second principal component. Points are colored by cluster. The PCA plot reveals that while there are distinct groupings, there is also significant overlap between clusters, which is consistent with the moderate silhouette score. This suggests that many job postings share similar skill requirements, leading to blurred boundaries between clusters. The presence of hybrid roles that require a mix of technical and business skills likely contributes to this overlap, reflecting the real-world complexity of job markets where roles often do not fit neatly into isolated categories.
+
 ```{python}
 #| echo: true
 #| eval: false
@@ -981,4 +979,4 @@ plt.savefig("./images/cluster_counts.png", dpi=300)
 ```
 ![Number of Job Postings in Each Cluster](images/cluster_counts.png){width=80% fig-align="center" #fig-cluster-counts fig-alt="Bar chart showing the number of job postings in each K-means cluster."}
 
-@fig-cluster-counts: Bar chart showing the number of job postings in each K-means cluster.
+@fig-cluster-counts: Bar chart showing the number of job postings in each K-means cluster are forming but overlapping, confirming that roles are hybrid rather than strictly separated. We see that Cluster 0 contains the largest number of job postings at around 16,000, followed by Cluster 2 with roughly 13,000, while Cluster 1 is significantly smaller at about 7,800. This tells us that most roles fall into the more general or technical skill groupings, while fewer roles are purely business-focused. The imbalance also reinforces that the job market is not evenly distributed across skill types. Instead, there is higher demand for broadly applicable or technically oriented roles, with a smaller share of positions emphasizing primarily business or communication-heavy skill sets. This aligns with our earlier clustering results, where the business-focused cluster appeared more niche compared to the generalist and technical clusters.
