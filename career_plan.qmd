@@ -37,4 +37,36 @@ I plan to:
 My focus is on strengthening technical skills, improving how I communicate insights, and continuing to build real, applied experience through projects and collaboration, with the goal of getting more involved in data-focused work within CarGurus over time.
 
 
-# Jesicca's Career Plan
+# Jessica's Career Plan
+
+My goal is to grow into a data analyst role by strengthening my technical skills, improving how I communicate insights, and gaining real-world experience. This plan outlines three steps I will take to bridge the gap between where I am now and where I want to be.
+
+## Build More Technical Depth
+
+While I have a good foundation in tools like Excel and some experience with Python and SQL, the biggest opportunity for me is to build more technical depth in those areas. 
+
+To do that, I plan to: 
+
+- Continue taking online courses at Boston University to deepen my understanding of Python, SQL, and data analysis techniques 
+- Focus on building a portfolio of projects that demonstrate my technical abilities
+- Pursue a certification in Python, SQL, or data analytics to validate and formalize my technical skills
+
+## Improve Communication of Business Insights
+
+Communication is one of the top skills listed in job postings for data analytics, so connecting analysis to clear business insights and storytelling is an important skill I want to continue to work on. 
+
+To improve this, I will focus on:
+
+- Practicing how to communicate findings in a simple and clear way that connects back to business outcomes
+- Bringing more data-driven insights into conversations and decision-making at work
+- Collaborating with my teammates in class and work to combine technical and business strengths in projects
+
+## Build Experience and Professional Visibility
+
+One of the best ways to grow as a data analyst is to apply skills in real-world settings beyond the classroom.
+
+To do that, I plan to:
+
+- Seek out internship or project opportunities where I can apply Python, SQL, and data analysis in a professional context
+- Contribute to open-source or team-based data projects to build collaborative experience
+- Document and share my work through GitHub and my personal portfolio to demonstrate growth to potential employers

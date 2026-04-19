@@ -91,7 +91,16 @@ skill_frequency = (
 )
 top_skills = skill_frequency.limit(20).toPandas()
 
-top_skills
+top_skills.to_csv("./data/top_skills.csv", index=False)
+```
+
+```{python}
+#| echo: true
+#| eval: true
+import pandas as pd
+top_skills = pd.read_csv("./data/top_skills.csv")
+
+top_skills.head(15).style.hide(axis="index")
 ```
 
 # Team-Based Skill Level Baseline
@@ -105,8 +114,8 @@ import pandas as pd
 
 skills_data = {
     "Name": ["Jessica", "Jacky"],
-    "Python (Programming Language)": [3, 4],
-    "SQL (Programming Language)": [3, 3],
+    "Python": [3, 4],
+    "SQL": [3, 3],
     "Microsoft Excel": [4, 4],
     "Data Analysis": [3, 3],
     "Communication": [4, 4],
@@ -118,9 +127,18 @@ skills_data = {
 }
 
 df_skills = pd.DataFrame(skills_data)
-df_skills.set_index("Name", inplace=True)
-df_skills
-``` 
+df_skills = df_skills.set_index("Name")
+df_skills.to_csv("./data/df_skills.csv") 
+```
+
+```{python}
+#| echo: true
+#| eval: true
+import pandas as pd
+df_skills = pd.read_csv("./data/df_skills.csv", index_col="Name")
+
+df_skills.reset_index().head(15).style.hide(axis="index")
+```
 ## Visualization
 ```{python}
 #| echo: true
