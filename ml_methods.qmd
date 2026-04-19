@@ -82,6 +82,10 @@ df_analysis_show = df_analysis.select("SPECIALIZED_OCCUPATION", "SALARY")
 df_analysis_pd = df_analysis_show.toPandas()
 df_analysis_pd.to_csv("./data/filtered_job_postings.csv", index=False)
 ```
+
+We started by narrowing the dataset to relevant roles like data analyst, business analyst, and machine learning positions, while removing rows with missing salary data. Looking at the sample output, most salaries cluster around the ~$110k–$115k range, with a few outliers like $170k . This tells us early on that the dataset is fairly compressed around a midpoint, which will make it harder for the model to explain variation. We also see a heavy concentration of “Data Analyst” roles, meaning we are working with a relatively homogeneous group rather than a wide range of job types.
+
+
 ```{python}
 #| echo: false
 #| eval: true
@@ -91,6 +95,7 @@ df_analysis_pd = pd.read_csv("./data/filtered_job_postings.csv")
 
 df_analysis_pd.head(15).style.hide(axis="index")
 ```
+
 # Feature Engineering
 
 ```{python}
@@ -145,6 +150,9 @@ feature_eng_show = df_analysis.select(
 feature_eng_pd = feature_eng_show.toPandas()
 feature_eng_pd.to_csv("./data/feature_engineered_job_postings.csv", index=False)
 ```
+
+We then converted key skills like Python, SQL, Tableau, and Communication into binary features. From the output, Data Analysis appears in almost every row, while Python and SQL vary much more . This is important because it shows that Data Analysis is essentially a baseline requirement, while Python and SQL will act as stronger differentiators in the model. The fact that Communication is less common than technical skills also suggests it could be a key factor in explaining salary differences, as it may indicate more senior or cross-functional roles.
+
 ```{python}
 #| echo: false
 #| eval: true
@@ -179,6 +187,9 @@ df_analysis.select(
     "REMOTE_TYPE_NAME",
     "MIN_EDULEVELS_NAME")
 ```
+
+Years of experience columns were converted into a numeric field. This becomes critical later, as experience ends up being the single most influential variable in the model. Even in early outputs, we can see experience values embedded in the feature vectors, signaling its importance.
+
 # Variable Selection
 ```{python}
 #| echo: true
@@ -211,6 +222,10 @@ df_final = df_final.dropna(subset=continuous_cols + categorical_cols + [target_c
 df_final_pd = feature_eng_show.toPandas()
 df_final_pd.to_csv("./data/variable_selection.csv", index=False)
 ```
+
+We selected a combination of skill-based features, experience, and categorical variables. Most rows share baseline skills like Data Analysis, so the model is learning variation primarily from technical tools and experience rather than completely different job profiles. The presence of categorical variables like Remote Type and Specialized Occupation also allows the model to capture differences between, say, remote data analyst roles versus on-site machine learning positions, which may have distinct salary patterns.
+
+
 ```{python}
 #| echo: false
 #| eval: true
@@ -254,6 +269,9 @@ ml_ready = data.select("SALARY", "features")
 ml_ready_pd = ml_ready .toPandas()
 ml_ready_pd.to_csv("./data/string_indexed_job_postings.csv", index=False)
 ```
+
+Categorical variables were encoded and then we assembled all features into a single vector. At this point, the data is fully machine learning ready. The feature vectors show that only a subset of skills are active per job, meaning the model is learning from relatively sparse combinations. The presence of one-hot encoded vectors for Remote Type and Specialized Occupation allows the model to differentiate between different job categories, which is crucial for explaining salary variation in a dataset that is otherwise fairly homogeneous in terms of baseline skills.
+
 ```{python}
 #| echo: false
 #| eval: true
@@ -286,6 +304,9 @@ split_summary = pd.DataFrame({
 
 split_summary.to_csv("./data/train_test_split_summary.csv", index=False)
 ```
+
+We split the dataset into training and test sets using an 80/20 split, resulting in about 29k training rows and 7k test rows. This is a strong sample size, so any performance limitations we see are due to feature gaps, not lack of data. The training set is used to fit the models, while the test set provides an unbiased evaluation of how well the models generalize to new data. The fact that we have a large number of rows in both sets allows us to confidently assess model performance without worrying about overfitting or underfitting due to sample size constraints.
+
 ```{python}
 #| echo: false
 #| eval: true
@@ -326,6 +347,9 @@ predictions_show = predictions.select("SALARY", "prediction")
 predictions_show_pd = predictions_show.toPandas()
 predictions_show_pd.to_csv("./data/predictions.csv", index=False)
 ```
+
+The model predictions tend to cluster around ~$90k–$105k, even when actual salaries range widely. This shows the model is regressing toward the mean, struggling to capture both low and high salary extremes. The presence of many predictions around the $100k mark suggests the model is learning a general baseline salary for the types of jobs in the dataset, but it’s not effectively differentiating based on the features we provided. This indicates that while the model captures some underlying patterns, it’s missing key factors that drive salary variation, such as specific job titles, company size, or unmeasured skills.
+
 ```{python}
 #| echo: false
 #| eval: true
@@ -377,6 +401,7 @@ lr_results = pd.DataFrame({
 lr_results.to_csv("./data/linear_regression_results.csv", index=False)
 ```
 
+
 ```{python}
 #| echo: false
 #| eval: true
@@ -386,6 +411,10 @@ lr_results = pd.read_csv("./data/linear_regression_results.csv")
 
 lr_results.head(15).style.hide(axis="index")
 ```
+
+
+With an R² of about 0.10 and an average error of ~$17k, the model explains only a small portion of salary variation. This confirms that important drivers like location, company, or industry are missing. The coefficients show that experience has the largest positive impact, while skills like Communication and Power BI have smaller effects. However, the overall low R² indicates that even the most influential features are not capturing enough of the underlying salary dynamics, suggesting that there are significant unmeasured factors at play.
+
 
 ```{python}
 #| echo: true
