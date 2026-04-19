@@ -413,6 +413,7 @@ lr_results.head(15).style.hide(axis="index")
 ```
 
 
+
 With an R² of about 0.10 and an average error of ~$17k, the model explains only a small portion of salary variation. This confirms that important drivers like location, company, or industry are missing. The coefficients show that experience has the largest positive impact, while skills like Communication and Power BI have smaller effects. However, the overall low R² indicates that even the most influential features are not capturing enough of the underlying salary dynamics, suggesting that there are significant unmeasured factors at play.
 
 
@@ -591,6 +592,10 @@ rf_results = pd.DataFrame({
 })
 rf_results.to_csv("./data/random_forest_results.csv", index=False)
 ```
+
+The random forest improves performance slightly, increasing R² to about 0.21. This suggests nonlinear relationships exist, but the model still lacks key variables to fully explain salary. The RMSE and MAE are also reduced, indicating better predictions, but the model still struggles with outliers and extreme values. The improvement over linear regression confirms that there are complex interactions between features, but the overall low R² indicates that significant unmeasured factors are still driving salary variation.
+
+
 ```{python}
 #| echo: false
 #| eval: true
@@ -635,6 +640,7 @@ rf_importance_df = pd.DataFrame({
 rf_importance_df.to_csv("./data/rf_feature_importance.csv", index=False)
 ```
 
+
 ```{python}
 #| echo: false
 #| eval: true
@@ -644,6 +650,10 @@ rf_importance_pd = pd.read_csv("./data/rf_feature_importance.csv")
 
 rf_importance_pd.head(15).style.hide(axis="index")
 ```
+
+Experience dominates the model with nearly half of total importance. Skills like Python and SQL matter, but much less. This clearly shows that experience is the primary driver of salary. The model is learning that more experienced candidates command higher salaries, which aligns with real-world expectations. The fact that technical skills have much lower importance suggests that while they contribute to salary, they are not as critical as overall experience in this dataset. Categorical variables have minimal importance, indicating that the model is not finding strong salary differences based on job type or remote status, which may be due to the homogeneity of the dataset or missing contextual factors.
+
+
 ```{python}
 #| echo: true
 #| eval: false
@@ -782,6 +792,9 @@ cluster_predictions_show_pd = pd.read_csv("./data/cluster_predictions.csv")
 
 cluster_predictions_show_pd.head(15).style.hide(axis="index")
 ```
+
+We grouped jobs into three clusters based on skill profiles. Even within similar job titles, we see distinct groupings driven by different combinations of skills. For example, one cluster may contain roles that heavily require Python and Machine Learning, while another cluster may focus more on SQL and Data Analysis. This shows that there are meaningful subgroups within the dataset that share similar skill requirements, which could correspond to different career paths or specializations within the broader field of data-related jobs.
+
 ```{python}
 #| echo: true
 #| eval: false
@@ -815,6 +828,8 @@ silhouette_df = pd.read_csv("./data/kmeans_silhouette.csv")
 
 silhouette_df.head(15).style.hide(axis="index")
 ```
+
+The silhouette score of ~0.33 indicates moderate clustering quality. This means the clusters are meaningful but not cleanly separated, which reflects real-world overlap in job roles. The fact that the score is above 0 suggests that the clusters are capturing some underlying structure in the data, but the relatively low value indicates that there is still significant overlap between clusters. This is expected given the nature of job postings, where many roles share similar skill requirements, leading to blurred boundaries between clusters.
 
 ```{python}
 #| echo: true
@@ -872,6 +887,9 @@ centers_df = pd.read_csv("./data/kmeans_cluster_centers.csv")
 
 centers_df.head(15).style.hide(axis="index")
 ```
+
+The clusters break into three clear groups: general analysts with low technical skills, business-focused roles with strong communication and Excel usage, and technical roles with high Python and SQL. This gives a strong segmentation of the job market. The first cluster likely represents entry-level or less technical roles, while the second cluster may correspond to business analyst positions that require strong communication and Excel skills. The third cluster is likely composed of more technical roles such as data scientists or machine learning engineers that require advanced programming skills. This segmentation provides valuable insights into the different types of roles within the dataset and how they group together based on required skills.
+
 ```{python}
 #| echo: true
 #| eval: false
@@ -907,6 +925,9 @@ pca_pd = pd.read_csv("./data/pca_results.csv")
 
 pca_pd.head(15).style.hide(axis="index")
 ```
+
+The visualization shows clusters forming but overlapping, confirming that roles are hybrid rather than strictly separated. The PCA plot reveals that while there are distinct groupings, there is also significant overlap between clusters, which is consistent with the moderate silhouette score. This suggests that many job postings share similar skill requirements, leading to blurred boundaries between clusters. The presence of hybrid roles that require a mix of technical and business skills likely contributes to this overlap, reflecting the real-world complexity of job markets where roles often do not fit neatly into isolated categories.
+
 ```{python}
 #| echo: true
 #| eval: false
